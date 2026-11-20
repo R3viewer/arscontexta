@@ -135,4 +135,4 @@ The agent should:
   - "When a patch drops: run through your matchup guides and mark strategies that may be affected as `meta_state: speculative` until you can test them"
   - "After a tournament: create a session breakdown in lab/, then promote strategic insights to strategies/"
   - Temporal staleness warning in Common Pitfalls
-- Run validate-kernel.sh: 15/15 PASS (or 14/15 + WARN on semantic search if qmd not enabled)
+- Run validate-kernel.mjs: 15/15 PASS (or 14/15 + WARN on semantic search if qmd not enabled)

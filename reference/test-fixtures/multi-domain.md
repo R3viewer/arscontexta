@@ -130,7 +130,7 @@ The agent should:
   - Existing research notes
   - Existing processing pipeline configuration
   - Existing self/ files (except possibly self/relationships.md if it does not exist)
-- Run validate-kernel.sh on the updated vault: 15/15 PASS (the composition does not break any kernel primitives)
+- Run validate-kernel.mjs on the updated vault: 15/15 PASS (the composition does not break any kernel primitives)
 - Explain the cross-domain workflow:
   1. Meet someone -> quick note in encounters/
   2. Process into person page -> create Name.md in notes/ with person-page template

@@ -125,7 +125,7 @@ The agent should:
   - templates/ with reflection-note.md (mood, trigger, pattern, growth_area fields)
   - ops/ with derivation.md, methodology/, observations/, tensions/, sessions/
   - .claude/hooks/ with session-orient.sh (references self/ in warm language) and session-stop.sh (session capture)
-- Run validate-kernel.sh: 15/15 PASS (or 14/15 + WARN on semantic search if qmd not enabled)
+- Run validate-kernel.mjs: 15/15 PASS (or 14/15 + WARN on semantic search if qmd not enabled)
 - Orient the user warmly: "Your reflection space is ready. Start with journal/ for quick thoughts during the week, and reflections/ for longer post-session processing."
 
 ### User Turn 8

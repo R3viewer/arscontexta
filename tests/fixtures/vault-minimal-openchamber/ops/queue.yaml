@@ -1,0 +1,4 @@
+tasks:
+  - id: task-001
+    title: Initial task
+    current_phase: extract

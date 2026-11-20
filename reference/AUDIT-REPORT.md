@@ -68,7 +68,7 @@ The following files exist in `reference/` but are not among the 16 PRD-specified
 
 Additionally, the following non-document items exist in `reference/`:
 - `templates/` — directory (contains generated system templates)
-- `validate-kernel.sh` — script for kernel validation
+- `validate-kernel.mjs` — script for kernel validation (Node.js ESM)
 
 ---
 

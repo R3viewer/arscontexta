@@ -86,7 +86,7 @@ The agent should:
   - templates/ with research-note.md and moc.md
   - ops/ with derivation.md, derivation-manifest.md, methodology/, observations/, tensions/, sessions/
   - .claude/hooks/ with session-orient.sh and session-stop.sh (session capture)
-- Run validate-kernel.sh and report 15/15
+- Run validate-kernel.mjs and report 15/15
 - Provide a brief orientation to the generated system
 
 ### User Turn 6

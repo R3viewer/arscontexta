@@ -124,7 +124,7 @@ The agent should:
 - In ops/derivation.md, document each constraint conflict and how it was resolved — this is critical for future reseed (the user might drift back toward incoherent configurations, and the derivation rationale explains why the current shape exists)
 - Include in CLAUDE.md's "System Evolution" section: the specific constraint tensions and why the current configuration was chosen
 - Include in Common Pitfalls: the specific failure modes this configuration is vulnerable to (schema erosion at high volume, orphan drift if connection pass is skipped)
-- Run validate-kernel.sh: 15/15 PASS
+- Run validate-kernel.mjs: 15/15 PASS
 - Note that the pushback conversation itself is evidence the constraint system works — it prevented 4 incoherent configurations from being generated
 
 ### User Turn 8
