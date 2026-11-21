@@ -1,12 +1,6 @@
 ---
 name: tutorial
 description: Interactive walkthrough for new users. Learn by doing — each step creates real content in your vault. Three tracks (researcher, manager, personal) with a universal learning arc. Triggers on "/tutorial", "walk me through", "how do I use this".
-user-invocable: true
-allowed-tools: Read, Write, Edit, Grep, Glob, AskUserQuestion, Bash
-context: fork
-model: opus
-version: "1.0"
-generated_from: "arscontexta-v1.6"
 ---
 
 ## Runtime Configuration (Step 0 — before any processing)
@@ -59,7 +53,7 @@ Skip to the saved `current_step`. Do NOT re-ask for track. If `current_step` > 5
 
 ## Track Selection (new tutorial only)
 
-Display header, then use AskUserQuestion:
+Display header, then use the question tool:
 
 ```
 --=={ ars contexta : tutorial }==--
@@ -128,7 +122,7 @@ Adapt the philosophy to the track:
 
 **DO:**
 
-Use AskUserQuestion with track-adapted prompt:
+Use the question tool with track-adapted prompt:
 
 | Track | Prompt |
 |-------|--------|
@@ -194,7 +188,7 @@ Adapt to track:
 
 **DO:**
 
-Use AskUserQuestion with track-adapted prompt:
+Use the question tool with track-adapted prompt:
 
 | Track | Prompt |
 |-------|--------|
@@ -266,7 +260,7 @@ Adapt to track:
 
 **DO:**
 
-Use AskUserQuestion with track-adapted prompt:
+Use the question tool with track-adapted prompt:
 
 | Track | Prompt |
 |-------|--------|
@@ -331,7 +325,7 @@ Adapt to track:
 
 **DO:**
 
-No AskUserQuestion. Run automated mini health check on tutorial {vocabulary.note_plural}:
+No user prompt. Run automated mini health check on tutorial {vocabulary.note_plural}:
 
 1. **Description check:** Does every {vocabulary.note} have a description field? Does the description add info beyond the title?
 2. **Link check:** Do all wiki links resolve to existing files?
@@ -416,7 +410,7 @@ Your system also knows about itself:
 Try: /ask "why does my system use [relevant feature]?"
 ```
 
-Then use AskUserQuestion:
+Then use the question tool:
 
 "What would you like to work on next? You can:\n\n  (a) Capture more thoughts (just tell me)\n  (b) Process raw material (/{reduce} [paste or file])\n  (c) Explore your system (/next)\n  (d) Learn more about a specific command (/help [command])"
 

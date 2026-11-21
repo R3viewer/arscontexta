@@ -1,9 +1,6 @@
 ---
 name: add-domain
 description: Add a new knowledge domain to your existing system. Derives domain-specific configuration through conversation, generates domain folders, templates, and vocabulary while preserving and connecting to your existing architecture.
-context: fork
-model: opus
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, AskUserQuestion
 argument-hint: "[domain name or description, e.g. 'therapy sessions' or 'creative writing']"
 ---
 
@@ -18,20 +15,20 @@ Add a new knowledge domain: **$ARGUMENTS**
 Read these during derivation phases:
 
 **Composition rules:**
-- `${CLAUDE_PLUGIN_ROOT}/reference/derivation-validation.md` -- Test 4 (Multi-Domain Composition) validates the pattern
-- `${CLAUDE_PLUGIN_ROOT}/reference/three-spaces.md` -- three-space architecture (shared across domains)
-- `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md` -- coherence validation for domain config
+- `reference/derivation-validation.md` -- Test 4 (Multi-Domain Composition) validates the pattern
+- `reference/three-spaces.md` -- three-space architecture (shared across domains)
+- `reference/interaction-constraints.md` -- coherence validation for domain config
 
 **Domain configuration:**
-- `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md` -- domain-native term mapping
-- `${CLAUDE_PLUGIN_ROOT}/reference/tradition-presets.md` -- pre-validated domain configurations
-- `${CLAUDE_PLUGIN_ROOT}/reference/use-case-presets.md` -- 3 presets with configurations
-- `${CLAUDE_PLUGIN_ROOT}/reference/dimension-claim-map.md` -- research backing for dimension positions
-- `${CLAUDE_PLUGIN_ROOT}/reference/failure-modes.md` -- domain vulnerability matrix
+- `reference/vocabulary-transforms.md` -- domain-native term mapping
+- `reference/tradition-presets.md` -- pre-validated domain configurations
+- `reference/use-case-presets.md` -- 3 presets with configurations
+- `reference/dimension-claim-map.md` -- research backing for dimension positions
+- `reference/failure-modes.md` -- domain vulnerability matrix
 
 **Validation:**
-- `${CLAUDE_PLUGIN_ROOT}/reference/kernel.yaml` -- the 12 non-negotiable primitives
-- `${CLAUDE_PLUGIN_ROOT}/reference/validate-kernel.sh` -- kernel validation script
+- `reference/kernel.yaml` -- the 12 non-negotiable primitives
+- `reference/validate-kernel.mjs` -- kernel validation script
 
 ---
 
@@ -77,7 +74,7 @@ System-level dimensions are fixed by the existing system. Domain-adjustable dime
 
 ## PHASE 2: Conversation
 
-1-3 conversation turns to understand the new domain. Use AskUserQuestion for each turn.
+1-3 conversation turns to understand the new domain. Use the question tool for each turn.
 
 ### Opening question
 
@@ -122,12 +119,12 @@ Do NOT ask about dimensions directly. Listen for them in natural conversation.
 
 For each adjustable dimension, determine the position for the new domain:
 - User signals (highest priority)
-- Closest use-case preset from `${CLAUDE_PLUGIN_ROOT}/reference/use-case-presets.md`
+- Closest use-case preset from `reference/use-case-presets.md`
 - Cascade from system-level dimensions
 
 ### 3b. Build vocabulary mapping
 
-Read `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md` for the transformation table.
+Read `reference/vocabulary-transforms.md` for the transformation table.
 
 Priority order:
 1. User's own words from conversation
@@ -182,7 +179,7 @@ If any collisions are detected, resolve them before proceeding.
 
 ## PHASE 4: Check Composition Rules
 
-Read `${CLAUDE_PLUGIN_ROOT}/reference/derivation-validation.md` (Test 4: Multi-Domain Composition) for the validated composition pattern.
+Read `reference/derivation-validation.md` (Test 4: Multi-Domain Composition) for the validated composition pattern.
 
 Verify each composition rule:
 
@@ -212,7 +209,7 @@ The new domain's methodology guide should load only when working in that domain,
 
 ### Coherence check
 
-Run the new domain's configuration through `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md`:
+Run the new domain's configuration through `reference/interaction-constraints.md`:
 - Hard constraint violations between new domain config and system-level dimensions
 - Soft constraint warnings specific to the new domain
 - Cascade effects on existing domain(s)
@@ -322,7 +319,7 @@ type: moc
 
 ### Step 4: Domain guide
 
-Create a domain-specific methodology document that loads when working in this domain. For Claude Code: `.claude/skills/[domain]-guide/SKILL.md` or a section in the context file. For other platforms: a standalone guide file.
+Create a domain-specific methodology document that loads when working in this domain. In OpenCode: `.opencode/skills/[domain]-guide/SKILL.md` or a section in `AGENTS.md`. For other platforms: a standalone guide file.
 
 The guide covers:
 - How to capture in this domain

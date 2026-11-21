@@ -447,9 +447,9 @@ on your conversation.
 |-----------|-------|-------------------|--------|
 | **0. Validation Foundation** | `reference/validate-kernel.mjs`, test suite `tests/` (validator, leak gate, integrity), fixture 15/15 | 4 Hydrogen | **Completed** |
 | **1. Manifest & Packaging** | `package.json` (`openchamber` manifest), `contributes.skills`, `contributes.opencodePlugin`, cleanup `.claude-plugin/` | 4 Hydrogen | **Completed** |
-| **2. OpenCode V2 Server Plugin** | Native JS ESM hooks (`orient`, `validate`, `auto-commit`, `capture`), `/arscontexta:*` commands, reference exposure, cleanup `hooks/` | 4 Carbon / 4 Neon | Next |
-| **3. Plugin Skills & Agents** | Port 10 plugin skills + `knowledge-guide` (remove `${CLAUDE_PLUGIN_ROOT}`, `AskUserQuestion`, `context: fork`; adopt OpenCode V2) | 4 Neon | Planned |
-| **4. Derivation, Generators & Graph** | `AGENTS.md` generator, `.opencode/` vault output, `platforms/openchamber/`, graph analysis scripts, cleanup Claude generators | 4 Carbon / 4 Neon | Planned |
+| **2. OpenCode V2 Server Plugin** | Native JS ESM hooks (`orient`, `validate`, `auto-commit`, `capture`), `/arscontexta:*` commands, reference exposure, cleanup `hooks/` | 4 Carbon / 4 Neon | **Completed** |
+| **3. Plugin Skills & Agents** | Port 10 plugin skills + `knowledge-guide` (remove `${CLAUDE_PLUGIN_ROOT}`, `AskUserQuestion`, `context: fork`; adopt OpenCode V2) | 4 Neon | **Completed** |
+| **4. Derivation, Generators & Graph** | `AGENTS.md` generator, `.opencode/` vault output, `platforms/openchamber/`, graph analysis scripts, cleanup Claude generators | 4 Carbon / 4 Neon | Next |
 | **5. Pipeline & Subagents** | Port 16 `skill-sources/` (`/ralph`, `/pipeline`, etc.) from `Task` tool to OpenCode `subagent` / `ownWork` | 4 Neon + 4 Hydrogen | Planned |
 | **6. OpenChamber Native UI** | Work Status section & vault panel (queue status, maintenance signals, 1-click commands) | 4 Hydrogen | Optional / Next |
 

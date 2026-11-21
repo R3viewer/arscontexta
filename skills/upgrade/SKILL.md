@@ -1,12 +1,6 @@
 ---
 name: upgrade
 description: Apply plugin knowledge base updates to an existing generated system. Consults the Ars Contexta research graph for methodology improvements, proposes skill upgrades with research justification. Never auto-implements. Triggers on "/upgrade", "upgrade skills", "check for improvements", "update methodology".
-version: "1.0"
-generated_from: "arscontexta-v1.6"
-user-invocable: true
-context: fork
-model: opus
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
 ## Runtime Configuration (Step 0 — before any processing)
@@ -79,7 +73,7 @@ Gather the vault's current state:
 3. List all installed skills:
    ```bash
    # Find all skill directories with SKILL.md
-   for dir in .claude/skills/*/; do
+   for dir in .opencode/skills/*/; do
      skill=$(basename "$dir")
      version=$(grep '^version:' "$dir/SKILL.md" 2>/dev/null | head -1 | awk -F'"' '{print $2}')
      gen_from=$(grep '^generated_from:' "$dir/SKILL.md" 2>/dev/null | head -1 | awk -F'"' '{print $2}')
@@ -92,7 +86,7 @@ Gather the vault's current state:
 5. Check for user modifications:
    ```bash
    # Detect skills modified after generation
-   for dir in .claude/skills/*/; do
+   for dir in .opencode/skills/*/; do
      skill=$(basename "$dir")
      file="$dir/SKILL.md"
      [[ ! -f "$file" ]] && continue
@@ -131,8 +125,8 @@ Read from the plugin's four content tiers:
 
 | Tier | Path | What It Contains |
 |------|------|------------------|
-| Methodology graph | `${CLAUDE_PLUGIN_ROOT}/methodology/` | All content — filter by `kind:` field (research/guidance/example) |
-| Reference docs | `${CLAUDE_PLUGIN_ROOT}/reference/` | WHAT — structured reference documents and dimension maps |
+| Methodology graph | `methodology/` | All content — filter by `kind:` field (research/guidance/example) |
+| Reference docs | `reference/` | WHAT — structured reference documents and dimension maps |
 
 Notes in `methodology/` are differentiated by their `kind:` frontmatter field:
 - `kind: research` — WHY: principles and cognitive science grounding (213 claims)
@@ -279,7 +273,7 @@ For each approved upgrade:
 mkdir -p ops/skills-archive
 SKILL_NAME="{skill-name}"
 DATE=$(date +%Y-%m-%d)
-cp ".claude/skills/${SKILL_NAME}/SKILL.md" \
+cp ".opencode/skills/${SKILL_NAME}/SKILL.md" \
    "ops/skills-archive/${SKILL_NAME}-${DATE}.md"
 ```
 
@@ -324,7 +318,7 @@ After applying all approved upgrades:
 1. **Kernel validation** — run kernel checks to confirm structural invariants hold:
    ```bash
    # Verify skill files are valid
-   for dir in .claude/skills/*/; do
+   for dir in .opencode/skills/*/; do
      [[ -f "$dir/SKILL.md" ]] || echo "MISSING: $dir/SKILL.md"
    done
    ```
@@ -334,7 +328,7 @@ After applying all approved upgrades:
 3. **Vocabulary check** — confirm upgraded skills use domain vocabulary consistently:
    ```bash
    # Spot-check that vocabulary markers were resolved
-   grep -l '{vocabulary\.' .claude/skills/*/SKILL.md 2>/dev/null
+   grep -l '{vocabulary\.' .opencode/skills/*/SKILL.md 2>/dev/null
    # Should return nothing — all markers should be resolved
    ```
 

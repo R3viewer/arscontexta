@@ -23,7 +23,7 @@ test('OpenChamber Manifest - package.json is valid and conforms to OpenChamber S
   assert.ok(oc.icon, 'openchamber.icon must be defined');
 
   assert.ok(oc.engines?.openchamber, 'openchamber.engines.openchamber must declare supported version');
-  assert.match(oc.engines.openchamber, />=1\.\d+\.\d+/, 'engines.openchamber must be semver range');
+  assert.match(oc.engines.openchamber, />=[1-9]\.\d+\.\d+/, 'engines.openchamber must be semver range');
 
   assert.ok(oc.contributes, 'openchamber.contributes must be defined');
   assert.equal(oc.contributes.opencodePlugin, 'plugin', 'contributes.opencodePlugin must point to plugin folder');

@@ -1,11 +1,6 @@
 ---
 name: ask
 description: Query the bundled research knowledge graph for methodology guidance. Routes questions through a 3-tier knowledge base — WHY (research claims), HOW (guidance docs), WHAT IT LOOKS LIKE (domain examples) — plus structured reference documents. Returns research-backed answers grounded in specific claims with practical application to the user's system. Triggers on "/ask", "/ask [question]", "why does my system...", "how should I...".
-version: "1.0"
-generated_from: "arscontexta-v1.6"
-context: fork
-model: opus
-allowed-tools: Read, Grep, Glob, mcp__qmd__search, mcp__qmd__vector_search, mcp__qmd__deep_search, mcp__qmd__get, mcp__qmd__multi_get
 argument-hint: "[question about knowledge systems or methodology]"
 ---
 
@@ -19,7 +14,7 @@ If no question provided, ask the user what they want to know.
 
 1. **Classify the question** — determine which knowledge base tier(s) to consult (see Query Classification below)
 2. **Search the knowledge base** — route to appropriate tiers based on classification
-3. **Read relevant claims and docs** — load 3-7 most relevant sources fully (use `mcp__qmd__multi_get` when reading multiple IDs)
+3. **Read relevant claims and docs** — load 3-7 most relevant sources fully (use `tools.qmd.multi_get` when reading multiple IDs)
 4. **Check user context** — read `ops/derivation.md` if the question involves their specific system
 5. **Synthesize an answer** — weave claims into a coherent, opinionated argument
 6. **Cite sources** — reference specific claims and documents so the user can explore further
@@ -34,7 +29,7 @@ The plugin's knowledge base has three distinct parts, each serving a different f
 
 ### Tier 1: Research Graph (WHY)
 
-**Location:** `${CLAUDE_PLUGIN_ROOT}/methodology/` — filter by `kind: research`
+**Location:** `methodology/` — filter by `kind: research`
 **Content:** 213 interconnected research claims grounded in cognitive science, knowledge system theory, and agent cognition research.
 **Use for:** Questions about principles, trade-offs, why things work, theoretical foundations.
 
@@ -46,11 +41,11 @@ The plugin's knowledge base has three distinct parts, each serving a different f
 - Failure modes and anti-patterns
 - Agent-specific constraints (context windows, session boundaries)
 
-**Search strategy:** Use `mcp__qmd__deep_search` (highest quality, LLM-reranked) for conceptual questions. Use `mcp__qmd__vector_search` for semantic exploration. Use `mcp__qmd__search` for known terminology. All searches use the `methodology` collection.
+**Search strategy:** Use `tools.qmd.deep_search` (highest quality, LLM-reranked) for conceptual questions. Use `tools.qmd.vector_search` for semantic exploration. Use `tools.qmd.search` for known terminology. All searches use the `methodology` collection.
 
 ### Tier 2: Guidance Docs (HOW)
 
-**Location:** `${CLAUDE_PLUGIN_ROOT}/methodology/` — filter by `kind: guidance`
+**Location:** `methodology/` — filter by `kind: guidance`
 **Content:** 9 operational documents covering procedures, workflows, and implementation rationale.
 **Use for:** Questions about how to do things, operational best practices, workflow mechanics.
 
@@ -65,11 +60,11 @@ The plugin's knowledge base has three distinct parts, each serving a different f
 - Multi-domain composition rules
 - Onboarding and evolution decisions
 
-**Search strategy:** `mcp__qmd__search` with keywords from the question using the `methodology` collection. To narrow to guidance docs, add `kind:guidance` to your grep filter on results.
+**Search strategy:** `tools.qmd.search` with keywords from the question using the `methodology` collection. To narrow to guidance docs, add `kind:guidance` to your grep filter on results.
 
 ### Tier 3: Domain Examples (WHAT IT LOOKS LIKE)
 
-**Location:** `${CLAUDE_PLUGIN_ROOT}/methodology/` — filter by `kind: example`
+**Location:** `methodology/` — filter by `kind: example`
 **Content:** 12 domain-specific compositions showing what generated vaults look like in practice.
 **Use for:** Questions about how to apply methodology to specific domains, inspiration for novel domain mapping.
 
@@ -80,11 +75,11 @@ The plugin's knowledge base has three distinct parts, each serving a different f
 - Creative vaults (worldbuilding, character tracking)
 - Engineering, legal, trading, student learning, relationships
 
-**Search strategy:** Use `mcp__qmd__vector_search` across the `methodology` collection for semantic domain matching. To list all examples: `rg '^kind: example' ${CLAUDE_PLUGIN_ROOT}/methodology/`.
+**Search strategy:** Use `tools.qmd.vector_search` across the `methodology` collection for semantic domain matching. To list all examples: `rg '^kind: example' methodology/`.
 
 ### Reference Documents (structured derivation context)
 
-**Location:** `${CLAUDE_PLUGIN_ROOT}/reference/`
+**Location:** `reference/`
 **Content:** Structured reference documents supporting derivation and system architecture.
 **Use for:** Deep dives into specific architectural topics, cross-referencing dimension positions, understanding interaction constraints.
 
@@ -157,32 +152,32 @@ Question: "How should I handle therapy session notes that are very long?"
 
 ### Step 1: Route to Claim-Map
 
-Read `${CLAUDE_PLUGIN_ROOT}/reference/claim-map.md` first. This is the routing index — it shows which topic areas are relevant to the user's question and which claims to start with. Do NOT skip this step and search blindly.
+Read `reference/claim-map.md` first. This is the routing index — it shows which topic areas are relevant to the user's question and which claims to start with. Do NOT skip this step and search blindly.
 
 ### Step 2: Search the Appropriate Tier
 
 **For WHY questions (Research Graph):**
 ```
-mcp__qmd__deep_search  query="[user's question rephrased as a search]"  collection="methodology"  limit=10
+tools.qmd.deep_search  query="[user's question rephrased as a search]"  collection="methodology"  limit=10
 ```
-Use `mcp__qmd__deep_search` (hybrid + LLM reranking) for conceptual questions because the best connections often use different vocabulary than the question. Results will include all kinds; prioritize `kind: research` results.
+Use `tools.qmd.deep_search` (hybrid + LLM reranking) for conceptual questions because the best connections often use different vocabulary than the question. Results will include all kinds; prioritize `kind: research` results.
 
 **For HOW questions (Guidance Docs):**
 ```
-mcp__qmd__search  query="[key terms from question]"  collection="methodology"  limit=5
+tools.qmd.search  query="[key terms from question]"  collection="methodology"  limit=5
 ```
 Use keyword search first since guidance docs use consistent terminology. Fall back to semantic if keyword misses. Prioritize `kind: guidance` results.
 
 **For WHAT questions (Domain Examples):**
 ```
-mcp__qmd__vector_search  query="[domain + what the user wants to see]"  collection="methodology"  limit=5
+tools.qmd.vector_search  query="[domain + what the user wants to see]"  collection="methodology"  limit=5
 ```
 Use semantic search to find the most relevant domain examples even if the exact domain name differs. Prioritize `kind: example` results.
 
 **Fallback chain for qmd lookups:**
-- MCP tools (`mcp__qmd__deep_search`, `mcp__qmd__vector_search`, `mcp__qmd__search`)
+- MCP tools (`tools.qmd.deep_search`, `tools.qmd.vector_search`, `tools.qmd.search`)
 - qmd CLI (`qmd query`, `qmd vsearch`, `qmd search`)
-- direct file reads/grep on `${CLAUDE_PLUGIN_ROOT}/methodology/` and `${CLAUDE_PLUGIN_ROOT}/reference/`
+- direct file reads/grep on `methodology/` and `reference/`
 
 **For Reference documents:**
 Read specific reference documents based on the topic. The claim-map will indicate which reference docs are relevant. Load the 2-4 most relevant — not all of them.
@@ -201,9 +196,9 @@ Do NOT skim search results. For the top 3-7 results:
 If the question involves the user's specific system:
 
 1. **Read derivation** — `ops/derivation.md` contains their dimension positions, vocabulary, constraints, and the reasoning behind every configuration choice
-2. **Apply vocabulary** — use `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md` to translate universal terms into their domain language. Answer about "reflections" not "claims" if they are running a therapy system
-3. **Check constraints** — reference `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md` to see if their configuration creates specific pressures relevant to the question
-4. **Cite dimension-specific research** — use `${CLAUDE_PLUGIN_ROOT}/reference/dimension-claim-map.md` to ground answers in the specific claims that inform their configuration
+2. **Apply vocabulary** — use `reference/vocabulary-transforms.md` to translate universal terms into their domain language. Answer about "reflections" not "claims" if they are running a therapy system
+3. **Check constraints** — reference `reference/interaction-constraints.md` to see if their configuration creates specific pressures relevant to the question
+4. **Cite dimension-specific research** — use `reference/dimension-claim-map.md` to ground answers in the specific claims that inform their configuration
 
 ### Step 5: Check Local Methodology
 
@@ -280,7 +275,7 @@ Every answer follows this structure:
 **Classification:** WHY -> Primary: Research Graph. Secondary: Reference (dimension-claim-map).
 
 **Search:**
-1. `mcp__qmd__deep_search  query="atomic notes vs compound documents granularity"  collection="methodology"  limit=8`
+1. `tools.qmd.deep_search  query="atomic notes vs compound documents granularity"  collection="methodology"  limit=8`
 2. Read `reference/dimension-claim-map.md` — find granularity dimension's informing claims
 3. Read `ops/derivation.md` — check user's granularity position
 
@@ -298,8 +293,8 @@ Every answer follows this structure:
 **Classification:** HOW -> Primary: Guidance Docs. Secondary: Research Graph.
 
 **Search:**
-1. `mcp__qmd__search  query="large source processing chunking"  collection="methodology"  limit=5`
-2. `mcp__qmd__deep_search  query="context degradation large documents extraction"  collection="methodology"  limit=5`
+1. `tools.qmd.search  query="large source processing chunking"  collection="methodology"  limit=5`
+2. `tools.qmd.deep_search  query="context degradation large documents extraction"  collection="methodology"  limit=5`
 
 **Answer:**
 > For sources over 2500 lines, chunk into segments of 350-1200 lines and process each chunk with fresh context. [Guidance: pipeline processing workflow] explains the chunking strategy in detail.
@@ -321,7 +316,7 @@ Every answer follows this structure:
 **Classification:** WHAT -> Primary: Domain Examples. Secondary: Guidance Docs.
 
 **Search:**
-1. `mcp__qmd__vector_search  query="cooking recipes culinary knowledge system"  collection="methodology"  limit=5`
+1. `tools.qmd.vector_search  query="cooking recipes culinary knowledge system"  collection="methodology"  limit=5`
 2. Read closest domain examples for structural inspiration
 
 **Answer:**
@@ -371,7 +366,7 @@ Check for `ops/derivation.md` to understand:
 
 ### Step 2: Apply Domain Vocabulary
 
-Use `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md` to translate universal terms into their domain language. This is not cosmetic — it is about making the answer *native* to their system.
+Use `reference/vocabulary-transforms.md` to translate universal terms into their domain language. This is not cosmetic — it is about making the answer *native* to their system.
 
 | Universal Term | Therapy Domain | PM Domain | Research Domain |
 |---------------|---------------|-----------|-----------------|
@@ -383,11 +378,11 @@ Use `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md` to translate univ
 
 ### Step 3: Check Interaction Constraints
 
-Reference `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md` to understand whether their configuration creates specific pressures relevant to the question. Some dimension combinations create tensions that affect the answer:
+Reference `reference/interaction-constraints.md` to understand whether their configuration creates specific pressures relevant to the question. Some dimension combinations create tensions that affect the answer:
 - High granularity + flat organization = needs strong semantic search
 - Permissive selectivity + deep processing = high volume, slower throughput
 - Self space enabled + warm personality = rich identity layer
 
 ### Step 4: Cite Dimension-Specific Research
 
-Use `${CLAUDE_PLUGIN_ROOT}/reference/dimension-claim-map.md` to ground answers in the specific claims that inform their configuration choices. This makes the answer traceable: "Your system does X because claim Y supports it for your configuration."
+Use `reference/dimension-claim-map.md` to ground answers in the specific claims that inform their configuration choices. This makes the answer traceable: "Your system does X because claim Y supports it for your configuration."

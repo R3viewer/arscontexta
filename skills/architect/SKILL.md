@@ -1,12 +1,6 @@
 ---
 name: architect
 description: Research-backed evolution advice for your knowledge system. Analyzes health reports, friction patterns, and derivation history to propose specific changes with research justification. Never auto-implements — proposals require your approval.
-version: "1.0"
-generated_from: "arscontexta-v1.6"
-user-invocable: true
-context: fork
-model: opus
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, mcp__qmd__search, mcp__qmd__vector_search, mcp__qmd__deep_search, mcp__qmd__get, mcp__qmd__multi_get
 argument-hint: "[optional: specific area to focus on, e.g. 'schema', 'processing', 'MOC structure']"
 ---
 
@@ -77,7 +71,7 @@ Detect the platform and find the system's key files:
 
 ```
 Check filesystem:
-  .claude/ directory exists         -> platform = "claude-code"
+  .arscontexta or .opencode/ exists -> platform = "openchamber"
   Neither                           -> platform = "minimal"
 ```
 
@@ -85,7 +79,7 @@ Locate these files (paths vary by domain vocabulary):
 
 | File Type | What To Find | Typical Locations |
 |-----------|-------------|-------------------|
-| Context file | System methodology and rules | CLAUDE.md, README.md |
+| Context file | System methodology and rules | AGENTS.md, README.md |
 | Self space | Agent identity and memory | self/identity.md, self/methodology.md, self/goals.md |
 | Ops directory | Operational infrastructure | ops/derivation.md, ops/config.yaml, ops/sessions/, ops/observations/, ops/health/ |
 | Notes directory | Primary knowledge directory | {vocabulary.notes}/ (may be domain-named: reflections/, concepts/, etc.) |
@@ -283,16 +277,16 @@ Read the reference files:
 
 | Reference | What It Contains | When To Use |
 |-----------|-----------------|-------------|
-| `${CLAUDE_PLUGIN_ROOT}/reference/dimension-claim-map.md` | Which research claims inform which dimensions | Mapping friction to dimension adjustments |
-| `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md` | How dimension choices create pressure on others | Cascade analysis for proposed changes |
-| `${CLAUDE_PLUGIN_ROOT}/reference/methodology.md` | Universal principles and processing pipeline | Grounding recommendations in first principles |
-| `${CLAUDE_PLUGIN_ROOT}/reference/failure-modes.md` | 10 failure modes with domain vulnerability matrix | Connecting friction to known failure patterns |
-| `${CLAUDE_PLUGIN_ROOT}/reference/tradition-presets.md` | Named points in configuration space | Alternative configurations to consider |
-| `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md` | Universal-to-domain term mapping | Ensuring output uses domain vocabulary |
-| `${CLAUDE_PLUGIN_ROOT}/reference/three-spaces.md` | Self/notes/ops architecture and boundary rules | Three-space boundary analysis |
-| `${CLAUDE_PLUGIN_ROOT}/reference/derivation-validation.md` | Validation tests for derived systems | Post-change validation criteria |
-| `${CLAUDE_PLUGIN_ROOT}/reference/evolution-lifecycle.md` | Seed-evolve-reseed patterns, friction-driven adoption | When to evolve vs when to reseed |
-| `${CLAUDE_PLUGIN_ROOT}/reference/self-space.md` | Agent identity generation and self/ architecture | Self-space related recommendations |
+| `reference/dimension-claim-map.md` | Which research claims inform which dimensions | Mapping friction to dimension adjustments |
+| `reference/interaction-constraints.md` | How dimension choices create pressure on others | Cascade analysis for proposed changes |
+| `reference/methodology.md` | Universal principles and processing pipeline | Grounding recommendations in first principles |
+| `reference/failure-modes.md` | 10 failure modes with domain vulnerability matrix | Connecting friction to known failure patterns |
+| `reference/tradition-presets.md` | Named points in configuration space | Alternative configurations to consider |
+| `reference/vocabulary-transforms.md` | Universal-to-domain term mapping | Ensuring output uses domain vocabulary |
+| `reference/three-spaces.md` | Self/notes/ops architecture and boundary rules | Three-space boundary analysis |
+| `reference/derivation-validation.md` | Validation tests for derived systems | Post-change validation criteria |
+| `reference/evolution-lifecycle.md` | Seed-evolve-reseed patterns, friction-driven adoption | When to evolve vs when to reseed |
+| `reference/self-space.md` | Agent identity generation and self/ architecture | Self-space related recommendations |
 
 ### Research Matching Process
 
@@ -314,8 +308,8 @@ For each friction pattern or health issue identified in Phases 3-4:
 - What does the failure mode document say about mitigation?
 
 **Step 4: Search the knowledge graph**
-- Use `mcp__qmd__deep_search` to find claims that address the specific friction
-- Fall back to `mcp__qmd__vector_search` if hybrid search is unavailable
+- Use `tools.qmd.deep_search` to find claims that address the specific friction
+- Fall back to `tools.qmd.vector_search` if hybrid search is unavailable
 - If MCP is unavailable, fall back to qmd CLI (`qmd query` then `qmd vsearch`)
 - Fall back to reading bundled reference files directly only if both MCP and qmd CLI are unavailable
 - Search for the friction pattern described in natural language
@@ -323,7 +317,7 @@ For each friction pattern or health issue identified in Phases 3-4:
 - Search for proposed solution concepts
 
 ```
-mcp__qmd__deep_search  query="[friction description in natural language]"  limit=10
+tools.qmd.deep_search  query="[friction description in natural language]"  limit=10
 ```
 
 Read the top results. For each relevant claim:
@@ -411,7 +405,7 @@ For each recommendation, construct the full analysis:
 
 Every recommendation MUST have:
 
-1. **Specific file references** — not "update the context file" but "update CLAUDE.md, section 'Processing Pipeline', line ~150"
+1. **Specific file references** — not "update the context file" but "update AGENTS.md, section 'Processing Pipeline', line ~150"
 2. **Evidence backing** — at least 2 data points (health finding + friction observation, or 2+ friction observations)
 3. **Research citation** — at least 1 specific claim from the knowledge base
 4. **Risk awareness** — what could go wrong, stated explicitly

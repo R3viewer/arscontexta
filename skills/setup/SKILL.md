@@ -1,9 +1,6 @@
 ---
 name: setup
 description: Scaffold a complete knowledge system. Detects platform, conducts conversation, derives configuration, generates everything. Validates against 15 kernel primitives. Triggers on "/setup", "/setup --advanced", "set up my knowledge system", "create my vault".
-context: fork
-model: sonnet
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 argument-hint: "[--advanced for upfront dimension configuration]"
 ---
 
@@ -16,18 +13,18 @@ The difference is derivation: understanding WHO this person is, WHAT they need, 
 Read these files to understand the methodology and available components. Read them BEFORE starting any phase.
 
 **Core references (always read):**
-- `${CLAUDE_PLUGIN_ROOT}/reference/kernel.yaml` -- the 15 kernel primitives (with enforcement levels)
-- `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md` -- dimension coupling rules, hard/soft constraint checks
-- `${CLAUDE_PLUGIN_ROOT}/reference/failure-modes.md` -- 10 failure modes with domain vulnerability matrix
-- `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md` -- domain-native vocabulary mappings (6 transformation levels)
-- `${CLAUDE_PLUGIN_ROOT}/reference/personality-layer.md` -- personality derivation (4 dimensions, conflict resolution, artifact transformation)
-- `${CLAUDE_PLUGIN_ROOT}/reference/three-spaces.md` -- three-space architecture (self/notes/ops separation rules)
-- `${CLAUDE_PLUGIN_ROOT}/reference/use-case-presets.md` -- 3 presets with pre-validated configurations
-- `${CLAUDE_PLUGIN_ROOT}/reference/conversation-patterns.md` -- 5 worked examples validating derivation heuristics
+- `reference/kernel.yaml` -- the 15 kernel primitives (with enforcement levels)
+- `reference/interaction-constraints.md` -- dimension coupling rules, hard/soft constraint checks
+- `reference/failure-modes.md` -- 10 failure modes with domain vulnerability matrix
+- `reference/vocabulary-transforms.md` -- domain-native vocabulary mappings (6 transformation levels)
+- `reference/personality-layer.md` -- personality derivation (4 dimensions, conflict resolution, artifact transformation)
+- `reference/three-spaces.md` -- three-space architecture (self/notes/ops separation rules)
+- `reference/use-case-presets.md` -- 3 presets with pre-validated configurations
+- `reference/conversation-patterns.md` -- 5 worked examples validating derivation heuristics
 
 **Generation references (read during Phase 5):**
-- `${CLAUDE_PLUGIN_ROOT}/generators/claude-md.md` -- CLAUDE.md generation template
-- `${CLAUDE_PLUGIN_ROOT}/generators/features/*.md` -- composable feature blocks for context file composition
+- `generators/agents-md.md` -- AGENTS.md generation template
+- `generators/features/*.md` -- composable feature blocks for context file composition
 
 ---
 
@@ -35,20 +32,20 @@ Read these files to understand the methodology and available components. Read th
 
 Automated. No user interaction needed.
 
-Verify Claude Code environment:
+Verify OpenChamber / OpenCode environment:
 
 ```
 Check filesystem:
-  .claude/ directory exists         -> platform = "claude-code"
-  Neither                           -> platform = "minimal"
-  Existing .md notes detected       -> note for proposal (V1: acknowledge and proceed fresh)
+  .arscontexta, opencode.jsonc, or .opencode/ exists -> platform = "openchamber"
+  Neither                                            -> platform = "openchamber"
+  Existing .md notes detected                        -> note for proposal (acknowledge and proceed fresh)
 ```
 
 Record the platform tier in working memory. It controls which artifacts get generated:
 
-| Platform | Context File | Skills Location | Hooks | Automation Ceiling |
-|----------|-------------|-----------------|-------|--------------------|
-| Claude Code | CLAUDE.md | .claude/skills/ | .claude/hooks/ | Full |
+| Platform | Context File | Skills Location | Commands Location | Automation Ceiling |
+|----------|-------------|-----------------|-------------------|--------------------|
+| OpenChamber | AGENTS.md | .opencode/skills/ | .opencode/commands/ | Full (OpenCode V2 plugin) |
 | Minimal | README.md | (none) | (none) | Convention only |
 
 ---
@@ -329,7 +326,7 @@ Signals that clearly override defaults get applied. Signals that are ambiguous l
 
 ### Step 3b: Cascade Resolution
 
-Once primary dimensions are set, cascade through interaction constraints. Read `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md` for the full cascade rules.
+Once primary dimensions are set, cascade through interaction constraints. Read `reference/interaction-constraints.md` for the full cascade rules.
 
 Key cascades:
 - Atomic granularity -> pressure toward explicit linking, deep navigation, heavier processing
@@ -341,7 +338,7 @@ For cascaded values: confidence = INFERRED (0.2). User signals ALWAYS override c
 
 ### Step 3c: Vocabulary Derivation
 
-Build the complete vocabulary mapping for all 6 transformation levels (see `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md`):
+Build the complete vocabulary mapping for all 6 transformation levels (see `reference/vocabulary-transforms.md`):
 
 1. **User's own words** -- highest priority. If they said "book note," use "book note."
 2. **Preset table** -- fallback when user has not named a concept
@@ -357,7 +354,7 @@ For novel domains (no preset scores above 2.0 affinity):
 
 **Default: neutral-helpful.** Personality is opt-in. The init wizard does NOT ask about personality dimensions unless conversation signals clearly indicate personality preferences.
 
-Map personality signals to four dimensions (see `${CLAUDE_PLUGIN_ROOT}/reference/personality-layer.md`):
+Map personality signals to four dimensions (see `reference/personality-layer.md`):
 
 | Dimension | Poles | Default |
 |-----------|-------|---------|
@@ -380,7 +377,7 @@ If personality is derived (strong signals exist), set `personality.enabled: true
 
 ### Step 3e: Coherence Validation (Three-Pass Check)
 
-Run BEFORE proceeding to the proposal. Read `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md`.
+Run BEFORE proceeding to the proposal. Read `reference/interaction-constraints.md`.
 
 **Pass 1 -- Hard constraint check:**
 
@@ -420,7 +417,7 @@ Note active compensations in derivation rationale. Flag compensated dimensions f
 
 ### Step 3f: Failure Mode Risk Assessment
 
-Read `${CLAUDE_PLUGIN_ROOT}/reference/failure-modes.md`. Check the derived configuration against the domain vulnerability matrix. Flag all HIGH-risk failure modes for this configuration. These get included in the generated context file's "Common Pitfalls" section.
+Read `reference/failure-modes.md`. Check the derived configuration against the domain vulnerability matrix. Flag all HIGH-risk failure modes for this configuration. These get included in the generated context file's "Common Pitfalls" section.
 
 ### Step 3g: Full Automation Configuration
 
@@ -619,7 +616,7 @@ The inbox folder is always generated. It provides zero-friction capture regardle
 
 This is the most critical generation step. The context file IS the system.
 
-**For Claude Code:** Generate `CLAUDE.md` using `${CLAUDE_PLUGIN_ROOT}/generators/claude-md.md` template.
+**For OpenChamber:** Generate `AGENTS.md` using `generators/agents-md.md` template.
 **For Minimal:** Generate `README.md` as self-contained conventions document.
 
 **Context file composition algorithm:**
@@ -627,7 +624,7 @@ This is the most critical generation step. The context file IS the system.
 ```
 Step 1: Read generator template for the platform.
 
-Step 2: Select feature blocks from ${CLAUDE_PLUGIN_ROOT}/generators/features/.
+Step 2: Select feature blocks from generators/features/.
   Always-included blocks (11): wiki-links, processing-pipeline, schema, maintenance, self-evolution, methodology-knowledge, session-rhythm, templates, ethical-guardrails, helper-functions, graph-analysis
   Conditional blocks: based on derived dimensions (see Active Feature Blocks in derivation.md)
 
@@ -1108,7 +1105,7 @@ Generate the machine-readable derivation manifest. This is the KEY file that ena
 engine_version: "0.2.0"
 research_snapshot: "2026-02-10"
 generated_at: [ISO 8601 timestamp]
-platform: [claude-code | minimal]
+platform: [openchamber | minimal]
 kernel_version: "1.0"
 
 dimensions:
@@ -1174,14 +1171,14 @@ vocabulary:
 platform_hints:
   context: [fork | single]
   allowed_tools: [tool list based on platform tier]
-  semantic_search_tool: [mcp__qmd__deep_search | null]
+  semantic_search_tool: [tools.qmd.deep_search | null]
   semantic_search_autoapprove:
-    - mcp__qmd__search
-    - mcp__qmd__vector_search
-    - mcp__qmd__deep_search
-    - mcp__qmd__get
-    - mcp__qmd__multi_get
-    - mcp__qmd__status
+    - tools.qmd.search
+    - tools.qmd.vector_search
+    - tools.qmd.deep_search
+    - tools.qmd.get
+    - tools.qmd.multi_get
+    - tools.qmd.status
 
 personality:
   warmth: [clinical | warm | playful]
@@ -1267,36 +1264,36 @@ Apply vocabulary transformation to the template: field labels in comments and ex
 
 Generate ALL skills for the detected platform. Every vault ships with the complete skill set from day one. Full automation is the default — users opt down, never up.
 
-**Skill source templates live at `${CLAUDE_PLUGIN_ROOT}/skill-sources/`.** Each subdirectory contains a `SKILL.md` template that must be read, vocabulary-transformed, and written to the user's skills directory.
+**Skill source templates live at `skill-sources/`.** Each subdirectory contains a `SKILL.md` template that must be read, vocabulary-transformed, and written to the user's skills directory.
 
 The 16 skill sources to install:
 
 | Source Directory | Skill Name | Category |
 |-----------------|------------|----------|
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/reduce/` | reduce | Processing |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/reflect/` | reflect | Processing |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/reweave/` | reweave | Processing |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/verify/` | verify | Processing |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/validate/` | validate | Processing |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/seed/` | seed | Orchestration |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/ralph/` | ralph | Orchestration |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/pipeline/` | pipeline | Orchestration |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/tasks/` | tasks | Orchestration |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/stats/` | stats | Navigation |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/graph/` | graph | Navigation |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/next/` | next | Navigation |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/learn/` | learn | Growth |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/remember/` | remember | Growth |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/rethink/` | rethink | Evolution |
-| `${CLAUDE_PLUGIN_ROOT}/skill-sources/refactor/` | refactor | Evolution |
+| `skill-sources/reduce/` | reduce | Processing |
+| `skill-sources/reflect/` | reflect | Processing |
+| `skill-sources/reweave/` | reweave | Processing |
+| `skill-sources/verify/` | verify | Processing |
+| `skill-sources/validate/` | validate | Processing |
+| `skill-sources/seed/` | seed | Orchestration |
+| `skill-sources/ralph/` | ralph | Orchestration |
+| `skill-sources/pipeline/` | pipeline | Orchestration |
+| `skill-sources/tasks/` | tasks | Orchestration |
+| `skill-sources/stats/` | stats | Navigation |
+| `skill-sources/graph/` | graph | Navigation |
+| `skill-sources/next/` | next | Navigation |
+| `skill-sources/learn/` | learn | Growth |
+| `skill-sources/remember/` | remember | Growth |
+| `skill-sources/rethink/` | rethink | Evolution |
+| `skill-sources/refactor/` | refactor | Evolution |
 
 For each skill:
-1. Read `${CLAUDE_PLUGIN_ROOT}/skill-sources/[name]/SKILL.md`
+1. Read `skill-sources/[name]/SKILL.md`
 2. Apply vocabulary transformation — rename and update ALL internal references using the vocabulary mapping from `ops/derivation.md`
-3. Adjust skill metadata (set `context: fork` for fresh context per invocation)
+3. Ensure skill frontmatter has clean name and description metadata
 4. Write the transformed SKILL.md to the user's skills directory
 
-**For Claude Code:** Write to `.claude/skills/[domain-skill-name]/SKILL.md`
+**For OpenChamber:** Write to `.opencode/skills/[domain-skill-name]/SKILL.md` and `.opencode/commands/[domain-skill-name].md`.
 
 **CRITICAL:** Do NOT generate skills from scratch or improvise their content. Read the source template and transform it. The templates contain quality gates, anti-shortcut language, and handoff formats that must be preserved.
 
@@ -1308,115 +1305,29 @@ Every generated skill must include:
 
 ##### Skill Discoverability Protocol
 
-**Platform limitation:** Claude Code's skill index does not refresh mid-session. Skills created during /setup are not discoverable until the user restarts Claude Code.
+OpenCode automatically discovers skills in `.opencode/skills/` and commands in `.opencode/commands/`, reloading them without restarting.
 
-After creating ALL skill files:
-
-1. **Inform the user:** Display "Generated [N] skills. Restart Claude Code to activate them."
-2. **Add to context file:** Include a "Recently Created Skills (Pending Activation)" section listing all generated skills with their domain-native names and creation timestamp:
-
-```markdown
-## Recently Created Skills (Pending Activation)
-
-These skills were created during initialization. Restart Claude Code to activate them.
-- /[domain:reduce] -- Extract insights from source material (created [timestamp])
-- /[domain:reflect] -- Find connections between [domain:notes] (created [timestamp])
-...
-```
-
-3. **SessionStart hook detects activation:** The session-orient.sh hook checks for this section. Once skills are confirmed loaded (appear in skill index), the section can be removed from the context file.
-4. **Phase 6 guidance:** If any skills were created, Phase 6 output includes: "Restart Claude Code now to activate all skills, then try /[domain:help] to see what's available."
+After creating ALL skill and command files:
+1. **Inform the user:** Display "Generated [N] skills and commands in .opencode/."
+2. **Phase 6 guidance:** "Try /[domain:help] or $[domain:help] to see what's available."
 
 ---
 
-#### Step 10: Hooks (platform-appropriate)
+#### Step 10: Vault Marker & Plugin Automation
 
-**Re-read `ops/derivation.md`** for automation level, platform tier, and vocabulary mapping.
+Create `.arscontexta` in the vault root:
 
-##### Additive Hook Merging Protocol
-
-Generated hooks MUST NOT overwrite existing user hooks. Before writing any hooks:
-
-1. Read existing `.claude/settings.json` (if it exists)
-2. Parse existing hook matcher groups for each event type (hooks.SessionStart, hooks.PostToolUse, hooks.Stop, etc.)
-3. ADD new matcher groups to the event arrays -- never replace existing entries
-4. If a matcher group with the same `command` path already exists for that event, SKIP it (warn in output, don't overwrite)
-5. Write the merged result back to `.claude/settings.json`
-
-**Validation criterion:** After hook generation, all pre-existing hooks are still present and functional.
-
-##### Session Persistence Architecture
-
-Session persistence is critical for continuity across /clear and session restarts.
-
-**Session data layout:**
-```
-ops/
-├── sessions/
-│   ├── current.json          # Active session state (updated by hooks)
-│   └── YYYYMMDD-HHMMSS.json  # Archived session records
-├── goals.md                  # Persistent working memory (survives /clear)
-└── config.yaml               # Live configuration
+```yaml
+# Ars Contexta vault marker + config
+git: true
+session_capture: true
 ```
 
-`current.json` tracks: session_id, start_time, notes_created (array), notes_modified (array), discoveries (array), last_activity timestamp.
-
-**Session ID derivation:** Use `CLAUDE_CONVERSATION_ID` environment variable (available in Claude Code hook environment). Fallback to timestamp: `$(date +%Y%m%d-%H%M%S)`.
-
-**Session restore on /clear:** When a user runs /clear, SessionStart fires for the new conversation. The hook detects existing session data (goals.md, ops/ state), re-reads everything, and provides continuity despite context reset.
-
-##### Full Hook Suite (generated for all systems)
-
-For Claude Code, add to `.claude/settings.json` (using additive merge).
-
-**Hook format:** Claude Code uses a nested matcher-group structure. Each event type contains an array of matcher groups, each with an optional `matcher` (regex string filtering when the hook fires) and a `hooks` array of handler objects. Events like `SessionStart` and `Stop` don't need matchers — omit the field. Tool events like `PostToolUse` use the tool name as matcher (e.g., `"Write"`, `"Edit|Write"`). Timeout is in seconds.
-
-```json
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/session-orient.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/validate-note.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/auto-commit.sh",
-            "async": true
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/session-capture.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**Critical:** The old flat format (`"type": "command"` at the matcher level) is rejected by Claude Code. Each event must use the nested structure: `"EventName": [{ "matcher": "...", "hooks": [{ "type": "command", "command": "..." }] }]`.
-
-Generate all four hook scripts: session-orient.sh, session-capture.sh, validate-note.sh, auto-commit.sh.
+The Ars Contexta OpenCode V2 server plugin automatically attaches to this vault:
+- **Session Orientation:** Injects workspace file tree, loads identity/goals, previous session context, and maintenance signals at session start.
+- **Write Validation:** Validates note schemas and frontmatter on write/edit operations.
+- **Auto-Commit:** Asynchronously commits changes if `git: true`.
+- **Session Capture:** Persists session transcripts to `ops/sessions/` upon session completion.
 
 ---
 
@@ -1459,7 +1370,7 @@ Welcome to your [domain] system.
    - Run `qmd init` in the generated vault root
    - Configure or update the qmd collection for `{vocabulary.notes_collection}` so it points at the generated notes directory
    - Create or merge `.mcp.json` in the vault root with this qmd MCP server contract:
-     - `{"mcpServers":{"qmd":{"command":"qmd","args":["mcp"],"autoapprove":["mcp__qmd__search","mcp__qmd__vector_search","mcp__qmd__deep_search","mcp__qmd__get","mcp__qmd__multi_get","mcp__qmd__status"]}}}`
+     - `{"mcpServers":{"qmd":{"command":"qmd","args":["mcp"],"autoapprove":["tools.qmd.search","tools.qmd.vector_search","tools.qmd.deep_search","tools.qmd.get","tools.qmd.multi_get","tools.qmd.status"]}}}`
    - Run `qmd update && qmd embed` to build the initial index
 3. If NOT installed:
    - Add a "Next Steps" section to the Phase 6 summary telling the user to install qmd
@@ -1552,7 +1463,7 @@ If git is already initialized (existing repo), skip `git init` and just commit t
 
 ### Kernel Validation
 
-Run all 15 primitive checks against the generated system. Use `${CLAUDE_PLUGIN_ROOT}/reference/validate-kernel.sh` if available. Otherwise manually verify:
+Run all 15 primitive checks against the generated system. Use `node reference/validate-kernel.mjs` (or the `arscontexta_validate_kernel` tool) if available. Otherwise manually verify:
 
 1. **markdown-yaml** -- Every .md file has valid YAML frontmatter? (>95% threshold)
 2. **wiki-links** -- All wiki links resolve to existing files? (>90% threshold)
@@ -1625,7 +1536,7 @@ Note: Plugin commands use the format `/arscontexta:command-name`. List all comma
 
 Guide the user to capture their first note. This is where the system stops being abstract and becomes real.
 
-**If a preset was selected:** Check `${CLAUDE_PLUGIN_ROOT}/presets/[preset]/starter/` for domain-specific starter notes. Use the most relevant starter as a seed:
+**If a preset was selected:** Check `presets/[preset]/starter/` for domain-specific starter notes. Use the most relevant starter as a seed:
 
 1. Present a starter note appropriate to the domain (e.g., a research claim, a personal reflection, a project decision)
 2. Ask the user: "Here's a starter [domain:note] to get you going. Want to customize it, or shall I save it as-is?"
@@ -1671,7 +1582,7 @@ IMPORTANT: Restart Claude Code now to activate skills and hooks.
 
 Next steps:
   1. Quit and restart Claude Code (required — skills won't work until you do)
-  2. Read your CLAUDE.md -- it's your complete methodology
+  2. Read your AGENTS.md -- it's your complete methodology
   3. Try /arscontexta:help to see all available commands
   4. [If qmd not installed: "Install qmd for semantic search: npm install -g @tobilu/qmd (or bun install -g @tobilu/qmd), then run qmd init, qmd update, qmd embed"]
   5. [If personality not enabled: "Run /arscontexta:architect later to tune the agent's voice"]

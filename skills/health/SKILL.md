@@ -1,11 +1,6 @@
 ---
 name: health
 description: Run condition-based vault health diagnostics. 8 categories — schema compliance, orphan detection, link health, description quality, three-space boundaries, processing throughput, stale notes, MOC coherence. 3 modes — quick (schema+orphans+links), full (all 8), three-space (boundary violations only). Returns actionable FAIL/WARN/PASS report with specific fixes ranked by impact. Triggers on "/health", "check vault health", "maintenance report", "what needs fixing".
-version: "1.0"
-generated_from: "arscontexta-v1.6"
-context: fork
-model: opus
-allowed-tools: Read, Grep, Glob, Bash, mcp__qmd__vector_search
 argument-hint: "[optional: 'quick', 'full', or 'three-space']"
 ---
 
@@ -22,7 +17,7 @@ Read these files to configure domain-specific behavior:
 
 2. **`ops/config.yaml`** — processing depth, thresholds
 
-3. **Three-space reference** — `${CLAUDE_PLUGIN_ROOT}/reference/three-spaces.md` for boundary rules (load only for full and three-space modes)
+3. **Three-space reference** — `reference/three-spaces.md` for boundary rules (load only for full and three-space modes)
 
 4. **Templates** — read template files to understand required schema fields for validation
 
@@ -94,7 +89,7 @@ done
 - `description` field is non-empty (not just present)
 - `topics` field contains at least one wiki link
 
-**If `validate-kernel.sh` exists** in `${CLAUDE_PLUGIN_ROOT}/reference/`, run it and include results.
+**If `validate-kernel.mjs` exists** in `reference/`, run `node reference/validate-kernel.mjs` (or use the `arscontexta_validate_kernel` tool) and include results.
 
 **Thresholds:**
 
@@ -245,7 +240,7 @@ For each {vocabulary.note}:
 
 **What it checks:** Content respects the boundaries between self/, {vocabulary.notes}/, and ops/. Each space has a purpose — conflating them degrades search quality, navigation, and trust.
 
-**Before running this check:** Read `${CLAUDE_PLUGIN_ROOT}/reference/three-spaces.md` for the full boundary specification.
+**Before running this check:** Read `reference/three-spaces.md` for the full boundary specification.
 
 **Six conflation patterns to detect:**
 

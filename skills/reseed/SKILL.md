@@ -1,9 +1,6 @@
 ---
 name: reseed
 description: Re-derive your knowledge system from first principles when structural drift accumulates. Analyzes dimension incoherence, vocabulary mismatch, boundary dissolution, and template divergence. Preserves all content while restructuring architecture.
-context: fork
-model: opus
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, mcp__qmd__search, mcp__qmd__vector_search, mcp__qmd__deep_search, mcp__qmd__get, mcp__qmd__multi_get, AskUserQuestion
 argument-hint: "[optional: --analysis-only to see drift report without implementing]"
 ---
 
@@ -20,23 +17,23 @@ Analyze structural drift and re-derive: **$ARGUMENTS**
 Read these during the re-derivation phases:
 
 **Core references:**
-- `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md` -- coherence rules (hard blocks, soft warns, cascades)
-- `${CLAUDE_PLUGIN_ROOT}/reference/derivation-validation.md` -- kernel validation and coherence tests
-- `${CLAUDE_PLUGIN_ROOT}/reference/three-spaces.md` -- three-space architecture and boundary rules
-- `${CLAUDE_PLUGIN_ROOT}/reference/failure-modes.md` -- failure mode taxonomy and domain vulnerability matrix
+- `reference/interaction-constraints.md` -- coherence rules (hard blocks, soft warns, cascades)
+- `reference/derivation-validation.md` -- kernel validation and coherence tests
+- `reference/three-spaces.md` -- three-space architecture and boundary rules
+- `reference/failure-modes.md` -- failure mode taxonomy and domain vulnerability matrix
 
 **Configuration references:**
-- `${CLAUDE_PLUGIN_ROOT}/reference/dimension-claim-map.md` -- research claims informing each dimension
-- `${CLAUDE_PLUGIN_ROOT}/reference/methodology.md` -- universal principles
-- `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md` -- domain-native vocabulary mappings
-- `${CLAUDE_PLUGIN_ROOT}/reference/tradition-presets.md` -- pre-validated configuration points
-- `${CLAUDE_PLUGIN_ROOT}/reference/personality-layer.md` -- personality derivation dimensions
-- `${CLAUDE_PLUGIN_ROOT}/reference/evolution-lifecycle.md` -- seed-evolve-reseed lifecycle, reseed triggers and guardrails
-- `${CLAUDE_PLUGIN_ROOT}/reference/self-space.md` -- identity generation rules, identity vs configuration distinction
+- `reference/dimension-claim-map.md` -- research claims informing each dimension
+- `reference/methodology.md` -- universal principles
+- `reference/vocabulary-transforms.md` -- domain-native vocabulary mappings
+- `reference/tradition-presets.md` -- pre-validated configuration points
+- `reference/personality-layer.md` -- personality derivation dimensions
+- `reference/evolution-lifecycle.md` -- seed-evolve-reseed lifecycle, reseed triggers and guardrails
+- `reference/self-space.md` -- identity generation rules, identity vs configuration distinction
 
 **Validation:**
-- `${CLAUDE_PLUGIN_ROOT}/reference/kernel.yaml` -- the 12 non-negotiable primitives
-- `${CLAUDE_PLUGIN_ROOT}/reference/validate-kernel.sh` -- kernel validation script
+- `reference/kernel.yaml` -- the 12 non-negotiable primitives
+- `reference/validate-kernel.mjs` -- kernel validation script
 
 ---
 
@@ -80,10 +77,10 @@ find notes/ -name "*.md" -not -name "index.md" | wc -l
 grep -rl '^type: moc' notes/ | wc -l
 # Templates
 ls templates/*.md 2>/dev/null | wc -l
-# Skills (platform-dependent)
-ls .claude/skills/*/SKILL.md 2>/dev/null | wc -l
-# Hooks
-ls .claude/hooks/*.sh 2>/dev/null | wc -l
+# Skills (vault-level)
+ls .opencode/skills/*/SKILL.md 2>/dev/null | wc -l
+# Automation & plugin
+ls plugin/hooks/*.mjs 2>/dev/null | wc -l
 # Self space
 ls self/*.md self/memory/*.md 2>/dev/null | wc -l
 # Inbox
@@ -159,7 +156,7 @@ For each dimension:
 
 1. **Read original rationale** from ops/derivation.md -- why was this position chosen?
 2. **Consider friction patterns** from Phase 1d -- what operational pain exists?
-3. **Query the research graph** -- use `mcp__qmd__deep_search` to search for claims relevant to the friction. Fall back to `mcp__qmd__vector_search`. If MCP is unavailable, use qmd CLI (`qmd query`, then `qmd vsearch`). Fall back to reading bundled reference files directly only if both MCP and qmd CLI are unavailable.
+3. **Query the research graph** -- use `tools.qmd.deep_search` to search for claims relevant to the friction. Fall back to `tools.qmd.vector_search`. If MCP is unavailable, use qmd CLI (`qmd query`, then `qmd vsearch`). Fall back to reading bundled reference files directly only if both MCP and qmd CLI are unavailable.
 4. **Read dimension-claim-map.md** for the specific claims that inform this dimension.
 5. **Propose new position or confirm original** -- with explicit reasoning.
 
@@ -172,7 +169,7 @@ The re-derivation should answer for each dimension:
 
 ### Vocabulary re-evaluation
 
-Read `${CLAUDE_PLUGIN_ROOT}/reference/vocabulary-transforms.md`. Compare the current vocabulary mapping against how the user actually talks about their system (evidence from session logs, observations, user-facing text in notes). If the user has developed their own vocabulary that differs from the mapping, adopt the user's terms.
+Read `reference/vocabulary-transforms.md`. Compare the current vocabulary mapping against how the user actually talks about their system (evidence from session logs, observations, user-facing text in notes). If the user has developed their own vocabulary that differs from the mapping, adopt the user's terms.
 
 ### Personality re-evaluation
 
@@ -182,7 +179,7 @@ If personality was derived at init, check whether the personality dimensions sti
 
 ## PHASE 4: Check Coherence
 
-Apply the full coherence validation from `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md`:
+Apply the full coherence validation from `reference/interaction-constraints.md`:
 
 ### Pass 1: Hard constraint check
 
@@ -205,11 +202,11 @@ Trace each changed dimension through its cascade chain. Verify that downstream d
 
 ### Pass 4: Three-space boundary check
 
-Using `${CLAUDE_PLUGIN_ROOT}/reference/three-spaces.md`, verify the re-derived architecture maintains clean boundaries. Check for each of the six conflation patterns.
+Using `reference/three-spaces.md`, verify the re-derived architecture maintains clean boundaries. Check for each of the six conflation patterns.
 
 ### Pass 5: Kernel validation (15 primitives)
 
-Using `${CLAUDE_PLUGIN_ROOT}/reference/derivation-validation.md`, verify the re-derived system will pass all 15 kernel primitives.
+Using `reference/derivation-validation.md`, verify the re-derived system will pass all 15 kernel primitives.
 
 ---
 
@@ -293,7 +290,7 @@ Modify `_schema` blocks, add/remove fields, update enum values. Templates are th
 Regenerate sections affected by dimension changes. Preserve user customizations documented in `ops/user-overrides.md` (if it exists). Apply vocabulary transformation throughout.
 
 ### Step 5: Update skills
-If skill vocabulary needs updating, modify skill files in `.claude/skills/`.
+If skill vocabulary needs updating, modify skill files in `.opencode/skills/`.
 
 ### Step 6: Update hooks
 If automation level changed, add or remove hooks. Update hook paths to match any renamed folders.
@@ -332,7 +329,7 @@ Run the full validation suite on the re-derived system.
 
 ### Kernel validation (15 primitives)
 
-Run `${CLAUDE_PLUGIN_ROOT}/reference/validate-kernel.sh` if available, otherwise manually check each primitive:
+Run `node reference/validate-kernel.mjs` (or use the `arscontexta_validate_kernel` tool) if available, otherwise manually check each primitive:
 
 1. markdown-yaml -- valid YAML frontmatter on all notes
 2. wiki-links -- all wiki links resolve

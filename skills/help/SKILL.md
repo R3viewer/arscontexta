@@ -1,10 +1,6 @@
 ---
 name: help
 description: Contextual guidance and command discovery. Three modes — narrative (first-time), contextual (mid-task), compact (quick reference). Shows available commands, active skills, and intelligent suggestions based on vault state. Triggers on "/help", "what can I do", "show commands", "how does this work".
-user-invocable: true
-allowed-tools: Read, Grep, Glob, Bash
-version: "1.0"
-generated_from: "arscontexta-v1.6"
 ---
 
 ## EXECUTE NOW
@@ -75,7 +71,7 @@ If domain name equals universal name, show just the name:
 
 ## Step 4: Discover Commands
 
-Scan `${CLAUDE_PLUGIN_ROOT}/skills/` dynamically:
+Scan plugin skills (`skills/`) and vault skills (`.opencode/skills/`) dynamically:
 - Subdirectories containing `SKILL.md` (e.g., `reduce/SKILL.md`)
 
 Extract `name:` and `description:` from each frontmatter. Do NOT hardcode the command list.

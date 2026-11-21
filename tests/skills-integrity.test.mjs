@@ -3,6 +3,21 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
+test('Agents Integrity - knowledge-guide agent has valid OpenCode V2 frontmatter', () => {
+  const agentPath = path.resolve('agents/knowledge-guide.md');
+  assert.ok(fs.existsSync(agentPath), 'agents/knowledge-guide.md must exist');
+  const content = fs.readFileSync(agentPath, 'utf8');
+
+  assert.ok(content.startsWith('---'), 'agents/knowledge-guide.md must start with YAML frontmatter');
+  const closingIdx = content.indexOf('\n---', 3);
+  assert.ok(closingIdx !== -1, 'agents/knowledge-guide.md must have closing frontmatter delimiter');
+
+  const frontmatter = content.slice(3, closingIdx);
+  assert.ok(/^name:\s*knowledge-guide/m.test(frontmatter), 'Agent must declare name: knowledge-guide');
+  assert.ok(/^description:\s*.+/m.test(frontmatter), 'Agent must declare description');
+  assert.ok(/^mode:\s*subagent/m.test(frontmatter), 'Agent must declare mode: subagent');
+});
+
 test('Skills Integrity - 10 plugin skills have valid SKILL.md with frontmatter', () => {
   const skillsDir = path.resolve('skills');
   const skillDirs = fs.readdirSync(skillsDir, { withFileTypes: true })

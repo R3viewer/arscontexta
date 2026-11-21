@@ -42,14 +42,20 @@ function scanDirectory(dir, excludeDirs = ['.git', 'node_modules', 'tests/fixtur
 
 // Strictly migrated directories/files that must have ZERO leaks
 const FULLY_MIGRATED_TARGETS = [
+  'agents',
   'package.json',
   'plugin',
   'reference/validate-kernel.mjs',
+  'skills',
   'tests',
 ];
 
 test('Legacy Cleanup Gate - .claude-plugin directory is completely removed', () => {
   assert.equal(fs.existsSync('.claude-plugin'), false, '.claude-plugin directory must not exist in OpenChamber branch');
+});
+
+test('Legacy Cleanup Gate - hooks directory is completely removed', () => {
+  assert.equal(fs.existsSync('hooks'), false, 'hooks/ directory must not exist in OpenChamber branch (replaced by plugin/)');
 });
 
 test('Claude Code Leak Gate - Migrated files have zero Claude Code leaks', () => {
@@ -60,7 +66,7 @@ test('Claude Code Leak Gate - Migrated files have zero Claude Code leaks', () =>
     const files = isDir ? scanDirectory(target) : [{ fullPath: target, relPath: target }];
 
     for (const { fullPath, relPath } of files) {
-      if (relPath.startsWith('tests/fixtures/') || relPath.endsWith('no-claude-leak.test.mjs')) continue;
+      if (relPath.startsWith('tests/fixtures/') || relPath.endsWith('.test.mjs')) continue;
       const content = fs.readFileSync(fullPath, 'utf8');
       for (const pattern of FORBIDDEN_PATTERNS) {
         if (pattern.regex.test(content)) {
@@ -79,7 +85,7 @@ test('Claude Code Leak Gate - Scan baseline across repository', () => {
   const leaksByPattern = {};
 
   for (const { fullPath, relPath } of allFiles) {
-    if (relPath.startsWith('tests/fixtures/') || relPath.endsWith('no-claude-leak.test.mjs')) continue;
+    if (relPath.startsWith('tests/fixtures/') || relPath.endsWith('.test.mjs')) continue;
     const content = fs.readFileSync(fullPath, 'utf8');
     for (const pattern of FORBIDDEN_PATTERNS) {
       const matches = content.match(pattern.regex);
