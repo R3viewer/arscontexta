@@ -199,18 +199,27 @@ export function resolveVaultStructure(vaultDir) {
     if (!fs.existsSync(mf)) continue;
     try {
       const text = fs.readFileSync(mf, 'utf8');
-      const notesMatch = text.match(/^(?:notes_folder|notes_dir|notes):\s*["']?([A-Za-z0-9_-]+)\/?["']?/m);
-      if (notesMatch?.[1]) notesDir = notesMatch[1];
 
-      const inboxMatch = text.match(/^(?:inbox_folder|inbox_dir|inbox):\s*["']?([A-Za-z0-9_-]+)\/?["']?/m);
-      if (inboxMatch?.[1]) inboxDir = inboxMatch[1];
+      const extractField = (fieldPattern) => {
+        const re = new RegExp(`^\\s*(?:${fieldPattern}):\\s*["']?([^#"'\r\n]+)["']?`, 'm');
+        const m = text.match(re);
+        if (!m || !m[1]) return null;
+        const val = m[1].replace(/\s+#.*$/, '').trim().replace(/^["']|["']$/g, '');
+        return val.length > 0 ? val : null;
+      };
+
+      const foundNotes = extractField('notes_folder|notes_dir|notes');
+      if (foundNotes) notesDir = foundNotes;
+
+      const foundInbox = extractField('inbox_folder|inbox_dir|inbox');
+      if (foundInbox) inboxDir = foundInbox;
 
       for (const key of ['note', 'reduce', 'reflect', 'rethink', 'remember']) {
-        const vMatch = text.match(new RegExp(`^\\s*${key}:\\s*["']?([A-Za-z0-9_\\s-]+)["']?\\s*$`, 'm'));
-        if (vMatch?.[1]) vocabulary[key] = vMatch[1].trim();
+        const val = extractField(key);
+        if (val) vocabulary[key] = val;
       }
-      const tmMatch = text.match(/^\s*(?:topic_map|moc):\s*["']?([A-Za-z0-9_\s-]+)["']?\s*$/m);
-      if (tmMatch?.[1]) vocabulary.topicMap = tmMatch[1].trim();
+      const foundTopicMap = extractField('topic_map|moc');
+      if (foundTopicMap) vocabulary.topicMap = foundTopicMap;
       break;
     } catch {
       // Ignore parse errors

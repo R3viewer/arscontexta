@@ -50,7 +50,7 @@ The agent should:
 
 ### User Turn 3
 
-Definitely keep them but mark them. Sometimes stuff comes back in the next patch, or the general idea still applies even if the specific frame data changed. And I use Claude Code.
+Definitely keep them but mark them. Sometimes stuff comes back in the next patch, or the general idea still applies even if the specific frame data changed. And I use OpenChamber.
 
 ### Expected Agent Response Pattern 3
 
@@ -58,7 +58,7 @@ The agent should:
 - Derive the `meta_state` schema field from this response: current / outdated / speculative
 - Note this is a domain-specific temporal tracking need not present in any preset
 - Recognize "stuff comes back" means archival is wrong — outdated strategies need to stay in the active graph with a status marker
-- Set platform to Claude Code (full automation available)
+- Set platform to OpenChamber (full automation available)
 - Present the two opt-in/opt-out decisions: self space (recommend ON — the agent's role as "strategy analyst and training partner" benefits from persistent identity) and qmd semantic search (recommend ON — cross-game vocabulary differences benefit from semantic matching)
 - Begin presenting the derived configuration in gaming vocabulary:
   - "strategy notes" not "claims"
@@ -123,15 +123,15 @@ Integrated sounds right. Let us build it.
 
 The agent should:
 - Generate the full vault in gaming vocabulary:
-  - CLAUDE.md with gaming-native language, direct/opinionated voice
+  - AGENTS.md with gaming-native language, direct/opinionated voice
   - self/ with identity.md ("I am your strategy analyst and training partner"), methodology.md, goals.md (with improvement tracking)
   - strategies/ (not notes/) with index.md, game MOCs (sf6.md, ggst.md), starter character matchup guides
   - lab/ (not inbox/) for practice discoveries and quick tech notes
   - archive/ for truly obsolete content (not just outdated — outdated stays in strategies/ with meta_state: outdated)
   - templates/ with strategy-note.md (character, matchup, meta_state, confidence, counter_to, countered_by, skill_status) and matchup-guide.md (MOC template)
   - ops/ with derivation.md, methodology/, observations/, tensions/, sessions/
-  - .claude/hooks/ with session-orient.sh and session-stop.sh (session capture)
-- Include domain-specific guidance in CLAUDE.md:
+  - .arscontexta (plugin session-orient and session-capture enabled)
+- Include domain-specific guidance in AGENTS.md:
   - "When a patch drops: run through your matchup guides and mark strategies that may be affected as `meta_state: speculative` until you can test them"
   - "After a tournament: create a session breakdown in lab/, then promote strategic insights to strategies/"
   - Temporal staleness warning in Common Pitfalls

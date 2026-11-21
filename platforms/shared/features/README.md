@@ -67,4 +67,4 @@ Each block has a defined layer, dependencies, and platform requirements:
 | 15 | `helper-functions.md` | Automation | None |
 | 16 | `graph-analysis.md` | Automation | wiki-links, schema |
 
-Feature blocks are platform-agnostic. They are composed into the Claude Code context file format (CLAUDE.md).
+Feature blocks are platform-agnostic. They are composed into the primary context file (AGENTS.md).

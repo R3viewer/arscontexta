@@ -14,62 +14,91 @@ No templates. No configuration. Just conversation.
 
 ---
 
-## Installation
+## Installation locale
 
-### OpenChamber (Recommended)
+### 1. Installation dans OpenChamber (Recommandé)
 
-Ars Contexta ships as a single OpenChamber extension that bundles its OpenCode
-V2 server plugin, plugin-level skills, and vault UI.
+Ars Contexta est packagé comme une extension OpenChamber complète qui embarque nativement son plugin serveur OpenCode V2 et ses 10 compétences de dérivation.
 
-1. Open **Settings → Extensions** in OpenChamber (Desktop, Web, or Mobile).
+#### Étape 1 : Cloner le dépôt en local
+```bash
+git clone -b OpenChamber https://github.com/agenticnotetaking/arscontexta.git
+cd arscontexta
+```
 
-2. Paste the repository URL (or a local folder / `.zip`) into **Folder, ZIP, or
-   URL** and choose **Add**:
-   ```
-   https://github.com/agenticnotetaking/arscontexta#OpenChamber
-   ```
-   *(Or open via desktop deep link:
-   `openchamber://extensions/install?url=https%3A%2F%2Fgithub.com%2Fagenticnotetaking%2Farscontexta%23OpenChamber`)*
+#### Étape 2 : Ajouter l'extension locale dans OpenChamber
+1. Ouvrez OpenChamber (Desktop ou Web).
+2. Allez dans **Settings → Extensions**.
+3. Dans le champ **Folder, ZIP, or URL**, collez le **chemin absolu** vers votre dossier `arscontexta` (ou utilisez le bouton dossier pour le sélectionner) :
+   - *Exemple Windows* : `C:\Users\votre-nom\chemin\vers\arscontexta`
+   - *Exemple macOS / Linux* : `/home/votre-nom/projets/arscontexta`
+4. Cliquez sur **Add**.
 
-3. Review and approve the requested permissions (**Add a plugin to OpenCode**,
-   **Add to what agents read / skills**, and optional panel/file access).
-   OpenChamber loads the plugin and skills into its managed OpenCode
-   automatically -- **no restart required**.
+#### Étape 3 : Approuver les permissions
+La boîte de dialogue liste les permissions déclarées par l'extension :
+- **Add a plugin to OpenCode** : autorise OpenChamber à enregistrer le plugin `plugin/` dans son instance OpenCode gérée.
+- **Add to what agents read / skills** : expose les 10 compétences plugin `skills/` à tous les agents.
+- Cliquez sur **Allow and enable**.
 
-   > **External OpenCode server:** If OpenChamber connects to an OpenCode server
-   > it did not start (or your environment sets `OPENCODE_CONFIG`), choose
-   > **Add to global config** on the extension card so your OpenCode loads the
-   > bundled plugin.
+> **Note (Instance OpenCode externe)** : Si votre OpenChamber se connecte à un serveur OpenCode démarré séparément (ou si votre variable `OPENCODE_CONFIG` est définie), OpenChamber affiche un bouton **Add to global config** sur la carte de l'extension. Cliquez dessus pour que votre serveur OpenCode externe charge également le plugin.
 
-4. Open your target vault folder as a project in OpenChamber, then run:
+#### Étape 4 : Initialiser votre vault
+1. Ouvrez ou créez le dossier de votre vault comme projet dans OpenChamber.
+2. Dans le chat, tapez la commande d'onboarding :
    ```
    /arscontexta:setup
    ```
-   *(You can also invoke plugin skills directly via the `$` skill picker, e.g.
-   `$arscontexta-setup`.)*
+   *(Ou invoquez directement la compétence via le sélecteur `$` : `$setup`)*
+3. Répondez aux 2–4 questions sur votre domaine d'activité (~20 minutes, token-intensif mais à faire une seule fois).
+4. Le moteur génère votre système complet (`AGENTS.md`, dossiers, templates, `.opencode/skills/`, `.opencode/commands/`, `.opencode/agents/`, `opencode.jsonc`, `.arscontexta`).
+5. OpenCode charge immédiatement les fichiers générés à chaud (**aucun redémarrage requis**).
+6. Tapez `/arscontexta:help` pour explorer toutes les commandes disponibles.
 
-5. Answer 2-4 questions about your domain (~20 minutes -- token-intensive, but
-   one-time).
+---
 
-6. The engine generates your complete knowledge system (`AGENTS.md`, folders,
-   templates, `.opencode/` skills/commands/agents, `opencode.jsonc`, manual).
-   OpenCode hot-reloads generated files automatically (**no restart required**;
-   run `/reload` if you ever need a manual refresh).
+### 2. Installation locale dans OpenCode standalone (CLI / TUI)
 
-7. Run `/arscontexta:help` to see everything available.
+Si vous utilisez OpenCode V2 directement dans un terminal sans OpenChamber, vous pouvez charger le plugin et les compétences locales de deux manières :
 
-### Standalone OpenCode (CLI / TUI)
-
-If you use OpenCode V2 without OpenChamber, point `opencode.jsonc` at the cloned
-repository's bundled plugin and skills:
+#### Option A : Configuration globale (`~/.config/opencode/opencode.jsonc`)
+Pour que le plugin soit actif dans tous vos projets :
 
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["/path/to/arscontexta/plugin"],
-  "skills": ["/path/to/arscontexta/skills"]
+  "plugins": [
+    "/chemin/absolu/vers/arscontexta/plugin"
+  ],
+  "skills": [
+    "/chemin/absolu/vers/arscontexta/skills"
+  ]
 }
 ```
+
+#### Option B : Configuration par projet (`opencode.jsonc` dans votre vault)
+Pour activer le plugin uniquement sur un vault spécifique :
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": [
+    "/chemin/absolu/vers/arscontexta/plugin"
+  ],
+  "skills": [
+    "/chemin/absolu/vers/arscontexta/skills"
+  ]
+}
+```
+
+Après enregistrement, OpenCode V2 surveille ses fichiers de configuration et charge automatiquement le plugin et les compétences sans redémarrer le service (utilisez `/reload` si vous souhaitez forcer un rafraîchissement immédiat).
+
+---
+
+### Développement & Rechargement en direct
+
+L'installation par dossier local s'exécute directement depuis votre répertoire de travail :
+- **Modifications dans `plugin/` et `skills/`** : rechargées en direct dans l'OpenCode géré par OpenChamber. Vous pouvez aussi forcer un rechargement en tapant `/reload` dans le chat ou en basculant l'interrupteur **Enabled** de l'extension dans **Settings → Extensions**.
+- **Désinstallation** : cliquez sur **Remove** sur la carte de l'extension dans **Settings → Extensions**. Cela supprime uniquement l'enregistrement dans OpenChamber sans toucher à votre dossier local.
 
 ---
 
@@ -386,43 +415,43 @@ arscontexta/
 
 ---
 
-## Development
+## Développement & Contribution
 
-Clone this repository and install it directly from its folder in OpenChamber:
+Pour développer ou contribuer sur Ars Contexta, installez le dépôt localement via la procédure [Installation dans OpenChamber](#1-installation-dans-openchamber-recommandé).
 
-1. Open **Settings → Extensions** in OpenChamber.
-2. Paste the absolute path to your local `arscontexta/` clone and click **Add**.
-3. Approve permissions.
+Les modifications apportées aux compétences (`skills/`) ou au plugin serveur (`plugin/`) sont prises en compte en direct dans OpenChamber.
 
-Folder installs run directly from your working directory:
-- Edits to `skills/` and `plugin/` reload live in OpenChamber's managed OpenCode
-  (or via `/reload` / toggling the extension).
-- When modifying `panel/` UI sources, rebuild the IIFE bundle:
-  ```bash
-  bunx openchamber-guest-bundle panel/main.ts panel/main.js
-  ```
+### Compilation du panneau d'extension (Optionnel)
 
-### Running Tests
-
-Ars Contexta includes an automated test suite based on Node.js ESM (`node --test`, zero dependencies) to validate kernel compliance, module integrity, and guard against legacy platform leaks:
-
+Si vous développez des composants graphiques dans `panel/` via `@openchamber/sdk`, recompilez le bundle autonome IIFE :
 ```bash
-# Run all tests
-node --test tests/*.test.mjs
-
-# Run kernel validation directly against any vault
-node reference/validate-kernel.mjs /path/to/vault
+bunx openchamber-guest-bundle panel/main.ts panel/main.js
 ```
 
-### Key Files for Contributors
+### Exécution des tests automatisés
 
-- `package.json` -- OpenChamber extension manifest (`apiVersion: 1`, `contributes`)
-- `plugin/index.js` -- OpenCode V2 server plugin (hooks, commands, agents, references)
-- `reference/kernel.yaml` -- 15 primitives every system must include
-- `generators/agents-md.md` & `generators/features/*.md` -- `AGENTS.md` template & composable feature blocks
-- `skill-sources/*/SKILL.md` -- generated vault command/skill templates
-- `skills/setup/SKILL.md` -- the derivation engine
-- `reference/use-case-presets.md` -- preset definitions
+Ars Contexta inclut une suite de tests automatisée en Node.js ESM natif (`node --test`, sans dépendance externe) garantissant la conformité du kernel, l'intégrité des compétences et l'absence totale de fuites de syntaxe legacy :
+
+```bash
+# Lancer tous les tests unitaires et gates d'intégrité
+node --test tests/*.test.mjs
+
+# Lancer la validation des 15 primitives du kernel sur un vault cible
+node reference/validate-kernel.mjs /chemin/vers/votre/vault
+```
+
+### Fichiers clés pour les contributeurs
+
+- `package.json` -- Manifest de l'extension OpenChamber (`apiVersion: 1`, `contributes`)
+- `plugin/index.js` -- Point d'entrée du plugin serveur OpenCode V2
+- `plugin/vault.mjs` -- Détection du vault, marker `.arscontexta` et résolution du vocabulaire
+- `plugin/hooks/` -- Les 4 hooks natifs (`session-orient`, `write-validate`, `auto-commit`, `session-capture`)
+- `reference/kernel.yaml` -- Les 15 primitives universelles indispensables à tout système
+- `reference/validate-kernel.mjs` -- Validateur cross-platform du kernel
+- `generators/agents-md.md` & `generators/features/*.md` -- Gabarit `AGENTS.md` et les 17 blocs modulaires
+- `skill-sources/*/SKILL.md` -- Les 16 gabarits de compétences et commandes générées dans le vault
+- `skills/setup/SKILL.md` -- Le moteur de dérivation conversationnel
+- `reference/use-case-presets.md` -- Définition des préréglages (Research, Personal, Experimental)
 
 ---
 
@@ -449,9 +478,9 @@ on your conversation.
 | **1. Manifest & Packaging** | `package.json` (`openchamber` manifest), `contributes.skills`, `contributes.opencodePlugin`, cleanup `.claude-plugin/` | 4 Hydrogen | **Completed** |
 | **2. OpenCode V2 Server Plugin** | Native JS ESM hooks (`orient`, `validate`, `auto-commit`, `capture`), `/arscontexta:*` commands, reference exposure, cleanup `hooks/` | 4 Carbon / 4 Neon | **Completed** |
 | **3. Plugin Skills & Agents** | Port 10 plugin skills + `knowledge-guide` (remove `${CLAUDE_PLUGIN_ROOT}`, `AskUserQuestion`, `context: fork`; adopt OpenCode V2) | 4 Neon | **Completed** |
-| **4. Derivation, Generators & Graph** | `AGENTS.md` generator, `.opencode/` vault output, `platforms/openchamber/`, graph analysis scripts, cleanup Claude generators | 4 Carbon / 4 Neon | Next |
-| **5. Pipeline & Subagents** | Port 16 `skill-sources/` (`/ralph`, `/pipeline`, etc.) from `Task` tool to OpenCode `subagent` / `ownWork` | 4 Neon + 4 Hydrogen | Planned |
-| **6. OpenChamber Native UI** | Work Status section & vault panel (queue status, maintenance signals, 1-click commands) | 4 Hydrogen | Optional / Next |
+| **4. Derivation, Generators & Graph** | `AGENTS.md` generator, `.opencode/` vault output, `platforms/openchamber/`, graph analysis scripts, cleanup Claude generators | 4 Carbon / 4 Neon | **Completed** |
+| **5. Pipeline & Subagents** | Port 16 `skill-sources/` (`/ralph`, `/pipeline`, etc.) from `Task` tool to OpenCode `subagent` / `ownWork` | 4 Neon + 4 Hydrogen | **Completed** |
+| **6. OpenChamber Native UI** | Work Status section & vault panel (queue status, maintenance signals, 1-click commands) | 4 Hydrogen | Next (Optional) |
 
 ---
 

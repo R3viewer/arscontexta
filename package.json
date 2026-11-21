@@ -37,6 +37,11 @@
     "name": "Ars Contexta",
     "icon": "brain",
     "contributes": {
+      "panel": {
+        "id": "arscontexta",
+        "name": "Ars Contexta",
+        "icon": "brain"
+      },
       "opencodePlugin": "plugin",
       "skills": "skills"
     }

@@ -11,10 +11,15 @@ import path from 'node:path';
 const FORBIDDEN_PATTERNS = [
   { id: 'claude-plugin-root', regex: /\$\{CLAUDE_PLUGIN_ROOT\}/g, desc: '${CLAUDE_PLUGIN_ROOT} environment reference' },
   { id: 'claude-project-dir', regex: /CLAUDE_PROJECT_DIR/g, desc: 'CLAUDE_PROJECT_DIR environment reference' },
-  { id: 'ask-user-question', regex: /AskUserQuestion/g, desc: 'Claude Code AskUserQuestion tool reference' },
+  { id: 'ask-user-question', regex: /AskUserQuestion/gi, desc: 'Claude Code AskUserQuestion tool reference' },
   { id: 'claude-mcp-prefix', regex: /mcp__qmd__/g, desc: 'Claude Code mcp__qmd__ tool prefix (use qmd_* or tools.qmd.*)' },
   { id: 'context-fork', regex: /^context:\s*fork/m, desc: 'Claude Code context: fork frontmatter' },
-  { id: 'task-tool', regex: /\bTask tool\b/g, desc: 'Claude Code Task tool (use OpenCode subagent tool)' },
+  { id: 'task-tool', regex: /\bTask\s+tool\b/gi, desc: 'Claude Code Task tool (use OpenCode subagent tool)' },
+  { id: 'task-call', regex: /\bTask\s*\(/g, desc: 'Claude Code Task(...) invocation (use subagent(...))' },
+  { id: 'claude-code-mention', regex: /\bclaude\s+code\b/gi, desc: 'Legacy Claude Code platform reference' },
+  { id: 'legacy-mcp-json', regex: /\.mcp\.json\b/gi, desc: 'Legacy .mcp.json reference (use opencode.jsonc)' },
+  { id: 'subagent-type', regex: /\bsubagent_type\b/gi, desc: 'Legacy subagent_type parameter (use agent)' },
+  { id: 'dont-ask', regex: /\bdontAsk\b/gi, desc: 'Legacy dontAsk parameter' },
 ];
 
 function scanDirectory(dir, excludeDirs = ['.git', 'node_modules', 'tests/fixtures']) {
@@ -43,10 +48,15 @@ function scanDirectory(dir, excludeDirs = ['.git', 'node_modules', 'tests/fixtur
 // Strictly migrated directories/files that must have ZERO leaks
 const FULLY_MIGRATED_TARGETS = [
   'agents',
+  'generators',
   'package.json',
+  'platforms',
   'plugin',
-  'reference/validate-kernel.mjs',
+  'presets',
+  'reference',
+  'scripts',
   'skills',
+  'skill-sources',
   'tests',
 ];
 
@@ -56,6 +66,14 @@ test('Legacy Cleanup Gate - .claude-plugin directory is completely removed', () 
 
 test('Legacy Cleanup Gate - hooks directory is completely removed', () => {
   assert.equal(fs.existsSync('hooks'), false, 'hooks/ directory must not exist in OpenChamber branch (replaced by plugin/)');
+});
+
+test('Legacy Cleanup Gate - platforms/claude-code directory is completely removed', () => {
+  assert.equal(fs.existsSync('platforms/claude-code'), false, 'platforms/claude-code directory must not exist in OpenChamber branch');
+});
+
+test('Legacy Cleanup Gate - generators/claude-md.md is completely removed', () => {
+  assert.equal(fs.existsSync('generators/claude-md.md'), false, 'generators/claude-md.md must not exist in OpenChamber branch');
 });
 
 test('Claude Code Leak Gate - Migrated files have zero Claude Code leaks', () => {
@@ -69,6 +87,7 @@ test('Claude Code Leak Gate - Migrated files have zero Claude Code leaks', () =>
       if (relPath.startsWith('tests/fixtures/') || relPath.endsWith('.test.mjs')) continue;
       const content = fs.readFileSync(fullPath, 'utf8');
       for (const pattern of FORBIDDEN_PATTERNS) {
+        if (relPath.endsWith('validate-kernel.mjs') && pattern.id === 'legacy-mcp-json') continue;
         if (pattern.regex.test(content)) {
           leaks.push({ file: relPath, pattern: pattern.id, desc: pattern.desc });
         }
@@ -79,23 +98,27 @@ test('Claude Code Leak Gate - Migrated files have zero Claude Code leaks', () =>
   assert.equal(leaks.length, 0, `Detected Claude Code leaks in migrated files:\n${leaks.map(l => `  - ${l.file}: ${l.desc}`).join('\n')}`);
 });
 
-test('Claude Code Leak Gate - Scan baseline across repository', () => {
-  const allFiles = scanDirectory('.');
-  let totalLeaks = 0;
-  const leaksByPattern = {};
+test('Claude Code Leak Gate - Zero leaks across all active modules', () => {
+  const allFiles = scanDirectory('.', ['.git', 'node_modules', 'tests/fixtures', 'methodology']);
+  let activeLeaks = 0;
+  const leaksList = [];
 
   for (const { fullPath, relPath } of allFiles) {
-    if (relPath.startsWith('tests/fixtures/') || relPath.endsWith('.test.mjs')) continue;
+    if (relPath.startsWith('tests/fixtures/') || relPath.endsWith('.test.mjs') || relPath === 'README.md') continue;
     const content = fs.readFileSync(fullPath, 'utf8');
     for (const pattern of FORBIDDEN_PATTERNS) {
+      if (relPath.endsWith('validate-kernel.mjs') && pattern.id === 'legacy-mcp-json') continue;
       const matches = content.match(pattern.regex);
       if (matches) {
-        totalLeaks += matches.length;
-        leaksByPattern[pattern.id] = (leaksByPattern[pattern.id] || 0) + matches.length;
+        activeLeaks += matches.length;
+        leaksList.push({ file: relPath, pattern: pattern.id, count: matches.length });
       }
     }
   }
 
-  // Ensure leak tracking is active and can be used to measure burn-down per chantier
-  assert.ok(totalLeaks > 0, 'Baseline leak count should detect existing Claude Code references to migrate');
+  assert.equal(
+    activeLeaks,
+    0,
+    `Expected 0 Claude Code leaks across all active modules, found ${activeLeaks}:\n${leaksList.map(l => `  - ${l.file}: ${l.pattern} (${l.count})`).join('\n')}`
+  );
 });

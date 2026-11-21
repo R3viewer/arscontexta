@@ -68,7 +68,7 @@ Extract signals from the user's description. Every word is a signal:
 | **Domain** | "therapy sessions", "research papers", "trading journal" | Closest preset, schema design |
 | **Scale** | "just starting", "hundreds of notes", "massive corpus" | Granularity, navigation tiers |
 | **Processing style** | "quick capture", "deep analysis", "both" | Processing depth, automation level |
-| **Platform** | "Obsidian", "Claude Code", "plain files" | Platform capabilities, linking type |
+| **Platform** | "OpenChamber", "OpenCode", "Obsidian", "plain files" | Platform capabilities, linking type |
 | **Existing system** | "I use PARA", "I have a Zettelkasten", "starting fresh" | Tradition preset baseline |
 | **Pain points** | "can't find anything", "too much ceremony", "notes go stale" | Dimension adjustments |
 | **Goals** | "track claims", "build arguments", "personal reflection" | Note design, schema density |

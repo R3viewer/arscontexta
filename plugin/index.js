@@ -171,6 +171,16 @@ export default {
               input && typeof input === 'object' && typeof input.path === 'string' && input.path.trim()
                 ? path.resolve(sessionDir, input.path.trim())
                 : sessionDir;
+
+            if (typeof ctx?.permission?.assert === 'function' && toolCtx?.sessionID) {
+              await ctx.permission.assert({
+                sessionID: toolCtx.sessionID,
+                agent: toolCtx.agent,
+                action: 'read',
+                resources: [targetPath],
+              });
+            }
+
             const report = validateKernel(targetPath);
             return {
               content: JSON.stringify(report, null, 2),

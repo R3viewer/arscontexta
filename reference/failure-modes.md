@@ -164,7 +164,7 @@ How knowledge systems die. The init wizard uses this to include domain-specific 
 - Track content creation vs system modification ratio
 - "Would I rather be right about methodology or have a working knowledge base?"
 
-**Warning signs:** More time on CLAUDE.md than on notes. System redesigns before 100 notes. Template modifications outnumber note creations.
+**Warning signs:** More time on AGENTS.md than on notes. System redesigns before 100 notes. Template modifications outnumber note creations.
 
 ---
 

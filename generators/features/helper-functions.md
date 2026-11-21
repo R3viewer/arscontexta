@@ -12,7 +12,7 @@ Your vault ships with utility scripts for safe graph maintenance. These are not 
 Never rename a {DOMAIN:note} manually. Manual renames break every wiki link that references the old title, silently degrading the graph. Use the rename script:
 
 ```bash
-./ops/scripts/rename-note.sh "old title" "new title"
+node ops/scripts/rename-note.mjs "old title" "new title"
 ```
 
 The script:
@@ -29,31 +29,31 @@ Scripts for detecting and resolving common graph health issues:
 
 **Orphan detection** — Find {DOMAIN:notes} with no incoming links. Orphaned {DOMAIN:notes} are invisible to traversal — they exist but nobody can reach them:
 ```bash
-./ops/scripts/orphan-notes.sh
+node ops/scripts/orphan-notes.mjs
 ```
 Every orphan is either a gap (needs connections) or stale (needs archiving). Neither is acceptable as a permanent state.
 
 **Dangling link detection** — Find wiki links that point to non-existent {DOMAIN:notes}:
 ```bash
-./ops/scripts/dangling-links.sh
+node ops/scripts/dangling-links.mjs
 ```
 Dangling links are demand signals — they tell you what {DOMAIN:notes} should exist but do not. Either create the missing {DOMAIN:note} or fix the link.
 
 **Backlink count** — Count incoming links to a specific {DOMAIN:note}:
 ```bash
-./ops/scripts/backlinks.sh "note title"
+node ops/scripts/backlinks.mjs "note title"
 ```
 High backlink counts identify hub {DOMAIN:notes} — central concepts that many other {DOMAIN:notes} reference. Low counts on important {DOMAIN:notes} suggest connection-finding opportunities.
 
 **Link density** — Measure the average number of links per {DOMAIN:note}:
 ```bash
-./ops/scripts/link-density.sh
+node ops/scripts/link-density.mjs
 ```
 Healthy graphs maintain an average of 3+ outgoing links per {DOMAIN:note}. Below that threshold, the graph is sparse and traversal becomes unreliable.
 
 **Schema validation** — Validate all {DOMAIN:notes} against their template schemas:
 ```bash
-./ops/scripts/validate-schema.sh
+node ops/scripts/validate-schema.mjs
 ```
 Checks required fields, enum values, and constraints. Reports violations by severity (PASS, WARN, FAIL).
 
@@ -63,12 +63,12 @@ When processing multiple {DOMAIN:notes}, batch utilities streamline common opera
 
 - **Queue status** — View pending tasks, phase distribution, archivable batches, and stalled batches:
   ```bash
-  ./ops/scripts/queue-status.sh
+  node ops/scripts/queue-status.mjs
   ```
 
 - **Workboard reconciliation** — Run condition-based invariant checks, surface violated conditions as tasks, and auto-close satisfied conditions:
   ```bash
-  ./ops/scripts/reconcile.sh
+  node ops/scripts/reconcile.mjs
   ```
   This is idempotent — safe to run any number of times. It only reads state, never modifies your {DOMAIN:notes} or graph.
 

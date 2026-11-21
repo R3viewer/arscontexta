@@ -46,7 +46,7 @@ primitives:
     requires: filesystem
     enforcement: invariant
     implementation:
-      claude-code: SessionStart hook injects tree output
+      openchamber: OpenCode V2 session hook injects tree output
       minimal: Context file instructs agent to ls at start
     validation:
       check: Session start procedure loads file structure

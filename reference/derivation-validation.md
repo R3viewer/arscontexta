@@ -10,7 +10,7 @@ Nine tests that verify the derivation engine produces coherent, functional syste
 
 **Input:**
 - Use case: Research & Academic
-- Platform: Claude Code
+- Platform: OpenChamber
 - Focus: Tools for thought for agents
 
 **Derived configuration (from use-case preset):**
@@ -33,7 +33,7 @@ Nine tests that verify the derivation engine produces coherent, functional syste
 - inbox-processing: YES (processing = heavy ≥ moderate) — vault has 00_inbox/
 - processing-pipeline: YES (processing = heavy) — vault has /ralph, /pipeline, full 6R pipeline
 - semantic-search: YES (linking = explicit+implicit) — vault has qmd with 4 collections
-- hooks-blueprint: YES (automation ≥ convention) — vault has .claude/hooks/ with 10+ hooks
+- hooks-blueprint: YES (automation ≥ convention) — vault has OpenCode V2 plugin with native hooks
 - validation-hooks: PARTIAL — vault has PostToolUse validation hooks (automation trending beyond convention)
 
 **Gaps between derived and actual:**
@@ -52,7 +52,7 @@ Nine tests that verify the derivation engine produces coherent, functional syste
 
 **Input:**
 - Use case: Therapy & Reflection
-- Platform: Claude Code
+- Platform: OpenChamber
 - Focus: Pattern detection, emotional processing, growth tracking
 
 **Derived configuration:**
@@ -132,7 +132,7 @@ _schema:
 
 **Input:**
 - Use case: Custom — Competitive gaming strategy (e.g., fighting games, card games)
-- Platform: Claude Code
+- Platform: OpenChamber
 - Focus: Matchup knowledge, meta analysis, improvement tracking
 
 **Knowledge type classification:**
@@ -215,7 +215,7 @@ _schema:
 **Input:**
 - Domain A: Research & Academic (atomic, heavy processing, dense links)
 - Domain B: People & Relationships (moderate, light processing, sparse links)
-- Platform: Claude Code
+- Platform: OpenChamber
 
 **Per-domain configurations:**
 
@@ -387,7 +387,7 @@ The constraint system is productive, not just prohibitive. For each violation, i
 
 **Input:**
 - Use case: Therapy & Reflection (from Test 2 configuration)
-- Platform: Claude Code
+- Platform: OpenChamber
 - Generate: full context file, templates, skill instructions, self/ files
 
 **Search methodology:**
@@ -446,7 +446,7 @@ Scan the entire generated output for research-domain terms that should have been
 
 **Input:**
 - Use case: Personal learning system (concepts, study notes, reading insights)
-- Platform: Claude Code
+- Platform: OpenChamber
 - Starting configuration: Full automation (all presets ship complete)
 
 **Simulated growth trajectory:**
@@ -492,7 +492,7 @@ When a user disables a feature via /architect, the rest of the system must conti
 
 **Input:**
 - Use case: Research vault (our vault's configuration)
-- Platform: Claude Code
+- Platform: OpenChamber
 - Focus: Verify the full loop end-to-end, not just component existence
 
 **Phase 1: Observation Capture**

@@ -14,7 +14,7 @@ Questions the engine must answer when generating search configuration:
 
 1. **What is the expected note volume trajectory?** Low (<50), moderate (50-200), high (>200). Search modality requirements shift at each threshold.
 2. **Does the linking dimension include implicit connections?** If linking = explicit+implicit, semantic search is structurally required — it IS the implicit linking mechanism.
-3. **What platform tier is available?** Tier-1 (Claude Code with MCP) enables persistent semantic search servers. Tier-2 (CLI tools) enables batch semantic search. Tier-3 (convention only) limits to keyword search plus manual review.
+3. **What platform tier is available?** Tier-1 (OpenChamber with MCP) enables persistent semantic search servers. Tier-2 (CLI tools) enables batch semantic search. Tier-3 (convention only) limits to keyword search plus manual review.
 4. **What is the processing intensity?** Heavy processing generates vocabulary divergence faster (many notes reformulating the same concepts in different words), increasing semantic search value.
 5. **How domain-specific is the vocabulary?** Narrow domains with consistent terminology get less value from semantic search. Broad or cross-domain systems where the same concept appears under different names get maximum value.
 6. **Is duplicate detection a requirement?** If the pipeline includes a reduce phase that extracts claims, semantic duplicate detection prevents the same insight from being captured under different phrasings.
@@ -93,7 +93,7 @@ Questions the engine must answer when generating search configuration:
 
 **Derivation Implication:** Generated systems with processing = heavy or moderate should include a hybrid search mode for the reflect and reweave phases. Systems with processing = light can skip hybrid search because they generate fewer notes and the agent can use MOC traversal + keyword search for the limited connection-finding needed.
 
-**Source:** Vault operational experience. The reflect skill uses `mcp__qmd__deep_search` (hybrid) because connection quality justifies the ~20s latency.
+**Source:** Vault operational experience. The reflect skill uses `tools.qmd.deep_search` (hybrid) because connection quality justifies the ~20s latency.
 
 ---
 
@@ -103,7 +103,7 @@ Questions the engine must answer when generating search configuration:
 
 **Derivation Implication:** Any generated system with a processing pipeline (reduce phase) should include semantic duplicate detection. The reduce skill should check each extracted claim against the existing note corpus via semantic search before creating a new note. This is a quality gate, not an optional convenience.
 
-**Source:** Vault operational experience. The reduce skill uses `mcp__qmd__vector_search` for duplicate detection, and regularly catches duplicates that would be invisible to keyword search.
+**Source:** Vault operational experience. The reduce skill uses `tools.qmd.vector_search` for duplicate detection, and regularly catches duplicates that would be invisible to keyword search.
 
 ---
 
@@ -113,7 +113,7 @@ Questions the engine must answer when generating search configuration:
 
 **Derivation Implication:** Generated systems with a verify or recite phase should use semantic search (`vector_search`, not `deep_search`) for description quality testing. The absence of reranking is intentional — it tests what agents will actually encounter during routine search.
 
-**Source:** Vault operational experience. The recite and verify skills use `mcp__qmd__vector_search` to test description findability, specifically avoiding the deep_search tool's reranking.
+**Source:** Vault operational experience. The recite and verify skills use `tools.qmd.vector_search` to test description findability, specifically avoiding the deep_search tool's reranking.
 
 ---
 
@@ -151,13 +151,13 @@ Questions the engine must answer when generating search configuration:
 
 ### Platform Adaptation
 
-#### Claude Code enables persistent semantic search via MCP servers
+#### OpenChamber enables persistent semantic search via MCP servers in opencode.jsonc
 
-**Summary:** Claude Code's MCP (Model Context Protocol) integration allows semantic search to run as a persistent server process. The qmd MCP server keeps embedding models loaded in memory between requests, eliminating the 5-10 second cold-start penalty of spawning a new process per query. This makes semantic search practical for interactive use and for pipeline phases that issue multiple queries. The MCP server also solves the parallel worker problem: a singleton LlamaCpp instance with reference-counted sessions prevents multiple workers from loading duplicate models into RAM.
+**Summary:** OpenCode's MCP (Model Context Protocol) integration allows semantic search to run as a persistent server process. The qmd MCP server keeps embedding models loaded in memory between requests, eliminating the 5-10 second cold-start penalty of spawning a new process per query. This makes semantic search practical for interactive use and for pipeline phases that issue multiple queries.
 
-**Derivation Implication:** For Claude Code (tier-1) systems, generate MCP configuration (`.mcp.json`) that points to the semantic search server. Include collection definitions matching the system's folder structure. Document the MCP tool names in the context file so the agent knows which tools to call. Note the MCP-in-subagents limitation: custom agents spawned via Task tool do not inherit MCP access, requiring the CLI fallback.
+**Derivation Implication:** For OpenChamber systems, generate MCP configuration in `opencode.jsonc` (`mcp.servers.qmd` + permissions rule) that points to the semantic search server. Include collection definitions matching the system's folder structure. Document the MCP tool names in `AGENTS.md` so the agent knows which tools to call.
 
-**Source:** Vault operational experience with qmd MCP server. The `.mcp.json` configuration and collection definitions are proven patterns.
+**Source:** Vault operational experience with qmd MCP server. The `opencode.jsonc` configuration and collection definitions are proven patterns.
 
 ---
 
@@ -199,7 +199,7 @@ Questions the engine must answer when generating search configuration:
 
 **Derivation Implication:** Generated context files that instruct agents on search usage should distinguish between query formulation for keyword search (short, focused terms) and query formulation for semantic search (natural language descriptions). A single instruction like "search for your concept" is insufficient — the agent needs to know how to phrase queries differently for each modality.
 
-**Source:** Vault operational experience. Full-length descriptions used as BM25 queries via `mcp__qmd__search` frequently returned zero results, while the same descriptions used via `mcp__qmd__vector_search` returned accurate matches.
+**Source:** Vault operational experience. Full-length descriptions used as BM25 queries via `tools.qmd.search` frequently returned zero results, while the same descriptions used via `tools.qmd.vector_search` returned accurate matches.
 
 ---
 
@@ -253,7 +253,7 @@ Questions the engine must answer when generating search configuration:
 
 **Derivation Implication:** Generate a task-to-modality mapping table in every context file that includes search instructions. The table should list the system's operational tasks (the ones defined by its processing pipeline and maintenance routine) and the appropriate search modality for each. This is the search equivalent of the pre-task context router — it routes tasks to appropriate search modes.
 
-**Source:** Vault CLAUDE.md "Which mode for which skill" table. This task-specific routing replaced an earlier pattern where agents defaulted to hybrid search for everything, wasting 20 seconds on lookups that keyword search handles in 0.2 seconds.
+**Source:** Vault AGENTS.md "Which mode for which skill" table. This task-specific routing replaced an earlier pattern where agents defaulted to hybrid search for everything, wasting 20 seconds on lookups that keyword search handles in 0.2 seconds.
 
 ---
 

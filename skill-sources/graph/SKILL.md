@@ -1,12 +1,6 @@
 ---
 name: graph
 description: Interactive knowledge graph analysis. Routes natural language questions to graph scripts, interprets results in domain vocabulary, and suggests concrete actions. Triggers on "/graph", "/graph health", "/graph triangles", "find synthesis opportunities", "graph analysis".
-version: "1.0"
-generated_from: "arscontexta-v1.6"
-user-invocable: true
-context: fork
-model: sonnet
-allowed-tools: Read, Grep, Glob, Bash
 argument-hint: "[operation] [target] — operations: health, triangles, bridges, clusters, hubs, siblings, forward, backward, query"
 ---
 
@@ -101,9 +95,9 @@ echo "Coverage: $COVERED / $NOTE_COUNT"
 ```
 
 If graph helper scripts exist in `ops/scripts/graph/`, use them instead of inline analysis:
-- `ops/scripts/graph/link-density.sh` for density metrics
-- `ops/scripts/graph/orphan-notes.sh` for orphan detection
-- `ops/scripts/graph/dangling-links.sh` for dangling link detection
+- `ops/scripts/graph/link-density.mjs` for density metrics
+- `ops/scripts/graph/orphan-notes.mjs` for orphan detection
+- `ops/scripts/graph/dangling-links.mjs` for dangling link detection
 
 **Step 2: Interpret and present**
 
@@ -156,7 +150,7 @@ for f in "$NOTES_DIR"/*.md; do
 done
 ```
 
-If `ops/scripts/graph/find-triangles.sh` exists, use it directly.
+If `ops/scripts/graph/find-triangles.mjs` exists, use it directly.
 
 **Step 2: Find open triangles**
 
@@ -208,7 +202,7 @@ Identify structurally critical {vocabulary.note_plural} whose removal would disc
 
 Build a bidirectional adjacency list from all wiki links in {vocabulary.notes}/.
 
-If `ops/scripts/graph/find-bridges.sh` exists, use it directly.
+If `ops/scripts/graph/find-bridges.mjs` exists, use it directly.
 
 **Step 2: Find bridge nodes**
 
@@ -246,7 +240,7 @@ Discover connected components and topic boundaries.
 
 Build a bidirectional adjacency list from all wiki links.
 
-If `ops/scripts/graph/find-clusters.sh` exists, use it directly.
+If `ops/scripts/graph/find-clusters.mjs` exists, use it directly.
 
 **Step 2: Find connected components**
 
@@ -310,7 +304,7 @@ for f in "$NOTES_DIR"/*.md; do
 done | sort -t: -k2 -rn | head -10
 ```
 
-If `ops/scripts/graph/influence-flow.sh` exists, use it directly.
+If `ops/scripts/graph/influence-flow.mjs` exists, use it directly.
 
 **Step 2: Identify synthesizers**
 
@@ -354,7 +348,7 @@ For each pair of {vocabulary.note_plural} in the {vocabulary.topic_map}:
 2. Does B link to A? (grep for `[[A]]` in B's file)
 3. If neither: this is an unconnected sibling pair
 
-If `ops/scripts/graph/topic-siblings.sh` exists, use it with the topic argument.
+If `ops/scripts/graph/topic-siblings.mjs` exists, use it with the topic argument.
 
 **Step 3: Evaluate pairs**
 
@@ -394,7 +388,7 @@ N-hop forward traversal from a {vocabulary.note}. Default depth: 2.
 
 Read the {vocabulary.note} and extract all outgoing wiki links (hop 1).
 
-If `ops/scripts/graph/n-hop-forward.sh` exists, use it with the note and depth arguments.
+If `ops/scripts/graph/n-hop-forward.mjs` exists, use it with the note and depth arguments.
 
 **Step 2: Traverse**
 
@@ -434,7 +428,7 @@ NAME="[note name]"
 grep -rl "\[\[$NAME\]\]" "$NOTES_DIR"/*.md 2>/dev/null
 ```
 
-If `ops/scripts/graph/recursive-backlinks.sh` exists, use it with the note and depth arguments.
+If `ops/scripts/graph/recursive-backlinks.mjs` exists, use it with the note and depth arguments.
 
 **Step 2: Traverse backward**
 

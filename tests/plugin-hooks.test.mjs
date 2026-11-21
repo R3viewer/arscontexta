@@ -76,6 +76,28 @@ test('Vault Detection & Config - Identifies vaults, marker migration and configs
 
     const foundRoot = findVaultRoot(deepNote);
     assert.equal(foundRoot, path.resolve(tmpDir));
+
+    // Test indented derivation-manifest.md with comments parsing
+    fs.mkdirSync(path.join(tmpDir, 'ops'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmpDir, 'ops', 'derivation-manifest.md'),
+      `---
+vocabulary:
+  notes: "reflections" # e.g. reflections
+  inbox: "journal" # quick captures
+  note: "reflection"
+  topic_map: "theme"
+  reduce: "surface"
+---`,
+      'utf8'
+    );
+
+    const structure = resolveVaultStructure(tmpDir);
+    assert.equal(structure.notesDir, 'reflections', 'Should resolve indented notes folder from derivation-manifest');
+    assert.equal(structure.inboxDir, 'journal', 'Should resolve indented inbox folder from derivation-manifest');
+    assert.equal(structure.vocabulary.note, 'reflection');
+    assert.equal(structure.vocabulary.topicMap, 'theme');
+    assert.equal(structure.vocabulary.reduce, 'surface');
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }

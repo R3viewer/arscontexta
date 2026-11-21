@@ -18,6 +18,21 @@ test('Agents Integrity - knowledge-guide agent has valid OpenCode V2 frontmatter
   assert.ok(/^mode:\s*subagent/m.test(frontmatter), 'Agent must declare mode: subagent');
 });
 
+test('Agents Integrity - knowledge-worker agent has valid OpenCode V2 frontmatter', () => {
+  const agentPath = path.resolve('agents/knowledge-worker.md');
+  assert.ok(fs.existsSync(agentPath), 'agents/knowledge-worker.md must exist');
+  const content = fs.readFileSync(agentPath, 'utf8');
+
+  assert.ok(content.startsWith('---'), 'agents/knowledge-worker.md must start with YAML frontmatter');
+  const closingIdx = content.indexOf('\n---', 3);
+  assert.ok(closingIdx !== -1, 'agents/knowledge-worker.md must have closing frontmatter delimiter');
+
+  const frontmatter = content.slice(3, closingIdx);
+  assert.ok(/^name:\s*knowledge-worker/m.test(frontmatter), 'Agent must declare name: knowledge-worker');
+  assert.ok(/^description:\s*.+/m.test(frontmatter), 'Agent must declare description');
+  assert.ok(/^mode:\s*subagent/m.test(frontmatter), 'Agent must declare mode: subagent');
+});
+
 test('Skills Integrity - 10 plugin skills have valid SKILL.md with frontmatter', () => {
   const skillsDir = path.resolve('skills');
   const skillDirs = fs.readdirSync(skillsDir, { withFileTypes: true })

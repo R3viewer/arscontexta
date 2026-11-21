@@ -1,12 +1,6 @@
 ---
 name: seed
 description: Add a source file to the processing queue. Checks for duplicates, creates archive folder, moves source from inbox, creates extract task, and updates queue. Triggers on "/seed", "/seed [file]", "queue this for processing".
-version: "1.0"
-generated_from: "arscontexta-v1.6"
-user-invocable: true
-context: fork
-model: sonnet
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 argument-hint: "[file] — path to source file to seed for processing"
 ---
 
@@ -65,7 +59,7 @@ ls -d ops/queue/archive/*-${SOURCE_NAME}* 2>/dev/null
 If semantic search is available (qmd MCP tools or CLI), check for content overlap:
 
 ```
-mcp__qmd__search query="claims from {source filename}" limit=5
+tools.qmd.search query="claims from {source filename}" limit=5
 ```
 
 Or via keyword search in the {DOMAIN:notes}/ directory:
@@ -264,9 +258,9 @@ ops/queue/article.md                               <- task file created
 
 **Living doc (outside {DOMAIN:inbox}):**
 ```
-CLAUDE.md -> stays as CLAUDE.md (no move)
-ops/queue/archive/2026-01-30-claude-md/           <- folder still created
-ops/queue/claude-md.md                             <- task file created
+AGENTS.md -> stays as AGENTS.md (no move)
+ops/queue/archive/2026-01-30-agents-md/           <- folder still created
+ops/queue/agents-md.md                             <- task file created
 ```
 
 When /archive-batch runs later, it moves task files into the existing archive folder and generates a summary.

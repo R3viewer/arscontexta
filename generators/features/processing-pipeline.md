@@ -245,7 +245,7 @@ pipeline:
 
 | Platform Capability | Orchestration Mechanism |
 |---------------------|----------------------|
-| Subagent spawning | Task tool with worker agents (preferred — true context isolation) |
+| Subagent spawning | OpenCode subagent tool with worker agents (preferred — true context isolation) |
 | Background processing | Background agents or scheduled skills |
 | No subagent support | Manual invocation with task file handoff between sessions |
 

@@ -1,9 +1,6 @@
 ---
 name: reflect
 description: Find connections between notes and update MOCs. Requires semantic judgment to identify genuine relationships. Use after /reduce creates notes, when exploring connections, or when a topic needs synthesis. Triggers on "/reflect", "/reflect [note]", "find connections", "update MOCs", "connect these notes".
-user-invocable: true
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, mcp__qmd__search, mcp__qmd__vector_search, mcp__qmd__deep_search, mcp__qmd__status
-context: fork
 ---
 
 ## Runtime Configuration (Step 0 — before any processing)
@@ -114,7 +111,7 @@ External loop mode for /ralph:
 
 Before using semantic search, verify the index is current. This is self-healing: if {vocabulary.note_plural} were created outside the pipeline (manual edits, other skills), reflect catches the drift before searching.
 
-1. Try `mcp__qmd__status` to get the indexed document count for the target collection
+1. Try `tools.qmd.status` to get the indexed document count for the target collection
 2. **If MCP unavailable** (tool fails or returns error): fall back to bash:
    ```bash
    LOCKDIR="ops/queue/.locks/qmd.lock"
@@ -176,7 +173,7 @@ If you know the topic (check the {vocabulary.note}'s Topics footer), start with 
 
 **Three-tier fallback for semantic search:**
 
-**Tier 1 — MCP tools (preferred):** Use `mcp__qmd__deep_search` (hybrid search with expansion + reranking):
+**Tier 1 — MCP tools (preferred):** Use `tools.qmd.deep_search` (hybrid search with expansion + reranking):
 - query: "[{vocabulary.note}'s core concepts and mechanisms]"
 - limit: 15
 

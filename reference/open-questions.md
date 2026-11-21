@@ -26,9 +26,9 @@ These items are specified but not implemented in v1.0. They are concrete enough 
 
 ### 3. Multi-Platform Support
 
-**What:** Supporting additional agent platforms beyond Claude Code, with shared notes/ and self/ while maintaining platform-specific ops/ and automation.
+**What:** Supporting agent platforms (OpenChamber, standalone OpenCode, and others), with shared notes/ and self/ while maintaining platform-specific ops/ and automation.
 
-**Why deferred:** Requires solving platform-specific session isolation, context file format adaptation, and shared state reconciliation. Currently focused on Claude Code as the sole supported platform.
+**Why deferred:** Requires solving platform-specific session isolation, context file format adaptation, and shared state reconciliation. Currently focused on OpenChamber as the primary supported platform.
 
 **When to ship:** When a second platform stabilizes enough for reliable operation, and when user demand validates multi-platform as a real use case.
 
@@ -60,7 +60,7 @@ These items are specified but not implemented in v1.0. They are concrete enough 
 
 **What:** Background inference during inactive periods — processing inbox items, finding connections between existing notes, running backward maintenance, detecting synthesis opportunities. Produces a morning briefing in ops/.
 
-**Why deferred:** Requires platform-specific scheduling (hook-suggested on Claude Code). The core derivation engine and processing pipeline work without background compute. Sleep-time compute is an acceleration mechanism, not a prerequisite.
+**Why deferred:** Requires platform-specific scheduling (hook-suggested on OpenChamber). The core derivation engine and processing pipeline work without background compute. Sleep-time compute is an acceleration mechanism, not a prerequisite.
 
 **When to ship:** After the processing pipeline skills are proven reliable, when the incremental value of background processing justifies the scheduling complexity.
 
@@ -156,7 +156,7 @@ These questions don't have clear answers yet. They inform the research graph's d
 
 ### Cross-Platform Hook Equivalence
 
-**Question:** Can we ensure generated systems work equally well across Claude Code and future platforms?
+**Question:** Can we ensure generated systems work equally well across OpenChamber and standalone platforms?
 
 **Context:** The kernel specifies platform-variant implementations for hooks and tree injection. But the variants are hand-specified, not systematically tested for behavioral equivalence.
 
@@ -228,9 +228,9 @@ These questions don't have clear answers yet. They inform the research graph's d
 
 ### Optimal Context File Size
 
-**Question:** Is there a point where the generated CLAUDE.md becomes counterproductive?
+**Question:** Is there a point where the generated AGENTS.md becomes counterproductive?
 
-**Context:** Our vault's CLAUDE.md is ~30KB. Generated context files are 5-15KB depending on feature blocks. At some point, methodology instructions may crowd out task-relevant context.
+**Context:** Our vault's AGENTS.md is ~30KB. Generated context files are 5-15KB depending on feature blocks. At some point, methodology instructions may crowd out task-relevant context.
 
 **Approach:** Test generated systems at various context file sizes on standard vault operations. Measure: task completion quality, hallucination rate, methodology compliance, context window utilization.
 

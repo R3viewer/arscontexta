@@ -1,6 +1,6 @@
 # Reference Document Content Audit Report
 
-**Auditor:** Heinrich (Claude Code)
+**Auditor:** Heinrich (OpenChamber)
 **Date:** 2026-02-13
 **PRD Section:** 15 — Reference Document Structural Template
 

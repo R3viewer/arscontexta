@@ -12,7 +12,7 @@ This document answers: what should the agent read at session start, how should i
 
 Questions the engine must answer when generating session configuration:
 
-1. **What platform capabilities exist for session automation?** Hooks (Claude Code) can automate orientation and persistence. Convention-only systems rely on context file instructions.
+1. **What platform capabilities exist for session automation?** Hooks (OpenChamber / OpenCode plugin) can automate orientation and persistence. Convention-only systems rely on context file instructions.
 2. **What is the self/ space structure?** Session orientation reads self/ — the derivation must know which files exist to generate the orientation sequence.
 3. **What session types will this system support?** Processing sessions (pipeline work), maintenance sessions (health checks), exploration sessions (research and connection finding), capture sessions (rapid note creation). Different types orient and persist differently.
 4. **What is the expected session frequency?** Frequent sessions need different handoff than infrequent sessions. Systems used rarely need heavier orientation because more has been forgotten.
@@ -125,7 +125,7 @@ Questions the engine must answer when generating session configuration:
 
 **Summary:** The beginning and end of a session are the two moments where automated behavior adds the most value. At session start: load orientation files, inject file tree, evaluate condition-based triggers against vault state, display health warnings. At session end: save session transcript to ops/sessions/ (Primitive 15 — session capture), auto-create mining tasks for future processing, validate that notes were saved, check for broken links introduced during the session, auto-commit changes, push to remote. These are deterministic operations (verification, not judgment) that hooks can handle without corrupting quality.
 
-**Derivation Implication:** For hook-capable platforms (Claude Code), generate session-start and stop hooks that automate the deterministic parts of orient and persist. The stop hook MUST save session transcripts (session capture is INVARIANT). For convention-only systems, generate checklist instructions that the agent follows manually. The checklist should cover the same behaviors as the hooks, just without automation. The context file should explain what the hooks do so the agent understands the automated behavior.
+**Derivation Implication:** For hook-capable platforms (OpenChamber), generate plugin hooks that automate the deterministic parts of orient and persist. The session-capture hook MUST save session transcripts (session capture is INVARIANT). For convention-only systems, generate checklist instructions that the agent follows manually. The checklist should cover the same behaviors as the hooks, just without automation. The context file should explain what the hooks do so the agent understands the automated behavior.
 
 **Source:** Vault hook infrastructure. The session-start hook (tree injection + condition evaluation) and stop hook (session capture + auto-commit) are proven patterns that eliminate routine tasks without requiring judgment.
 
@@ -153,13 +153,13 @@ Questions the engine must answer when generating session configuration:
 
 ### Platform Adaptation
 
-#### Claude Code automates session rhythm through hooks
+#### OpenChamber automates session rhythm through server plugin hooks
 
-**Summary:** Claude Code's hook system (PreToolUse, PostToolUse, Stop events) enables automatic session rhythm. A SessionStart hook injects the file tree and loads orientation files. A PostToolUse hook on Write operations validates note quality. A Stop hook (or pre-push hook) can remind the agent to update goals.md. This automation makes the session rhythm invisible — the agent follows it without conscious effort because the infrastructure enforces it. The hooks encode deterministic verification (does the file exist? is the schema valid?) while leaving judgment operations (is the description good? are the connections meaningful?) to skills.
+**Summary:** OpenChamber's OpenCode V2 plugin hooks (session context, tool execute.after, and session lifecycle events) enable automatic session rhythm. A session context hook injects the file tree and loads orientation files. A tool execute.after hook on write/edit operations validates note quality and runs background auto-commit. An event subscription captures session state upon idle or archive. This automation makes the session rhythm invisible — the agent follows it without conscious effort because the infrastructure enforces it. The hooks encode deterministic verification (does the file exist? is the schema valid?) while leaving judgment operations (is the description good? are the connections meaningful?) to skills.
 
-**Derivation Implication:** For Claude Code systems, generate hook configurations in `.claude/hooks/` that automate: (1) tree injection at session start, (2) self/ file loading at session start, (3) note validation on Write, (4) session-end reminders. The context file should document what hooks exist and what they do, so the agent understands the automated behavior and doesn't duplicate it.
+**Derivation Implication:** For OpenChamber systems, generate: (1) .arscontexta marker enabling plugin hooks, (2) AGENTS.md documenting orient/work/persist lifecycle, (3) domain-transformed skills and commands in .opencode/.
 
-**Source:** Vault `.claude/hooks/` implementation. Proven hook patterns: session-start tree injection, PostToolUse validation, auto-commit.
+**Source:** Vault OpenCode V2 plugin implementation. Proven hook patterns: session orientation, write validation, auto-commit, session capture.
 
 ---
 
@@ -169,7 +169,7 @@ Questions the engine must answer when generating session configuration:
 
 **Derivation Implication:** For convention-only systems, place session rhythm instructions at the top of the context file (where they benefit from smart-zone attention quality). Use bold formatting and clear headers to make the instructions visually prominent. Include a session-end checklist near the end of the context file with "CRITICAL: Do not end the session without completing these steps" framing to counteract attention degradation.
 
-**Source:** Vault CLAUDE.md session patterns section. Convention-based instruction-following is the foundation layer that all platforms share.
+**Source:** Vault AGENTS.md session patterns section. Convention-based instruction-following is the foundation layer that all platforms share.
 
 ---
 

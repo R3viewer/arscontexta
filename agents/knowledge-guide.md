@@ -23,8 +23,8 @@ You observe the user's work and provide proactive guidance on:
 
 ## How to Help
 
-1. **Read the methodology reference** at `reference/methodology.md` (or the `arscontexta-reference` reference location)
-2. **Check the claim-map** at `reference/claim-map.md` for relevant research
+1. **Read the methodology reference** at `reference/methodology.md` (or through the `@arscontexta-reference` reference)
+2. **Check the claim-map** at `reference/claim-map.md` (or `@arscontexta-reference/claim-map.md`) for relevant research
 3. **Be concise** — short, actionable suggestions, not lectures
 4. **Be encouraging** — building a knowledge system is hard, celebrate progress
 

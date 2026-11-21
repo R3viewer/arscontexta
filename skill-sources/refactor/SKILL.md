@@ -1,11 +1,6 @@
 ---
 name: refactor
 description: Plan vault restructuring from config changes. Compares config.yaml against derivation.md, identifies dimension shifts, shows restructuring plan, executes on approval. Triggers on "/refactor", "restructure vault".
-version: "1.0"
-generated_from: "arscontexta-v1.6"
-user-invocable: true
-context: fork
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 argument-hint: "[dimension|--dry-run] — focus on specific dimension or preview without approval prompt"
 ---
 
@@ -160,7 +155,7 @@ For content-impacting changes:
 
 ### Interaction Constraint Check
 
-Read `${CLAUDE_PLUGIN_ROOT}/reference/interaction-constraints.md` and check:
+Read `reference/interaction-constraints.md` and check:
 
 1. **Hard blocks:** Would the new configuration create a combination that WILL fail?
    - Example: atomic granularity + 2-tier navigation at high volume
@@ -244,7 +239,7 @@ echo "[list of changes]" >> ops/changelog.md
 For each skill affected by the dimension changes:
 
 1. Read the current skill from the generated skills directory
-2. Consult `${CLAUDE_PLUGIN_ROOT}/reference/` for the latest skill generation approach
+2. Consult `reference/` for the latest skill generation approach
 3. Apply vocabulary transformation from derivation-manifest
 4. Apply processing depth settings from the new config
 5. Write the regenerated skill
@@ -322,7 +317,7 @@ If Phase 2 identified content-impacting changes:
 3. **Link updates:** Update all wiki links affected by renames
    ```bash
    # Use rename script if available
-   ops/scripts/rename-note.sh "old name" "new name"
+   node ops/scripts/rename-note.mjs "old name" "new name"
    ```
 
 4. **MOC restructuring:** Merge/split MOCs as needed

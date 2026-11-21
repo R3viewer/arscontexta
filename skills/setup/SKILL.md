@@ -540,7 +540,7 @@ engine_version: "1.0.0"
 | [additional terms] | [domain terms] | [category] |
 
 ## Platform
-- Tier: [Claude Code / Minimal]
+- Platform: [OpenChamber / Minimal]
 - Automation level: [full / convention / manual]
 - Automation: [full (default) / convention / manual]
 
@@ -1169,10 +1169,9 @@ vocabulary:
     # ... 4-8 domain-specific categories
 
 platform_hints:
-  context: [fork | single]
-  allowed_tools: [tool list based on platform tier]
+  platform: [openchamber | minimal]
   semantic_search_tool: [tools.qmd.deep_search | null]
-  semantic_search_autoapprove:
+  semantic_search_tools:
     - tools.qmd.search
     - tools.qmd.vector_search
     - tools.qmd.deep_search
@@ -1293,7 +1292,15 @@ For each skill:
 3. Ensure skill frontmatter has clean name and description metadata
 4. Write the transformed SKILL.md to the user's skills directory
 
-**For OpenChamber:** Write to `.opencode/skills/[domain-skill-name]/SKILL.md` and `.opencode/commands/[domain-skill-name].md`.
+**For OpenChamber:**
+- Write skills to `.opencode/skills/[domain-skill-name]/SKILL.md` (for agent tool invocation).
+- Write slash commands to `.opencode/commands/[domain-skill-name].md` (for user chat invocation) using:
+  ```markdown
+  ---
+  description: {skill description}
+  ---
+  Execute the $[domain-skill-name] skill with arguments: $ARGUMENTS
+  ```
 
 **CRITICAL:** Do NOT generate skills from scratch or improvise their content. Read the source template and transform it. The templates contain quality gates, anti-shortcut language, and handoff formats that must be preserved.
 
@@ -1310,6 +1317,14 @@ OpenCode automatically discovers skills in `.opencode/skills/` and commands in `
 After creating ALL skill and command files:
 1. **Inform the user:** Display "Generated [N] skills and commands in .opencode/."
 2. **Phase 6 guidance:** "Try /[domain:help] or $[domain:help] to see what's available."
+
+---
+
+#### Step 9b: Agents (pipeline worker and methodology guide)
+
+Install specialized subagents to `.opencode/agents/`:
+1. Read `agents/knowledge-worker.md` and write to `.opencode/agents/knowledge-worker.md` (isolated pipeline worker for `/ralph` subagent phases).
+2. Read `agents/knowledge-guide.md` and write to `.opencode/agents/knowledge-guide.md` (proactive quality & methodology advisor).
 
 ---
 
@@ -1369,8 +1384,23 @@ Welcome to your [domain] system.
 2. If installed:
    - Run `qmd init` in the generated vault root
    - Configure or update the qmd collection for `{vocabulary.notes_collection}` so it points at the generated notes directory
-   - Create or merge `.mcp.json` in the vault root with this qmd MCP server contract:
-     - `{"mcpServers":{"qmd":{"command":"qmd","args":["mcp"],"autoapprove":["tools.qmd.search","tools.qmd.vector_search","tools.qmd.deep_search","tools.qmd.get","tools.qmd.multi_get","tools.qmd.status"]}}}`
+   - Create or merge `opencode.jsonc` in the vault root with this qmd MCP server configuration:
+     ```jsonc
+     {
+       "$schema": "https://opencode.ai/config.json",
+       "mcp": {
+         "servers": {
+           "qmd": {
+             "type": "local",
+             "command": ["qmd", "mcp"]
+           }
+         }
+       },
+       "permissions": [
+         { "action": "qmd_*", "resource": "*", "effect": "allow" }
+       ]
+     }
+     ```
    - Run `qmd update && qmd embed` to build the initial index
 3. If NOT installed:
    - Add a "Next Steps" section to the Phase 6 summary telling the user to install qmd
@@ -1379,7 +1409,7 @@ Welcome to your [domain] system.
      - `qmd init`
      - `qmd collection add . --name {vocabulary.notes_collection} --mask "**/*.md"`
      - `qmd update && qmd embed`
-   - Include the `.mcp.json` qmd MCP contract with `autoapprove` entries in setup output so activation is deterministic once qmd is installed
+   - Include the `opencode.jsonc` qmd MCP configuration in setup output so activation is automatic once qmd is installed
 
 ---
 
@@ -1387,12 +1417,12 @@ Welcome to your [domain] system.
 
 **Re-read `ops/derivation.md`** and the generated templates for schema fields.
 
-After creating templates (Step 8), read the `_schema` blocks and generate domain-adapted analysis scripts in `ops/queries/` (or `scripts/queries/` for Claude Code).
+After creating templates (Step 8), read the `_schema` blocks and generate domain-adapted analysis scripts in `ops/queries/` as portable Node ESM scripts (`.mjs`).
 
 **Generation algorithm:**
 1. Read all `_schema.required` and `_schema.optional` fields from generated templates
 2. Identify queryable dimensions (fields with enum values, date fields, array fields with wiki links)
-3. For each meaningful 2-field combination, generate a ripgrep-based query script:
+3. For each meaningful 2-field combination, generate a Node ESM query script:
    - **Cross-reference queries** -- notes sharing one field value but differing on another
    - **Temporal queries** -- items older than N days in a given status
    - **Density queries** -- fields with few entries (gap detection)
@@ -1403,10 +1433,10 @@ Generate 3-5 scripts appropriate for the domain. Examples:
 
 | Domain | Generated Queries |
 |--------|-------------------|
-| Therapy | `trigger-mood-correlation.sh`, `recurring-triggers.sh`, `stale-patterns.sh` |
-| Research | `cross-methodology.sh`, `low-confidence-candidates.sh`, `source-diversity.sh` |
-| Relationships | `neglected-contacts.sh`, `topic-overlap.sh` |
-| PM | `overdue-items.sh`, `owner-workload.sh`, `priority-distribution.sh` |
+| Therapy | `trigger-mood-correlation.mjs`, `recurring-triggers.mjs`, `stale-patterns.mjs` |
+| Research | `cross-methodology.mjs`, `low-confidence-candidates.mjs`, `source-diversity.mjs` |
+| Relationships | `neglected-contacts.mjs`, `topic-overlap.mjs` |
+| PM | `overdue-items.mjs`, `owner-workload.mjs`, `priority-distribution.mjs` |
 
 Include a discovery section in the context file documenting what queries exist, when to run them, and what insights they surface.
 
@@ -1440,8 +1470,8 @@ session_capture: true
 ```
 
 Keys and defaults:
-- `git: true` — auto-commit on writes (auto-commit.sh)
-- `session_capture: true` — session JSON capture on start (session-orient.sh)
+- `git: true` — auto-commit on writes (via OpenCode plugin)
+- `session_capture: true` — session JSON capture on start and idle (via OpenCode plugin)
 
 Omitted keys default to `true`, so a minimal marker file (or even an empty file) preserves full default behaviour.
 
@@ -1530,7 +1560,7 @@ Here's what you can do:
   /arscontexta:learn              -- research a topic and grow your graph
 ```
 
-Note: Plugin commands use the format `/arscontexta:command-name`. List all commands explicitly since they may not appear in tab completion. If skills were generated, note they require a Claude Code restart.
+Note: Plugin commands use the format `/arscontexta:command-name`.
 
 ### First-Success Moment
 
@@ -1558,7 +1588,7 @@ ars contexta
 Your [domain] system is ready.
 
 Configuration:
-  Platform:        [Claude Code / Minimal]
+  Platform:        [OpenChamber / Minimal]
   Automation: Full — all capabilities from day one
   [Key dimension highlights relevant to the user]
 
@@ -1566,9 +1596,8 @@ Created:
   [list of folders with domain names]
   [context file name]
   [templates created]
-  16 skills generated (vocabulary-transformed)
+  16 skills and commands generated in .opencode/ (vocabulary-transformed)
   10 plugin commands available via /arscontexta:*
-  [hooks configured]
   ops/derivation.md      -- the complete record of how this system was derived
   ops/derivation-manifest.md -- machine-readable config for runtime skills
   ops/methodology/       -- vault self-knowledge (query with /ask or browse directly)
@@ -1577,23 +1606,19 @@ Created:
 Kernel Validation: [PASS count] / 15 passed
 [Any warnings to address]
 
-IMPORTANT: Restart Claude Code now to activate skills and hooks.
-  Skills and hooks take effect after restart — they are not available in the current session.
-
 Next steps:
-  1. Quit and restart Claude Code (required — skills won't work until you do)
-  2. Read your AGENTS.md -- it's your complete methodology
-  3. Try /arscontexta:help to see all available commands
-  4. [If qmd not installed: "Install qmd for semantic search: npm install -g @tobilu/qmd (or bun install -g @tobilu/qmd), then run qmd init, qmd update, qmd embed"]
-  5. [If personality not enabled: "Run /arscontexta:architect later to tune the agent's voice"]
-  6. Try /arscontexta:tutorial for a guided walkthrough
+  1. Read your AGENTS.md -- it's your complete methodology
+  2. Try /arscontexta:help to see all available commands
+  3. [If qmd not installed: "Install qmd for semantic search: npm install -g @tobilu/qmd (or bun install -g @tobilu/qmd), then run qmd init, qmd update, qmd embed"]
+  4. [If personality not enabled: "Run /arscontexta:architect later to tune the agent's voice"]
+  5. Try /arscontexta:tutorial for a guided walkthrough
 
 ```
 
 ### Conditional Next Steps
 
 Include these based on system state:
-- If qmd not installed and semantic-search is active: npm/bun install instructions + qmd init/update/embed + `.mcp.json` contract
+- If qmd not installed and semantic-search is active: npm/bun install instructions + qmd init/update/embed + opencode.jsonc configuration
 - If personality not enabled: mention `/arscontexta:architect` for future voice tuning once the vault has 50+ notes
 - If any kernel checks failed: specific remediation instructions
 

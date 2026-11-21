@@ -137,7 +137,7 @@ Purpose: Catch quality drift immediately, not during maintenance
 ```
 
 **Implementation:**
-- Claude Code: `.claude/hooks/` with bash scripts
+- OpenChamber / OpenCode: native Node ESM hooks in Ars Contexta server plugin (`plugin/`)
 
 ---
 

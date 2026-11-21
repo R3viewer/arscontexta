@@ -121,7 +121,7 @@ The agent should:
   - New directory: `encounters/` (capture zone for quick people notes)
   - New starter files: a sample person page to show the format
   - Updated files:
-    - CLAUDE.md: add "People Tracking" section describing the relationship domain, its vocabulary, processing, and cross-domain linking convention
+    - AGENTS.md: add "People Tracking" section describing the relationship domain, its vocabulary, processing, and cross-domain linking convention
     - `notes/index.md`: add "People" section with link to starter person page
     - ops/derivation.md: document the composition — which dimensions apply to which domain
     - ops/derivation-manifest.md: add `person-page` and `observation` to template list

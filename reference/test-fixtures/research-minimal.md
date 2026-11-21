@@ -41,16 +41,16 @@ The agent should:
 - Confirm heavy processing (3-5 papers/week is moderate-high volume, gap detection requires systematic extraction)
 - Note the "gap detection" signal — this maps to MOC "Explorations Needed" sections
 - Derive dimension positions: atomic granularity, flat organization, explicit+implicit linking, heavy processing, 3-tier navigation
-- Confirm Claude Code environment (needed for tier/automation decision)
+- Confirm OpenChamber environment (needed for tier/automation decision)
 
 ### User Turn 3
 
-Claude Code.
+OpenChamber.
 
 ### Expected Agent Response Pattern 3
 
 The agent should:
-- Set platform to Claude Code (full automation available)
+- Set platform to OpenChamber (full automation available)
 - Present derived configuration summary with all 8 dimensions
 - Explain the key derivation decisions (why atomic, why semantic search is essential for cross-subfield vocabulary differences)
 - Present the two opt-in/opt-out decisions: self space (OFF by default for Research) and qmd semantic search (strongly recommended for cross-subfield vocabulary)
@@ -78,14 +78,14 @@ Yes, let us go with that. Generate it.
 
 The agent should:
 - Generate the full vault structure:
-  - CLAUDE.md with all research-native sections
+  - AGENTS.md with all research-native sections
   - self/ with identity.md, methodology.md, goals.md
   - notes/ (or claims/) with index.md hub MOC and 3 domain MOCs (alignment, interpretability, governance)
   - inbox/ (or reading-queue/)
   - archive/
   - templates/ with research-note.md and moc.md
   - ops/ with derivation.md, derivation-manifest.md, methodology/, observations/, tensions/, sessions/
-  - .claude/hooks/ with session-orient.sh and session-stop.sh (session capture)
+  - .arscontexta (plugin session-orient and session-capture enabled)
 - Run validate-kernel.mjs and report 15/15
 - Provide a brief orientation to the generated system
 

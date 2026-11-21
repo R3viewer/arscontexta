@@ -61,16 +61,16 @@ The agent should:
 - Set navigation to 2-tier (hub themes MOC + theme-specific MOCs like anxiety, relationships, work, growth)
 - Set maintenance to condition-based with tight thresholds (aligned with therapy session rhythm)
 - Suggest schema fields in emotional vocabulary: mood, trigger, pattern, growth area
-- Ask about platform: "What tool are you using — Claude Code, or something else?"
+- Ask about platform: "What tool are you using — OpenChamber, or something else?"
 
 ### User Turn 4
 
-I am using Claude Code.
+I am using OpenChamber.
 
 ### Expected Agent Response Pattern 4
 
 The agent should:
-- Set platform to Claude Code (full automation available)
+- Set platform to OpenChamber (full automation available)
 - Present the two opt-in/opt-out decisions: self space (ON by default for Personal Assistant — especially relevant for therapy as the agent's reflection partner identity is central) and qmd semantic search (optional — low volume initially, can be enabled later)
 - Present derived configuration using THERAPY vocabulary throughout:
   - "reflections" not "claims"
@@ -103,7 +103,7 @@ That is exactly what I want. Also — will it keep what I write private? I do no
 ### Expected Agent Response Pattern 6
 
 The agent should:
-- Address privacy directly and honestly (data stays local on their machine, Claude Code does not persist conversations, the vault files are local markdown)
+- Address privacy directly and honestly (data stays local on their machine, OpenChamber keeps conversations private, the vault files are local markdown)
 - Note that ethical guardrails section will include explicit privacy commitments
 - Acknowledge the vulnerability of therapy content — this is not academic research, it is deeply personal
 - Not be dismissive about the concern — privacy is especially important for therapy content
@@ -117,14 +117,14 @@ OK, I am ready. Let us set it up.
 
 The agent should:
 - Generate the full vault structure in therapy vocabulary:
-  - CLAUDE.md with warm, conversational voice throughout
+  - AGENTS.md with warm, conversational voice throughout
   - self/ with identity.md ("reflection partner"), methodology.md (pattern detection approach), goals.md (current growth threads)
   - reflections/ (not notes/) with index.md hub and starter themes (anxiety patterns, relationships, work, growth)
   - journal/ (not inbox/) for quick capture
   - past/ (not archive/)
   - templates/ with reflection-note.md (mood, trigger, pattern, growth_area fields)
   - ops/ with derivation.md, methodology/, observations/, tensions/, sessions/
-  - .claude/hooks/ with session-orient.sh (references self/ in warm language) and session-stop.sh (session capture)
+  - .arscontexta (plugin session-orient and session-capture enabled)
 - Run validate-kernel.mjs: 15/15 PASS (or 14/15 + WARN on semantic search if qmd not enabled)
 - Orient the user warmly: "Your reflection space is ready. Start with journal/ for quick thoughts during the week, and reflections/ for longer post-session processing."
 

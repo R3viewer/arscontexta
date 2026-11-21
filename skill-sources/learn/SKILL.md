@@ -1,9 +1,6 @@
 ---
 name: learn
-description: Research a topic and grow your knowledge graph. Uses Exa deep researcher, web search, or basic search to investigate topics, files results with full provenance, and chains to processing pipeline. Triggers on "/learn", "/learn [topic]", "research this", "find out about".
-user-invocable: true
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, mcp__exa__web_search_exa, mcp__exa__deep_researcher_start, mcp__exa__deep_researcher_check, WebSearch
-context: fork
+description: Research a topic and grow your knowledge graph. Uses deep research, web search, or basic search to investigate topics, files results with full provenance, and chains to processing pipeline. Triggers on "/learn", "/learn [topic]", "research this", "find out about".
 ---
 
 ## EXECUTE NOW
@@ -60,9 +57,9 @@ Priority: explicit flag > config default > `moderate`
 
 | Depth | Tool | Sources | Duration | Use When |
 |-------|------|---------|----------|----------|
-| light | WebSearch | 2-3 | ~5s | Checking a specific fact |
-| moderate | mcp__exa__web_search_exa | 5-8 | ~10-30s | Exploring a subtopic |
-| deep | mcp__exa__deep_researcher_start | Comprehensive | 15s-3min | Major research direction |
+| light | websearch | 2-3 | ~5s | Checking a specific fact |
+| moderate | tools.exa.web_search_exa | 5-8 | ~10-30s | Exploring a subtopic |
+| deep | tools.exa.deep_researcher_start | Comprehensive | 15s-3min | Major research direction |
 
 ---
 
@@ -83,7 +80,7 @@ FAIL: Research failed — no research tools available
   Tried:
     1. [primary] — [error]
     2. [fallback] — [error]
-    3. WebSearch — [error]
+    3. websearch — [error]
 
   Try again later or manually add research to [inbox-folder]/
 ```
@@ -92,11 +89,11 @@ FAIL: Research failed — no research tools available
 
 **exa-deep-research:**
 ```
-mcp__exa__deep_researcher_start
+tools.exa.deep_researcher_start
   instructions: "Research comprehensively: [topic]. Focus on practical findings, key patterns, recent developments, and actionable insights."
   model: "exa-research-fast" (moderate) | "exa-research" (deep)
 ```
-Poll with `mcp__exa__deep_researcher_check` until `completed`. Output during wait:
+Poll with `tools.exa.deep_researcher_check` until `completed`. Output during wait:
 ```
   Research ID: [id]
   Waiting for results...
@@ -104,12 +101,12 @@ Poll with `mcp__exa__deep_researcher_check` until `completed`. Output during wai
 
 **exa-web-search:**
 ```
-mcp__exa__web_search_exa  query: "[topic]"  numResults: 8
+tools.exa.web_search_exa  query: "[topic]"  numResults: 8
 ```
 
 **web-search (last resort, also used for light depth):**
 ```
-WebSearch  query: "[topic]"
+websearch  query: "[topic]"
 ```
 
 On completion: `Research complete — [source count] sources analyzed`
@@ -143,7 +140,7 @@ topics: ["[[domain-hub-moc]]"]
 Include only the fields relevant to the tool used:
 - Deep researcher: `source_type`, `exa_prompt`, `exa_research_id`, `exa_model`, `generated`, `domain`, `topics`
 - Exa web search: `source_type`, `exa_prompt`, `exa_tool`, `generated`, `domain`, `topics`
-- WebSearch: `source_type`, `exa_prompt`, `exa_tool`, `generated`, `domain`, `topics`
+- websearch: `source_type`, `exa_prompt`, `exa_tool`, `generated`, `domain`, `topics`
 
 ### Body Structure
 
@@ -230,7 +227,7 @@ Researching: [topic]
 | Error | Behavior |
 |-------|----------|
 | No topic, no goals.md | Ask: "What would you like to research?" |
-| Exa MCP unavailable | Fall through cascade to WebSearch |
+| Exa MCP unavailable | Fall through cascade to websearch |
 | All tools fail | Report failures with FAIL status, suggest manual inbox filing |
 | Deep researcher timeout (>5 min) | Report timeout, suggest `--moderate` |
 | Empty results | Report "No results found", suggest refining topic |

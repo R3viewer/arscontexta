@@ -1,13 +1,13 @@
-# CLAUDE.md Generator Template
+# AGENTS.md Generator Template
 
-When generating a CLAUDE.md for a Claude Code user, compose from these sections based on enabled features. Adapt language to the user's use case and domain.
+When generating an AGENTS.md for an OpenChamber / OpenCode user, compose from these sections based on enabled features. Adapt language to the user's use case and domain.
 
 ---
 
 ## Header (always include)
 
 ```markdown
-# CLAUDE.md
+# AGENTS.md
 
 ## Philosophy
 
@@ -122,7 +122,7 @@ ops/
 └── health/            — health report history
 ```
 
-**derivation.md** — The complete justification chain for every configuration choice. Read by /architect.
+**derivation.md** — The complete justification chain for every configuration choice. Read by /arscontexta:architect.
 **config.yaml** — Human-editable dimension and feature settings. Changes take effect next session.
 **reminders.md** — User-delegated time-bound actions. Check at session orient. Remove when done.
 **observations/** — Friction signals captured during work. Review when patterns accumulate.
@@ -163,15 +163,15 @@ Include each enabled feature's corresponding block from `generators/features/`. 
 6. schema (always — schema enforcement is an invariant)
 7. maintenance (always)
 8. self-evolution (always)
-8b. methodology-knowledge (always)
-9. personality (when personality is derived)
-10. session-rhythm (always)
-11. templates (always)
-12. multi-domain (if multiple domains detected)
-13. ethical-guardrails (always)
-14. self-space (optional — off for research, on for personal assistant)
-15. helper-functions (always)
-16. graph-analysis (always)
+9. methodology-knowledge (always)
+10. personality (when personality is derived)
+11. session-rhythm (always)
+12. templates (always)
+13. multi-domain (if multiple domains detected)
+14. ethical-guardrails (always)
+15. self-space (optional — off for research, on for personal assistant)
+16. helper-functions (always)
+17. graph-analysis (always)
 
 **Always-included blocks (11):** wiki-links, processing-pipeline, schema, maintenance, self-evolution, methodology-knowledge, session-rhythm, templates, ethical-guardrails, helper-functions, graph-analysis.
 
@@ -296,16 +296,13 @@ Each {DOMAIN:note}'s Source footer links back to the inbox source. That source's
 You can extend this system yourself. Here's how:
 
 ### Building New Skills
-Create `.claude/skills/skill-name/SKILL.md` with:
-- YAML frontmatter (name, description, allowed-tools)
+Create `.opencode/skills/skill-name/SKILL.md` with:
+- YAML frontmatter (name, description)
 - Instructions for what the skill does
 - Quality gates and output format
 
-### Building Hooks
-Create `.claude/hooks/` scripts that trigger on events:
-- SessionStart: inject context at session start
-- PostToolUse (Write): validate notes after creation
-- Stop: persist session state before exit
+### Building New Commands & Subagents
+Create `.opencode/commands/command-name.md` for slash commands or `.opencode/agents/agent-name.md` for specialized subagents.
 
 ### Extending Schema
 Add domain-specific YAML fields to your templates. The base fields (description, type, created) are universal. Add fields that make YOUR notes queryable for YOUR use case.
@@ -317,9 +314,9 @@ When a MOC exceeds ~35 notes, split it. Create sub-MOCs that link back to the pa
 ## Recently Created Skills (always include)
 
 ```markdown
-## Recently Created Skills (Pending Activation)
+## Recently Created Skills
 
-Skills created during /setup are listed here until confirmed loaded. After restarting Claude Code, the SessionStart hook verifies each skill is discoverable and removes confirmed entries.
+Skills created during /arscontexta:setup are placed in `.opencode/skills/` and commands in `.opencode/commands/`. OpenCode automatically hot-reloads them without restarting.
 ```
 
 ## Common Pitfalls (always include — customize per domain)

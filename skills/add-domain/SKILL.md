@@ -369,7 +369,7 @@ qmd update
 qmd embed
 ```
 
-Update `.mcp.json` or equivalent configuration to include the new collection.
+Update `opencode.jsonc` or equivalent configuration to include the new collection.
 
 ### Step 10: Domain processing skills (if processing >= moderate)
 

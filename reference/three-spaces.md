@@ -238,15 +238,16 @@ Each conflation pattern produces specific, predictable failures:
 
 ## Filesystem Layout
 
-### Claude Code Platform
+### OpenChamber / OpenCode Platform
 
 ```
 project-root/
-├── CLAUDE.md                    # context file (methodology + operational instructions)
-├── .claude/
-│   ├── hooks/                   # event-driven automation
-│   ├── skills/                  # methodology-as-code
-│   └── settings.json            # platform configuration
+├── AGENTS.md                    # context file (methodology + operational instructions)
+├── .arscontexta                 # vault marker & configuration
+├── opencode.jsonc               # project configuration (MCP servers, permissions)
+├── .opencode/
+│   ├── skills/                  # domain skills
+│   └── commands/                # slash commands
 ├── self/
 │   ├── identity.md
 │   ├── methodology.md

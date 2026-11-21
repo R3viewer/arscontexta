@@ -47,13 +47,13 @@ Query a specific {DOMAIN:note}'s relationships — what it links to, what links 
 
 ```bash
 # Find all outgoing links from a {DOMAIN:note}
-./ops/scripts/graph/extract-links.sh "{DOMAIN:note} title"
+node ops/scripts/graph/extract-links.mjs "{DOMAIN:note} title"
 
 # Find all incoming links (backlinks) to a {DOMAIN:note}
-./ops/scripts/backlinks.sh "{DOMAIN:note} title"
+node ops/scripts/backlinks.mjs "{DOMAIN:note} title"
 
 # Count connections
-./ops/scripts/backlinks.sh "{DOMAIN:note} title" --count
+node ops/scripts/backlinks.mjs "{DOMAIN:note} title" --count
 ```
 
 Node-level queries answer: "What is this {DOMAIN:note}'s neighborhood?" They reveal a single node's context within the larger graph.
@@ -64,16 +64,16 @@ Query the graph's topology — clusters, bridges, synthesis opportunities, influ
 
 ```bash
 # Find synthesis opportunities (open triangles)
-./ops/scripts/graph/find-triangles.sh
+node ops/scripts/graph/find-triangles.mjs
 
 # Detect isolated clusters
-./ops/scripts/graph/find-clusters.sh
+node ops/scripts/graph/find-clusters.mjs
 
 # Find structurally critical {DOMAIN:notes}
-./ops/scripts/graph/find-bridges.sh
+node ops/scripts/graph/find-bridges.mjs
 
 # Measure overall graph health
-./ops/scripts/link-density.sh
+node ops/scripts/link-density.mjs
 ```
 
 Graph-level queries answer: "What does the structure of my knowledge look like?" They reveal patterns invisible from any single {DOMAIN:note}.
@@ -86,9 +86,9 @@ Navigate the graph from any starting point:
 
 | Operation | Script | What It Does |
 |-----------|--------|-------------|
-| Forward N-hop | `graph/n-hop-forward.sh "{DOMAIN:note}" [depth]` | Find everything reachable within N links from a starting {DOMAIN:note}. Depth 1 shows direct connections; depth 2 shows connections-of-connections. Useful for understanding a concept's reach. |
-| Backward N-hop | `graph/recursive-backlinks.sh "{DOMAIN:note}" [depth]` | Find everything that leads TO a {DOMAIN:note} within N hops. Reveals what lines of thought converge on a concept. |
-| Link extraction | `graph/extract-links.sh "{DOMAIN:note}"` | List all wiki links in a specific {DOMAIN:note}. The raw edge list from a single node. |
+| Forward N-hop | `graph/n-hop-forward.mjs "{DOMAIN:note}" [depth]` | Find everything reachable within N links from a starting {DOMAIN:note}. Depth 1 shows direct connections; depth 2 shows connections-of-connections. Useful for understanding a concept's reach. |
+| Backward N-hop | `graph/recursive-backlinks.mjs "{DOMAIN:note}" [depth]` | Find everything that leads TO a {DOMAIN:note} within N hops. Reveals what lines of thought converge on a concept. |
+| Link extraction | `graph/extract-links.mjs "{DOMAIN:note}"` | List all wiki links in a specific {DOMAIN:note}. The raw edge list from a single node. |
 
 #### Synthesis Operations
 
@@ -96,8 +96,8 @@ Detect opportunities for new connections and insights:
 
 | Operation | Script | What It Does |
 |-----------|--------|-------------|
-| Triangle detection | `graph/find-triangles.sh` | Find open triadic closures: {DOMAIN:note} A links to B, A links to C, but B and C do not link to each other. These are synthesis opportunities — two concepts connected through a shared parent but not yet directly related. |
-| Topic siblings | `graph/topic-siblings.sh "{DOMAIN:topic map}"` | Find {DOMAIN:notes} in the same {DOMAIN:topic map} that do not link to each other. Notes that share a topic but lack direct connections often reveal unexplored relationships. |
+| Triangle detection | `graph/find-triangles.mjs` | Find open triadic closures: {DOMAIN:note} A links to B, A links to C, but B and C do not link to each other. These are synthesis opportunities — two concepts connected through a shared parent but not yet directly related. |
+| Topic siblings | `graph/topic-siblings.mjs "{DOMAIN:topic map}"` | Find {DOMAIN:notes} in the same {DOMAIN:topic map} that do not link to each other. Notes that share a topic but lack direct connections often reveal unexplored relationships. |
 
 Triangle detection is particularly powerful because it finds structural gaps that browsing cannot detect. When A links to B and A links to C, there is often a genuine relationship between B and C that was simply not captured. The script surfaces these candidates for human judgment — not every open triangle should close, but many reveal real connections.
 
@@ -107,9 +107,9 @@ Understand the architecture of your knowledge graph:
 
 | Operation | Script | What It Does |
 |-----------|--------|-------------|
-| Cluster detection | `graph/find-clusters.sh` | Find connected components — groups of {DOMAIN:notes} that link to each other but not to other groups. Reveals topic boundaries and isolated knowledge islands. |
-| Bridge detection | `graph/find-bridges.sh` | Find bridge {DOMAIN:notes} — nodes whose removal would disconnect parts of the graph. These are structurally critical and may need splitting to reduce fragility. |
-| Connected components | `graph/find-clusters.sh --components` | Count the number of separate connected subgraphs. A healthy vault is one large connected component. Multiple components suggest domain silos. |
+| Cluster detection | `graph/find-clusters.mjs` | Find connected components — groups of {DOMAIN:notes} that link to each other but not to other groups. Reveals topic boundaries and isolated knowledge islands. |
+| Bridge detection | `graph/find-bridges.mjs` | Find bridge {DOMAIN:notes} — nodes whose removal would disconnect parts of the graph. These are structurally critical and may need splitting to reduce fragility. |
+| Connected components | `graph/find-clusters.mjs --components` | Count the number of separate connected subgraphs. A healthy vault is one large connected component. Multiple components suggest domain silos. |
 
 #### Density Operations
 
@@ -117,9 +117,9 @@ Measure the health of your graph's connectivity:
 
 | Operation | Script | What It Does |
 |-----------|--------|-------------|
-| Link density | `link-density.sh` | Average outgoing links per {DOMAIN:note}. Target: 3+ links per {DOMAIN:note}. Below this, the graph is sparse and traversal is unreliable. |
-| Orphan detection | `orphan-notes.sh` | {DOMAIN:Notes} with zero incoming links. Invisible to traversal — they exist but no path leads to them. |
-| Dangling links | `dangling-links.sh` | Wiki links pointing to {DOMAIN:notes} that do not exist. Demand signals for what should be created. |
+| Link density | `link-density.mjs` | Average outgoing links per {DOMAIN:note}. Target: 3+ links per {DOMAIN:note}. Below this, the graph is sparse and traversal is unreliable. |
+| Orphan detection | `orphan-notes.mjs` | {DOMAIN:Notes} with zero incoming links. Invisible to traversal — they exist but no path leads to them. |
+| Dangling links | `dangling-links.mjs` | Wiki links pointing to {DOMAIN:notes} that do not exist. Demand signals for what should be created. |
 
 #### Centrality Operations
 
@@ -127,7 +127,7 @@ Identify the most important and influential {DOMAIN:notes}:
 
 | Operation | Script | What It Does |
 |-----------|--------|-------------|
-| Hub/authority ranking | `graph/influence-flow.sh` | Ranks {DOMAIN:notes} by link patterns. Hubs are {DOMAIN:notes} with many outgoing links (they point to lots of things). Authorities are {DOMAIN:notes} with many incoming links (lots of things point to them). Synthesizers have both high incoming and high outgoing — they integrate knowledge. |
+| Hub/authority ranking | `graph/influence-flow.mjs` | Ranks {DOMAIN:notes} by link patterns. Hubs are {DOMAIN:notes} with many outgoing links (they point to lots of things). Authorities are {DOMAIN:notes} with many incoming links (lots of things point to them). Synthesizers have both high incoming and high outgoing — they integrate knowledge. |
 
 #### Schema Queries
 

@@ -1,9 +1,6 @@
 ---
 name: rethink
 description: Challenge system assumptions against accumulated evidence. Triages observations and tensions, detects patterns, generates proposals. The scientific method applied to knowledge systems. Triggers on "/rethink", "review observations", "challenge assumptions", "what have I learned".
-user-invocable: true
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash, AskUserQuestion
-context: fork
 ---
 
 ## Runtime Configuration (Step 0 — before any processing)
@@ -77,7 +74,7 @@ Read all methodology notes fully. Extract:
 
 Read:
 - `ops/config.yaml` — current configuration state
-- The context file (CLAUDE.md) — current behavioral instructions
+- The context file (AGENTS.md) — current behavioral instructions
 - `ops/derivation-manifest.md` — vocabulary and feature state
 
 ### 0c. Compare Across Three Drift Types
@@ -221,7 +218,7 @@ Present the full triage to the user before executing any changes:
     [filename] — [title] — [why more evidence needed]
 ```
 
-Use AskUserQuestion: "Review the triage above. Approve all, or list items to reclassify (e.g., 'keep obs-003 pending, promote obs-007 instead')."
+Use the question tool: "Review the triage above. Approve all, or list items to reclassify (e.g., 'keep obs-003 pending, promote obs-007 instead')."
 
 **Wait for user confirmation before proceeding to 1d.** Do not execute triage without approval.
 
@@ -482,7 +479,7 @@ If 10+ pending observations or 5+ pending tensions remain after triage AND patte
 
 ### User Approval Interaction
 
-Use AskUserQuestion: "Which proposals should I implement? (all / none / list numbers, e.g. '1, 3'). You can also ask me to modify a proposal before deciding."
+Use the question tool: "Which proposals should I implement? (all / none / list numbers, e.g. '1, 3'). You can also ask me to modify a proposal before deciding."
 
 **Handle each response:**
 

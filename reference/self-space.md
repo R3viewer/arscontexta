@@ -18,7 +18,7 @@ Questions the engine must answer when generating the self/ space:
 2. **What domain is the agent working in?** The domain determines methodology.md content: a therapy agent's methodology emphasizes pattern recognition and emotional attunement; a research agent's methodology emphasizes extraction rigor and connection density.
 3. **What is the user relationship?** User signals about desired interaction style inform goals.md seeds and relationships.md content. A user who wants a "thinking partner" gets different relationship framing than one who wants an "organized assistant."
 4. **What self/ extensions are justified?** memory/ (for accumulated self-knowledge beyond core files), journal/ (for session capture), sessions/ (for session logs), relationships.md (for multi-person contexts). Each extension adds maintenance cost — only generate what the configuration demands.
-5. **What platform will load self/ at session start?** Claude Code loads self/ via CLAUDE.md references and hooks. Convention-only systems instruct the agent to read self/ manually.
+5. **What platform will load self/ at session start?** OpenChamber loads self/ via AGENTS.md references and native plugin hooks. Convention-only systems instruct the agent to read self/ manually.
 6. **What is the identity evolution model?** Should identity be stable (rarely changing), adaptive (evolving with use), or provisional (explicitly experimental)? Research agents trend stable; companion agents trend adaptive.
 
 ---
@@ -147,13 +147,13 @@ When self space is disabled (e.g., Research preset default), goals route to ops/
 
 ### Platform Adaptation
 
-#### Claude Code loads self/ through CLAUDE.md references and session-start hooks
+#### OpenChamber loads self/ through AGENTS.md references and session-orient hooks
 
-**Summary:** In Claude Code, the context file (CLAUDE.md) is loaded at every session start automatically. Self/ files are loaded by: (1) CLAUDE.md containing explicit instructions to read self/ files, and (2) session-start hooks that inject file tree and potentially pre-load key self/ files. The hook can automate the orientation sequence: inject tree, load self/identity.md, load self/goals.md, display any pending reminders. This automation makes the session rhythm invisible — the agent starts every session already oriented, without needing to follow manual instructions.
+**Summary:** In OpenChamber / OpenCode, the context file (AGENTS.md) is loaded at session start automatically. Self/ files are loaded by: (1) AGENTS.md containing explicit instructions to read self/ files, and (2) session-orient hooks in the Ars Contexta plugin that inject file tree and pre-load key self/ files. The hook automates the orientation sequence: inject tree, load self/identity.md, load self/goals.md, display any pending reminders. This automation makes the session rhythm invisible — the agent starts every session already oriented, without needing to follow manual instructions.
 
-**Derivation Implication:** For Claude Code systems, generate: (1) CLAUDE.md sections that reference self/ files and explain their purpose, (2) a session-start hook configuration that loads orientation files, (3) self/ file templates pre-filled with generated content from the derivation conversation. The CLAUDE.md should explain what the hook does so the agent does not duplicate the orientation.
+**Derivation Implication:** For OpenChamber systems, generate: (1) AGENTS.md sections that reference self/ files and explain their purpose, (2) native plugin orientation hooks that load orientation files, (3) self/ file templates pre-filled with generated content from the derivation conversation. The AGENTS.md should explain what the hook does so the agent does not duplicate the orientation.
 
-**Source:** Vault `.claude/hooks/` session-start hook. CLAUDE.md session patterns section. The dual mechanism (instructions + hooks) provides both understanding (instructions) and automation (hooks).
+**Source:** Vault session-orient hook. AGENTS.md session patterns section. The dual mechanism (instructions + hooks) provides both understanding (instructions) and automation (hooks).
 
 ---
 
@@ -163,7 +163,7 @@ When self space is disabled (e.g., Research preset default), goals route to ops/
 
 **Derivation Implication:** For convention-only systems, place the session orientation instructions at the very top of the context file (benefiting from smart-zone attention quality). Include a brief identity summary directly in the context file so the agent has basic identity even if it fails to load self/identity.md. Generate self/ files normally, but acknowledge in the context file that loading them is a manual step that the agent must not skip.
 
-**Source:** Context window degradation research: instructions early in context are followed more reliably than instructions late in context. The vault's CLAUDE.md places critical session instructions in the first 20% of the file.
+**Source:** Context window degradation research: instructions early in context are followed more reliably than instructions late in context. The vault's AGENTS.md places critical session instructions in the first 20% of the file.
 
 ---
 
