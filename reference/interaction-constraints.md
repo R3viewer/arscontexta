@@ -163,15 +163,18 @@ These constraints apply to the 15 kernel primitives and their INVARIANT/CONFIGUR
 6. `self_space == false + preset == "personal_assistant"`
    → WARN: "Self space is ON by default for Personal Assistant presets. Agent identity and persistent memory are central to the experience. Disable only if the agent's sense of self is not needed."
 
-7. `semantic_search == false + linking == "explicit+implicit"`
+7. `self_space == false + preset == "professional_assistant"`
+   → WARN: "Self space is ON by default for Professional Assistant presets. Professional profile, expertise posture, and stakeholder continuity live in self/. Disable only if you prefer routing goals exclusively to ops/."
+
+8. `semantic_search == false + linking == "explicit+implicit"`
    → WARN: "Semantic search is configured as opt-in. Without qmd, implicit linking falls back to keyword overlap and MOC traversal."
 
 **Condition-based maintenance constraints:**
 
-8. `condition_thresholds_all_zero`
+9. `condition_thresholds_all_zero`
    → WARN: "All condition-based maintenance thresholds are set to zero (disabled). The vault will not surface maintenance tasks. Consider enabling at least orphan detection and dangling link checks."
 
-9. `task_stack == false` (Primitive 13)
+10. `task_stack == false` (Primitive 13)
    → BLOCK: "The task stack is INVARIANT. Without task tracking, the agent has no lifecycle visibility and cannot answer 'what should I work on?'"
 
 ---

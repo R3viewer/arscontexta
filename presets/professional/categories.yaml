@@ -1,0 +1,8 @@
+extraction_categories:
+  - decisions              # What was decided, rationale, rejected alternatives, impact
+  - workstream-context     # Scope shifts, milestones, parallel stream updates
+  - domain-expertise       # Reusable patterns, industry watch, transferable know-how
+  - stakeholder-dynamics   # Client/team expectations, alignment, network signals
+  - deliverable-elements   # Key inputs, requirements, or arguments for upcoming deliverables
+  - risks-and-tensions     # Blockers, open trade-offs, cross-stream contradictions
+# Note: short-term execution tasks (1 week to 1 month max) route to ops/tasks.md and ops/reminders.md, never notes/

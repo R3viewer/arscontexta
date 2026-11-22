@@ -22,7 +22,7 @@ Read these during derivation phases:
 **Domain configuration:**
 - `reference/vocabulary-transforms.md` -- domain-native term mapping
 - `reference/tradition-presets.md` -- pre-validated domain configurations
-- `reference/use-case-presets.md` -- 3 presets with configurations
+- `reference/use-case-presets.md` -- 4 presets with configurations
 - `reference/dimension-claim-map.md` -- research backing for dimension positions
 - `reference/failure-modes.md` -- domain vulnerability matrix
 

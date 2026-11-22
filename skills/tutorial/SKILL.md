@@ -65,8 +65,8 @@ Which track fits your work best?
   (a) Researcher -- academic papers, domain
       research, literature processing
 
-  (b) Manager -- meeting notes, strategy docs,
-      decision tracking
+  (b) Professional / Manager -- client engagements, parallel
+      workstreams, meeting notes, decisions, deliverables
 
   (c) Personal -- daily observations, goal
       setting, reflective journaling
@@ -93,13 +93,13 @@ Every step follows WHY / DO / SEE. Before each step show progress bar. After eac
 
 Each step adapts its language and examples to the track. The structure is identical; the content varies.
 
-| Step | Researcher | Manager | Personal |
-|------|-----------|---------|----------|
-| Capture | Claim from a paper | Decision from a meeting | Realization from a day |
-| Discover | Cross-paper connections | Decision-stakeholder links | Observation-goal patterns |
-| Process | Paper extraction | Meeting note mining | Journal crystallization |
-| Maintain | Stale claims, broken citations | Orphaned decisions | Disconnected reflections |
-| Reflect | Research graph growth | Institutional memory | Self-knowledge patterns |
+| Step | Researcher | Professional / Manager | Personal |
+|------|-----------|------------------------|----------|
+| Capture | Claim from a paper | Decision or insight from a meeting | Realization from a day |
+| Discover | Cross-paper connections | Engagement-workstream-stakeholder links | Observation-goal patterns |
+| Process | Paper extraction | Meeting/reading distillation (+ short tasks to ops/tasks.md) | Journal crystallization |
+| Maintain | Stale claims, broken citations | Stale/paused context maps, orphan expertise notes | Disconnected reflections |
+| Reflect | Research graph growth | Institutional & consulting memory + deliverables | Self-knowledge patterns |
 
 ---
 

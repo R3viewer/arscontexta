@@ -19,7 +19,7 @@ Read these files to understand the methodology and available components. Read th
 - `reference/vocabulary-transforms.md` -- domain-native vocabulary mappings (6 transformation levels)
 - `reference/personality-layer.md` -- personality derivation (4 dimensions, conflict resolution, artifact transformation)
 - `reference/three-spaces.md` -- three-space architecture (self/notes/ops separation rules)
-- `reference/use-case-presets.md` -- 3 presets with pre-validated configurations
+- `reference/use-case-presets.md` -- 4 presets with pre-validated configurations
 - `reference/conversation-patterns.md` -- 5 worked examples validating derivation heuristics
 
 **Generation references (read during Phase 5):**
@@ -88,12 +88,12 @@ Everything is local files. No database, no cloud service, no lock-in.
 Your vault is plain markdown that works in any editor, any tool, forever.
 ```
 
-### Screen 2 — Three Starting Points
+### Screen 2 — Four Starting Points
 
 Output this text exactly:
 
 ```
-There are three starting points. Each gives you the full system with
+There are four starting points. Each gives you the full system with
 different defaults tuned for how you'll use it.
 
   Research
@@ -108,12 +108,19 @@ different defaults tuned for how you'll use it.
     life. The agent learns you over time. Per-entry notes, moderate
     processing, entity-based navigation.
 
+  Professional Assistant
+    Work, consulting, and leadership memory. You want to track client
+    engagements with your role on each, parallel workstreams, ongoing
+    manager/lead responsibilities, transverse expertise, and your
+    professional network — while drafting deliverables from memory
+    and keeping short-term tasks separate in ops/.
+
   Experimental
     Build your own from first principles. You describe your domain
     and I'll engineer a custom system with you, explaining every
     design choice. Takes longer, gives you full control.
 
-All three give you every skill and every capability. The difference
+All four give you every skill and every capability. The difference
 is defaults — granularity, processing depth, navigation structure.
 You can adjust anything later.
 ```
@@ -208,6 +215,12 @@ As the user talks, passively extract signals for dimensions. Do not ask about di
 | "Academic research" | Atomic, heavy, semantic search | High |
 | "Therapy sessions" | Moderate, warm personality, emotional awareness | High |
 | "Project decisions" | Decision-centric, temporal tracking | High |
+| "Client missions / consulting engagements" | Professional Assistant preset, role-tagged context maps | High |
+| "Parallel workstreams across a big project" | 3-tier context map hierarchy (mission -> workstream) | High |
+| "Ongoing manager / lead responsibilities" | Professional Assistant preset, continuous responsibility maps | High |
+| "Produce client deliverables from my notes" | Add `deliverables/` workspace + deliverable-brief template | High |
+| "Short-term tasks only (week to month)" | Keep tasks isolated in `ops/tasks.md`, memory first in `notes/` | High |
+| "Professional network / stakeholders" | Network context map + stakeholder-dynamics extraction (vs personal relationships) | High |
 | "Creative worldbuilding" | Moderate, heavy linking, playful personality | Medium |
 | "Book notes" | Moderate granularity, light processing | Medium |
 | "Track family/friends" | Entity MOCs, emotional context schema | High |
@@ -345,7 +358,7 @@ Build the complete vocabulary mapping for all 6 transformation levels (see `refe
 3. **Closest reference domain blend** -- for novel domains, blend vocabulary from two closest presets
 
 For novel domains (no preset scores above 2.0 affinity):
-1. Score all 3 presets by signal overlap
+1. Score all 4 presets by signal overlap
 2. Select top two presets as blending sources
 3. For each term, use the preset with higher overlap for that specific concept
 4. Flag all blended terms for user confirmation in the proposal
@@ -366,6 +379,7 @@ Map personality signals to four dimensions (see `reference/personality-layer.md`
 Apply domain defaults where no explicit signal exists:
 - Therapy domain -> warm, emotionally attentive
 - Research domain -> neutral, formal
+- Professional domain -> pragmatic, strategic, formal
 - Creative domain -> lean playful, opinionated
 
 Personality conflict resolution:
@@ -595,6 +609,7 @@ Create the three-space layout with domain-named directories:
 +-- [domain:notes]/          <-- structured knowledge (flat)
 +-- [domain:inbox]/          <-- zero-friction capture (if processing >= moderate)
 +-- [domain:archive]/        <-- processed, inactive
++-- deliverables/            <-- (optional, when workspace_folders includes deliverables — e.g., Professional Assistant)
 +-- self/                    <-- agent's persistent mind
 |   +-- identity.md          <-- (created in Step 4)
 |   +-- methodology.md       <-- (created in Step 5)
@@ -1218,6 +1233,11 @@ Create domain-specific templates in `templates/`:
 **Conditionally create:**
 - Source capture template (if processing >= moderate)
 - Observation template (if self-evolution is active -- always)
+- Deliverable brief template (`deliverable-brief.md`, if `deliverables/` workspace folder is active — e.g., Professional Assistant: `description`, `type: deliverable`, `status: scoping | drafting | review | delivered`, `topics`, `audience`, `updated`)
+
+**Professional Assistant schema fields:**
+- `insight-note.md` adds `category` (`decision | workstream-context | domain-expertise | stakeholder-dynamics | deliverable-element | risk`), `status` (`active | superseded | archived`), `updated` (`YYYY-MM-DD`), and optional `superseded_by`
+- `context-map.md` adds `map_kind` (`engagement | workstream | responsibility | expertise | network`), `role`, optional `organization`, `status` (`active | on-hold | completed`), and `updated` (`YYYY-MM-DD`) so stale or silently paused streams are surfaced by maintenance checks
 
 Each template MUST include a `_schema` block defining required fields, optional fields, enums, and constraints. The template IS the single source of truth for schema.
 

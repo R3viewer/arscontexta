@@ -675,10 +675,10 @@ fi
 
 ## Milestone 6: Preset Validation
 
-**What it tests:** All 3 presets (Research, Personal Assistant, Experimental) produce valid, coherent configurations that pass kernel validation with domain-appropriate vocabulary.
+**What it tests:** All 4 presets (Research, Personal Assistant, Professional Assistant, Experimental) produce valid, coherent configurations that pass kernel validation with domain-appropriate vocabulary.
 
 **Prerequisites:**
-- All 3 preset configurations available (Research, Personal Assistant, Experimental)
+- All 4 preset configurations available (Research, Personal Assistant, Professional Assistant, Experimental)
 - /setup wizard functional
 - validate-kernel.mjs accessible
 
@@ -692,7 +692,7 @@ fi
 **Verification steps:**
 
 ```bash
-PRESETS=("research" "personal-assistant" "experimental")
+PRESETS=("research" "personal-assistant" "professional-assistant" "experimental")
 
 for PRESET in "${PRESETS[@]}"; do
     echo "========================================"
@@ -720,6 +720,11 @@ for PRESET in "${PRESETS[@]}"; do
             # Personal assistant terms SHOULD appear
             EXPECTED="memory\|remember\|life area"
             FORBIDDEN="claim\|reduce\|extract"
+            ;;
+        professional-assistant)
+            # Professional assistant terms SHOULD appear
+            EXPECTED="insight\|distill\|context map"
+            FORBIDDEN="reflection\|surface\|life area"
             ;;
         experimental)
             # Experimental uses custom vocabulary from conversation

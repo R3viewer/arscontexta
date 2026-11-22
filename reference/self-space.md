@@ -4,7 +4,7 @@
 
 Guide the derivation engine in generating the agent's self-knowledge space. The self/ directory is where the agent stores who it is, how it works, what it is working on, and what it has learned about itself. Unlike the notes/ space (which holds domain knowledge for the user) and ops/ space (which holds temporal coordination state), self/ holds durable agent identity that is loaded at every session start. The derivation engine must translate personality dimensions, domain context, and user relationship signals into prose that reads as self-knowledge, not as configuration.
 
-**Optionality (v1.6):** Self space is CONFIGURABLE, not always required. It is OFF by default for Research presets (where the vault's methodology folder in ops/ provides sufficient operational identity) and ON by default for Personal Assistant presets (where agent identity and relationship context are core to the value proposition). When self space is disabled, goals route to ops/goals.md and methodology to ops/methodology/. The toggle is available via /architect during or after init.
+**Optionality (v1.6):** Self space is CONFIGURABLE, not always required. It is OFF by default for Research presets (where the vault's methodology folder in ops/ provides sufficient operational identity) and ON by default for Personal Assistant and Professional Assistant presets (where agent identity, role/expertise posture, and stakeholder/relationship context are core to the value proposition). When self space is disabled, goals route to ops/goals.md and methodology to ops/methodology/. The toggle is available via /architect during or after init.
 
 This document answers: how do derivation signals map to identity files? What makes self-knowledge feel genuine rather than templated? How does identity persist and evolve across sessions? How does the architecture of self/ differ across platforms? And when should self space be enabled vs disabled?
 
@@ -179,6 +179,7 @@ When self space is disabled (e.g., Research preset default), goals route to ops/
 |--------|-------------------|-----------|
 | Research | OFF | Vault identity is in the research graph and methodology folder. Agent voice is analytical by default. |
 | Personal Assistant | ON | Identity, relationship memory, and voice consistency are core to the value proposition. |
+| Professional Assistant | ON | Professional profile (core expertise, leadership posture, active engagements/deliverables, and stakeholder context) is central to executive continuity. |
 | Experimental | Configurable | User chooses during init conversation based on their needs. |
 
 **When OFF:**
