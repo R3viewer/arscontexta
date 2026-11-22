@@ -115,9 +115,9 @@ These assumptions affect the recommendation. Correct any that don't match.
 
 ### 2a. Read Presets
 
-Read `reference/tradition-presets.md`. This file contains:
+Read `reference/tradition-presets.md` and `reference/use-case-presets.md`. These files contain:
 - **Tradition presets** — Zettelkasten, PARA, Evergreen, Cornell, etc.
-- **Use-case presets** — research, creative writing, engineering, therapy, etc.
+- **Use-case presets** — research, personal assistant, professional assistant, creative writing, engineering, therapy, etc.
 
 ### 2b. Find Closest Match
 

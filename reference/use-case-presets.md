@@ -4,7 +4,7 @@ Named points in the configuration space derived from methodology traditions and 
 
 ---
 
-## Three Use-Case Presets
+## Four Use-Case Presets
 
 ### Research
 
@@ -135,6 +135,74 @@ Named points in the configuration space derived from methodology traditions and 
 
 ---
 
+### Professional Assistant
+
+**Display name:** Professional Assistant
+
+**Optimizes for:** Multi-client consulting and project memory, parallel workstreams, ongoing leadership/management responsibilities, transverse domain expertise, professional network continuity, and sourced client deliverables (while keeping short-term tasks in `ops/`)
+
+**Closest tradition:** Hybrid PARA (projects & areas without folder silos) + focused Zettelkasten synthesis + GTD short-term action isolation in `ops/`
+
+**Philosophy:** Durable work memory first. Raw meeting notes, reading captures, and ideas enter `inbox/`, get distilled into flat `notes/` linked across bounded engagements (with explicit user role/expertise), continuous responsibilities, transverse expertise, and professional network — while client deliverables are drafted from accumulated memory in `deliverables/` and short-term tasks (week to month max) stay isolated in `ops/tasks.md`.
+
+| Dimension | Value | Rationale |
+|-----------|-------|-----------|
+| Atomicity | 0.65 | Moderate, focused synthesis — one decision, workstream update, expertise insight, or stakeholder signal per note without extreme academic fragmentation |
+| Organization | 0.35 | Flat `notes/` with 3-tier context maps so insights cross freely between client engagements, ongoing responsibilities, transverse expertise, and network |
+| Linking | 0.7 | Explicit connections across projects/responsibilities/network plus semantic discovery across missions |
+| Processing | 0.75 | Full distillation pipeline: extract durable insights and route short-term actions to `ops/tasks.md` |
+| Session | 0.5 | Hybrid — continuous orientation on active engagements/responsibilities paired with fresh task execution for heavy inputs |
+| Maintenance | 0.7 | Condition-based (tight) — professional context ages fast; `status` + `updated` timestamps surface stale decisions, paused streams, and orphan knowledge |
+| Search | 0.75 | Semantic primary (recommended via qmd) + structured status/category queries |
+| Automation | 0.8 | Full automation from day one |
+
+**Block configuration:**
+
+| Category | Blocks |
+|----------|--------|
+| Always | atomic-notes, wiki-links, mocs, processing-pipeline, schema, maintenance, self-evolution, session-rhythm, templates, ethical-guardrails, helper-functions, graph-analysis, personality, self-space |
+| Conditional | semantic-search (recommended if qmd opted in), multi-domain (if combining pro + personal) |
+| Optional | (none) |
+| Disabled | (none) |
+
+**Key settings:**
+- `self_space: true` (stores professional profile, areas of expertise, leadership posture, and active mission priorities)
+- `qmd: true` (recommended during onboarding for cross-mission retrieval)
+- `personality: "pragmatic-strategic"` (direct, executive-partner clarity)
+- `processing_depth: "full quality gates"`
+- `workspace_folders: ["deliverables"]` (for memory-backed drafting of client outputs)
+
+**Extraction categories:** decisions, workstream-context, domain-expertise, stakeholder-dynamics, deliverable-elements, risks-and-tensions
+
+**Key vocabulary:**
+
+| Level | Universal | Professional Assistant |
+|-------|-----------|------------------------|
+| Note type | note | insight |
+| Processing verb | reduce/extract | distill |
+| Connection verb | reflect/connect | connect |
+| Verification verb | verify | review |
+| Reweaving verb | reweave | align |
+| Navigation unit | MOC | context map |
+| Collection name | notes/ | notes/ |
+| Capture zone | inbox/ | inbox/ |
+| Deliverable workspace | (extra) | deliverables/ |
+
+**Starter MOCs:** `engagements`, `responsibilities`, `expertise`, `network`
+
+**Domain-specific failure mode risks:**
+- Temporal Staleness & Silent Pause (HIGH) — decisions and workstreams go stale or stall silently without `status` + `updated` tracking
+- Collector's Fallacy on Meeting Notes (HIGH) — raw meeting/reading captures pile up in `inbox/` without `/distill`
+- Orphan Drift (HIGH) — especially dangerous for transverse expertise/watch notes that remain unlinked from any context map
+- Task-List Pollution (HIGH) — mixing short-term execution tasks (week-to-month) into `notes/` instead of routing them to `ops/tasks.md`
+
+**Example user statements:**
+- "I juggle multiple client missions and parallel workstreams, and need to remember decisions, stakeholders, and reusable expertise"
+- "I want a memory partner for consulting, team leadership, and preparing client deliverables"
+- "Help me turn meeting notes and readings into durable work memory while keeping short-term tasks separate"
+
+---
+
 ### Experimental / Build Your Own
 
 **Display name:** Experimental / Build Your Own
@@ -202,7 +270,7 @@ Traditions are named coherence points in the 8-dimensional space. They are refer
 | Schema | Moderate | Minimal | Moderate (cue/notes/summary) | Moderate | Dense (action metadata) |
 | Automation | Convention | Manual | Convention | Convention | Automation-friendly |
 
-**How traditions relate to presets:** Use-case presets are derived from traditions, adapted for specific domains. Research draws primarily from Zettelkasten + Cornell. Personal Assistant is a custom configuration combining moderate processing with warm personality. Experimental derives everything from conversation, using traditions as reference points during design decisions.
+**How traditions relate to presets:** Use-case presets are derived from traditions, adapted for specific domains. Research draws primarily from Zettelkasten + Cornell. Personal Assistant is a custom configuration combining moderate processing with warm personality. Professional Assistant blends PARA's project/responsibility horizons (without folder silos) with focused Zettelkasten synthesis and GTD short-term action isolation in `ops/`. Experimental derives everything from conversation, using traditions as reference points during design decisions.
 
 ---
 
@@ -220,7 +288,7 @@ Listen for signals in the user's description and follow-up answers. Each signal 
 | Processing verbs | "track claims", "remember reactions", "document decisions" | Granularity, processing intensity |
 | Connection words | "across disciplines", "between projects", "patterns" | Linking philosophy, semantic search need |
 | Frequency indicators | "a few times a week", "whenever I have a session", "after each project" | Maintenance trigger signals |
-| Domain markers | "research papers", "personal growth", "relationships" | Closest preset match |
+| Domain markers | "research papers", "personal growth", "client missions / leadership / deliverables" | Closest preset match |
 | Emotional register | "feel seen", "like a friend", "professional" | Personality dimensions |
 | Design curiosity | "understand trade-offs", "custom", "unusual domain" | Experimental preset signal |
 
@@ -240,6 +308,7 @@ For each preset:
 **Example:** "I read papers and want to track claims across disciplines"
 - Research: "papers" (1.0) + "claims" (1.0) + "across disciplines" (1.0) = 3.0
 - Personal Assistant: low scores
+- Professional Assistant: low scores (academic papers + claims rather than client missions/deliverables)
 - Experimental: low scores (no design-curiosity signals)
 
 Select the preset with highest affinity as the starting point. If no preset scores above 2.0 and the user shows design curiosity, route to Experimental.
@@ -283,7 +352,7 @@ For each universal term:
 
 ## Novel Domain Handling
 
-When no preset cleanly matches the user's description, the Experimental preset provides the framework for co-design. Unlike the Research and Personal Assistant presets which start with pre-configured dimensions, Experimental walks the user through each design decision with relevant thinking notes surfaced as context.
+When no preset cleanly matches the user's description, the Experimental preset provides the framework for co-design. Unlike the Research, Personal Assistant, and Professional Assistant presets which start with pre-configured dimensions, Experimental walks the user through each design decision with relevant thinking notes surfaced as context.
 
 ### When to Route to Experimental
 

@@ -1,0 +1,44 @@
+name: professional-assistant
+display_name: "Professional Assistant"
+description: "Work, consulting, and leadership memory across client engagements, parallel workstreams, ongoing responsibilities, reusable expertise, and professional network — with deliverables workspace and short-term tasks separated in ops/."
+dimensions:
+  atomicity: 0.65
+  organization: 0.35
+  linking: 0.7
+  processing: 0.75
+  session: 0.5
+  maintenance: 0.7
+  search: 0.75
+  automation: 0.8
+blocks:
+  always:
+    - atomic-notes
+    - wiki-links
+    - mocs
+    - processing-pipeline
+    - schema
+    - maintenance
+    - self-evolution
+    - session-rhythm
+    - templates
+    - ethical-guardrails
+    - helper-functions
+    - graph-analysis
+    - personality
+    - self-space
+  conditional:
+    - semantic-search  # recommended (true by default if qmd available)
+    - multi-domain     # if combining e.g. pro + personal
+  optional: []
+  disabled: []
+self_space: true
+qmd: true
+personality: "pragmatic-strategic"
+processing_depth: "full quality gates"
+workspace_folders:
+  - "deliverables"
+starter_mocs:
+  - "engagements"
+  - "responsibilities"
+  - "expertise"
+  - "network"

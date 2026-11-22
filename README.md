@@ -456,18 +456,19 @@ node reference/validate-kernel.mjs /chemin/vers/votre/vault
 - `generators/agents-md.md` & `generators/features/*.md` -- Gabarit `AGENTS.md` et les 17 blocs modulaires
 - `skill-sources/*/SKILL.md` -- Les 16 gabarits de compétences et commandes générées dans le vault
 - `skills/setup/SKILL.md` -- Le moteur de dérivation conversationnel
-- `reference/use-case-presets.md` -- Définition des préréglages (Research, Personal, Experimental)
+- `reference/use-case-presets.md` -- Définition des préréglages (Research, Personal, Professional, Experimental)
 
 ---
 
 ## Presets
 
-Three pre-validated configurations for common use cases:
+Four pre-validated configurations for common use cases:
 
 | Preset | For | What You Get |
 |--------|-----|-------------|
 | **Research** | Academic work, literature reviews, synthesis | Atomic claims, citation tracking, methodology MOCs |
 | **Personal** | Life management, journaling, relationships | Reflective notes, goal tracking, relationship MOCs |
+| **Professional** | Consulting, leadership, multi-client work, deliverables | Insights, role-tagged engagement/responsibility maps, expertise, network, `deliverables/` workspace |
 | **Experimental** | Testing, iteration, rapid prototyping | Lightweight structure, fast capture, minimal ceremony |
 
 Presets provide starting defaults. The derivation engine adapts from there based

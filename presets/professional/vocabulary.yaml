@@ -1,0 +1,36 @@
+# Universal -> Professional Assistant domain vocabulary mapping
+vocabulary:
+  note: insight
+  reduce: distill
+  reflect: connect
+  verify: review
+  reweave: align
+  moc: context map
+  description_field: context summary
+  topics_footer: context maps
+  inbox: inbox
+  pipeline: distillation pipeline
+  wiki_link: connection
+  thinking_notes: insights
+  archive: archive
+  deliverables: deliverables
+  self_space: professional profile
+  orient: brief
+  persist: debrief
+
+folders:
+  notes: notes
+  inbox: inbox
+  archive: archive
+  deliverables: deliverables
+
+templates:
+  base_note: insight-note.md
+  moc: context-map.md
+  deliverable: deliverable-brief.md
+
+skills:
+  reduce: /distill
+  reflect: /connect
+  verify: /review
+  reweave: /align

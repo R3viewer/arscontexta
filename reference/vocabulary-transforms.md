@@ -8,58 +8,61 @@ When generating a knowledge system for a specific domain, every universal term i
 
 ## Universal → Domain Mapping
 
-| Universal Term | Research | Therapy | Learning | Relationships | Creative | PM | Companion |
-|---------------|----------|---------|----------|---------------|----------|-----|-----------|
-| note | claim | reflection | concept note | observation | idea | decision | memory |
-| extract / reduce | reduce | surface | break down | notice | discover | document | remember |
-| connect / reflect | reflect | find patterns | relate concepts | trace connections | combine ideas | link decisions | recall together |
-| verify | verify | check resonance | test understanding | confirm accuracy | evaluate draft | review quality | verify memory |
-| MOC | topic map | theme | study guide | relationship map | project hub | decision register | memory collection |
-| description field | claim context | reflection summary | concept explanation | observation context | idea sketch | decision rationale | memory context |
-| topics footer | research areas | themes | study areas | relationship facets | creative projects | project areas | life areas |
-| inbox | capture | journaling | study notes | encounters | inspiration | action items | moments |
-| processing / pipeline | pipeline | reflection cycle | study cycle | relationship review | creative process | review cycle | reminiscence |
-| wiki link | connection | pattern link | concept link | connection | inspiration thread | decision trail | memory link |
-| thinking notes | claims | reflections | concepts | observations | ideas | decisions | memories |
-| archive | processed sources | past reflections | mastered material | past encounters | completed works | closed decisions | past events |
-| self/ space | research identity | reflection partner | study companion | relationship tracker | creative identity | project mind | companion memory |
-| orient | orient | center | review progress | check in | survey ideas | status check | remember |
-| persist | persist | journal | log progress | update records | save state | update status | save memories |
+| Universal Term | Research | Therapy | Learning | Relationships | Creative | PM | Professional Assistant | Companion |
+|---------------|----------|---------|----------|---------------|----------|-----|------------------------|-----------|
+| note | claim | reflection | concept note | observation | idea | decision | insight | memory |
+| extract / reduce | reduce | surface | break down | notice | discover | document | distill | remember |
+| connect / reflect | reflect | find patterns | relate concepts | trace connections | combine ideas | link decisions | connect | recall together |
+| verify | verify | check resonance | test understanding | confirm accuracy | evaluate draft | review quality | review | verify memory |
+| reweave | reweave | revisit | revise | reconnect | rework | update | align | revisit |
+| MOC | topic map | theme | study guide | relationship map | project hub | decision register | context map | memory collection |
+| description field | claim context | reflection summary | concept explanation | observation context | idea sketch | decision rationale | context summary | memory context |
+| topics footer | research areas | themes | study areas | relationship facets | creative projects | project areas | context maps | life areas |
+| inbox | capture | journaling | study notes | encounters | inspiration | action items | inbox | moments |
+| processing / pipeline | pipeline | reflection cycle | study cycle | relationship review | creative process | review cycle | distillation pipeline | reminiscence |
+| wiki link | connection | pattern link | concept link | connection | inspiration thread | decision trail | connection | memory link |
+| thinking notes | claims | reflections | concepts | observations | ideas | decisions | insights | memories |
+| archive | processed sources | past reflections | mastered material | past encounters | completed works | closed decisions | archive | past events |
+| self/ space | research identity | reflection partner | study companion | relationship tracker | creative identity | project mind | professional profile | companion memory |
+| orient | orient | center | review progress | check in | survey ideas | status check | brief | remember |
+| persist | persist | journal | log progress | update records | save state | update status | debrief | save memories |
 
 ---
 
 ## Template Name Mapping
 
-| Universal Template | Research | Therapy | Learning | Relationships | Creative | PM | Companion |
-|-------------------|----------|---------|----------|---------------|----------|-----|-----------|
-| base-note.md | thinking-note.md | reflection-note.md | concept-note.md | observation-note.md | idea-note.md | decision-note.md | memory-note.md |
-| moc.md | topic-map.md | theme.md | study-guide.md | relationship-map.md | project-hub.md | decision-register.md | collection.md |
+| Universal Template | Research | Therapy | Learning | Relationships | Creative | PM | Professional Assistant | Companion |
+|-------------------|----------|---------|----------|---------------|----------|-----|------------------------|-----------|
+| base-note.md | thinking-note.md | reflection-note.md | concept-note.md | observation-note.md | idea-note.md | decision-note.md | insight-note.md | memory-note.md |
+| moc.md | topic-map.md | theme.md | study-guide.md | relationship-map.md | project-hub.md | decision-register.md | context-map.md | collection.md |
+| deliverable.md | — | — | — | — | — | — | deliverable-brief.md | — |
 
 ---
 
 ## Folder Name Mapping
 
-| Universal Folder | Research | Therapy | Learning | Relationships | Creative | PM | Companion |
-|-----------------|----------|---------|----------|---------------|----------|-----|-----------|
-| notes/ | notes/ | reflections/ | concepts/ | observations/ | ideas/ | decisions/ | memories/ |
-| inbox/ | inbox/ | journal/ | study-inbox/ | encounters/ | inspiration/ | action-items/ | moments/ |
-| archive/ | archive/ | past/ | mastered/ | history/ | completed/ | closed/ | past/ |
-| templates/ | templates/ | templates/ | templates/ | templates/ | templates/ | templates/ | templates/ |
+| Universal Folder | Research | Therapy | Learning | Relationships | Creative | PM | Professional Assistant | Companion |
+|-----------------|----------|---------|----------|---------------|----------|-----|------------------------|-----------|
+| notes/ | notes/ | reflections/ | concepts/ | observations/ | ideas/ | decisions/ | notes/ | memories/ |
+| inbox/ | inbox/ | journal/ | study-inbox/ | encounters/ | inspiration/ | action-items/ | inbox/ | moments/ |
+| archive/ | archive/ | past/ | mastered/ | history/ | completed/ | closed/ | archive/ | past/ |
+| templates/ | templates/ | templates/ | templates/ | templates/ | templates/ | templates/ | templates/ | templates/ |
+| deliverables/ | — | — | — | — | drafts/ | — | deliverables/ | — |
 
 ---
 
 ## Skill Name Mapping
 
-| Universal Skill | Research | Therapy | Learning | Relationships | Creative | PM | Companion |
-|----------------|----------|---------|----------|---------------|----------|-----|-----------|
-| /reduce | /reduce | /surface | /break-down | /notice | /discover | /document | /capture |
-| /reflect | /reflect | /find-patterns | /relate | /trace | /combine | /link | /recall |
-| /verify | /verify | /check-resonance | /test | /confirm | /evaluate | /review | /verify |
-| /reweave | /reweave | /revisit | /revise | /reconnect | /rework | /update | /revisit |
-| /remember | /remember | /note-friction | /flag | /flag | /flag | /flag | /remember |
-| /next | /next | /next | /next | /next | /next | /next | /next |
-| /stats | /stats | /stats | /stats | /stats | /stats | /stats | /stats |
-| /graph | /graph | /graph | /graph | /graph | /graph | /graph | /graph |
+| Universal Skill | Research | Therapy | Learning | Relationships | Creative | PM | Professional Assistant | Companion |
+|----------------|----------|---------|----------|---------------|----------|-----|------------------------|-----------|
+| /reduce | /reduce | /surface | /break-down | /notice | /discover | /document | /distill | /capture |
+| /reflect | /reflect | /find-patterns | /relate | /trace | /combine | /link | /connect | /recall |
+| /verify | /verify | /check-resonance | /test | /confirm | /evaluate | /review | /review | /verify |
+| /reweave | /reweave | /revisit | /revise | /reconnect | /rework | /update | /align | /revisit |
+| /remember | /remember | /note-friction | /flag | /flag | /flag | /flag | /remember | /remember |
+| /next | /next | /next | /next | /next | /next | /next | /next | /next |
+| /stats | /stats | /stats | /stats | /stats | /stats | /stats | /stats | /stats |
+| /graph | /graph | /graph | /graph | /graph | /graph | /graph | /graph | /graph |
 
 **Note:** /remember (formerly /friction) captures operational friction with automatic detection in session transcripts. /next (formerly /work + /next) surfaces the next recommended action from the task stack. /stats provides vault metrics and progress visualization. /graph enables graph query generation. These commands use universal names across all domains.
 

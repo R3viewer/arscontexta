@@ -96,9 +96,11 @@ self/
 
 | Content Type | Destination | Examples |
 |-------------|-------------|----------|
-| {DOMAIN:Knowledge} claims, insights | {DOMAIN:Notes}/ | Research findings, patterns, principles |
-| Raw material to process | inbox/ | Articles, voice dumps, links, imported content |
-| Agent identity, methodology, preferences | self/ | Working patterns, learned preferences, goals |
+| {DOMAIN:Knowledge} claims, insights | {DOMAIN:Notes}/ | Research findings, decisions, domain expertise, patterns |
+| Raw material to process | inbox/ | Articles, meeting notes, reading captures, imported content |
+| Client or project outputs *(if `deliverables/` enabled)* | deliverables/ | Client briefs, architecture docs, proposals drafted from memory |
+| Agent identity, methodology, preferences | self/ | Working patterns, learned preferences, role posture, goals |
+| Short-term execution tasks (week to month) | ops/tasks.md | Immediate deliverables tasks, pipeline items (never durable notes) |
 | Time-bound user commitments | ops/reminders.md | "Remind me to...", follow-ups, deadlines |
 | Processing state, queue, config | ops/ | Queue state, task files, session logs |
 | Friction signals, patterns noticed | ops/observations/ | Search failures, methodology improvements |

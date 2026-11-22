@@ -190,18 +190,23 @@ How knowledge systems die. The init wizard uses this to include domain-specific 
 
 Which failure modes are highest risk per use case. Select the top 3-4 for inclusion in the generated context file's "Common Pitfalls" section.
 
-| Failure Mode | Research | Learning | Therapy | Relationships | Creative | PM | Companion |
-|-------------|----------|----------|---------|---------------|----------|-----|-----------|
-| Collector's Fallacy | HIGH | HIGH | medium | low | medium | medium | low |
-| Orphan Drift | HIGH | HIGH | medium | low | medium | low | low |
-| Link Rot | medium | medium | low | low | medium | low | low |
-| Schema Erosion | medium | medium | medium | medium | low | medium | low |
-| MOC Sprawl | HIGH | medium | low | low | medium | low | low |
-| Verbatim Risk | HIGH | HIGH | low | low | low | low | low |
-| Cognitive Outsourcing | HIGH | medium | HIGH | low | medium | low | medium |
-| Over-Automation | medium | medium | medium | low | low | medium | low |
-| Productivity Porn | HIGH | medium | low | low | medium | HIGH | low |
-| Temporal Staleness | low | medium | low | low | low | HIGH | low |
+| Failure Mode | Research | Learning | Therapy | Relationships | Creative | PM | Professional Assistant | Companion |
+|-------------|----------|----------|---------|---------------|----------|-----|------------------------|-----------|
+| Collector's Fallacy | HIGH | HIGH | medium | low | medium | medium | HIGH | low |
+| Orphan Drift | HIGH | HIGH | medium | low | medium | low | HIGH | low |
+| Link Rot | medium | medium | low | low | medium | low | medium | low |
+| Schema Erosion | medium | medium | medium | medium | low | medium | medium | low |
+| MOC Sprawl | HIGH | medium | low | low | medium | low | medium | low |
+| Verbatim Risk | HIGH | HIGH | low | low | low | low | medium | low |
+| Cognitive Outsourcing | HIGH | medium | HIGH | low | medium | low | medium | medium |
+| Over-Automation | medium | medium | medium | low | low | medium | medium | low |
+| Productivity Porn | HIGH | medium | low | low | medium | HIGH | HIGH | low |
+| Temporal Staleness | low | medium | low | low | low | HIGH | HIGH | low |
+
+**Note for Professional Assistant:**
+- **Temporal Staleness** is mitigated via `status` + `updated: YYYY-MM-DD` fields on insights and context maps so `/align` and health checks detect both superseded decisions and silently paused/abandoned workstreams.
+- **Orphan Drift** is surfaced prominently for unlinked insights—especially transverse expertise/reading notes—without forcing artificial links to `[[expertise]]` when a note is purely local to a single client engagement.
+- **Productivity Porn / Task-List Pollution** is mitigated by routing short-term execution tasks (1 week to 1 month max) strictly to `ops/tasks.md` and `ops/reminders.md`.
 
 **Reading the matrix:** Include all HIGH-risk modes in the generated context file. Mention medium-risk modes briefly. Omit low-risk modes.
 
