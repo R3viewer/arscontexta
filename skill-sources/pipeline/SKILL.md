@@ -21,6 +21,18 @@ Read `ops/derivation-manifest.md` (or fall back to `ops/derivation.md`) for doma
 
 ---
 
+## OpenChamber Workflow Acceleration (when `openchamber_workflow` is available)
+
+If `openchamber_workflow` is active in this session:
+1. Run **Phase 1 (`/seed`)** directly in this session so duplicate checks and source archiving get immediate user confirmation.
+2. Then run **Phases 2-3 (`/reduce` + claim processing)** via `openchamber_workflow` (`workflow.run`):
+   - Propose model allocation per phase (primary model for `reduce`, `reflect`, `reweave`, and `Consolidate & Cross-Connect`; fast/economical model for `create` and `verify`).
+   - Enforce safe concurrency: parallelize isolated claim `create`/`verify` workers, and serialize shared `{DOMAIN:topic map}` updates, backward `reweave`, and queue advancement in the final consolidation phase.
+   - The main chat session stays free while the workflow runs in the background; when the workflow report wakes this session, proceed to **Phase 4-6** (verify completion, `/archive-batch`, and final report).
+3. **Automatic fallback:** If `openchamber_workflow` is not enabled in the session, run the `subagent` orchestration below seamlessly.
+
+---
+
 ## Pipeline Overview
 
 The pipeline chains four phases. Each phase uses skill invocation or /ralph for subagent-based processing. State lives in the queue file — the pipeline is stateless orchestration on top of stateful queue entries.

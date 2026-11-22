@@ -263,6 +263,12 @@ Kernel primitives: [N / 11 predicted to pass]
 
 **If `--analysis-only` was specified:** Stop here. Present the analysis and exit.
 
+**If not analysis-only (and `openchamber_knowledge` is available):**
+1. Call `knowledge.list` to check for an existing active reseed plan.
+2. Save the re-derivation delta, impact summary, and ordered 10-step migration checklist under `## Steps` (`- [ ]` items) as an OpenChamber **Plan** (`kind: "plan"`).
+3. Open the plan with `knowledge.show` so the user can inspect it, leave line comments, and approve before Phase 6 runs.
+4. During Phase 6, check off `- [x]` under `## Steps` as each step completes.
+
 **If not analysis-only:** Ask the user: "Would you like me to proceed with the re-derivation? I'll preserve all your content and restructure the architecture."
 
 ---

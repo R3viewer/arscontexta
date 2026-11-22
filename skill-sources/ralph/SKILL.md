@@ -24,6 +24,19 @@ Read `ops/derivation-manifest.md` (or fall back to `ops/derivation.md`) for doma
 
 ---
 
+## OpenChamber Workflow Mode (when `openchamber_workflow` is available)
+
+If the `openchamber_workflow` tool is active in this session (and `--dry-run` is NOT set):
+- Prefer running queue batches in the background with `openchamber_workflow` (`workflow.run`) so the user's chat session stays free, failed/stopped runs can be resumed natively, and per-phase models can be allocated:
+  - Use a fast/economical model for `Read Queue`, isolated `create`, and `verify` checks.
+  - Use the primary reasoning model for `extract` (`/reduce`), `reflect`, `reweave`, and `Consolidate & Cross-Connect`.
+- If `.openchamber/workflows/process-queue.js` exists, invoke it by `name: "process-queue"` with `args: { limit: N, batch, fastModel, primaryModel }`; otherwise submit an inline script following the exact same concurrency rule:
+  - **Safe concurrency invariant:** parallel workers may create/enrich/verify individual `{DOMAIN:note}` files, while updates to shared `{DOMAIN:topic map}`s, `reweave` passes on older notes, and queue status updates MUST be serialized in a final consolidation step.
+- Propose the phase plan and model allocation before calling `workflow.run`, then let OpenChamber's native **Run workflow** card manage approval, progress, and report delivery.
+- **Automatic fallback:** If `openchamber_workflow` is NOT available (disabled in Settings or running in standalone OpenCode CLI), execute the `subagent` loop below without asking.
+
+---
+
 ## MANDATORY CONSTRAINT: SUBAGENT SPAWNING IS NOT OPTIONAL
 
 **You MUST use the subagent tool to spawn a subagent for EVERY task. No exceptions.**

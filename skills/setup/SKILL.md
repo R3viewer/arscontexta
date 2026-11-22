@@ -166,7 +166,7 @@ Dimensions default to opinionated best practices and are NOT interrogated during
 
 The conversation focuses on understanding the user's domain and needs. Users adjust dimensions post-init via `ops/config.yaml` or by running `/setup --advanced` for upfront configuration.
 
-**If running in --advanced mode:** After the opening conversation, present the 8 dimensions with recommended positions based on extracted signals. Allow the user to adjust each dimension. Then proceed with the adjusted configuration.
+**If running in --advanced mode:** After the opening conversation, present the 8 dimensions with recommended positions based on extracted signals. Allow the user to adjust each dimension (using `openchamber_render` with `ui` + `awaitAnswer: true` when available so each dimension can be adjusted with `Choice` controls in one turn, or via conversational turns otherwise). Then proceed with the adjusted configuration.
 
 ### Signal Extraction
 
@@ -454,6 +454,13 @@ Structure the proposal as:
 
 End with: **"Would you like me to adjust anything before I create this?"**
 
+### OpenChamber Interactive Proposal Confirmation (when `openchamber_render` is available)
+
+After presenting the full proposal above in the user's vocabulary, if `openchamber_render` is available, render a compact confirmation form (`ui` in `openui-lang`, `awaitAnswer: true`) instead of forcing the user to type every override manually:
+- One `Choice` to confirm ("Approve & Generate", "Adjust dimensions/vocabulary", "Cancel")
+- Compact `Choice` overrides for key derived settings (Granularity, Processing depth, Self space, Semantic search) pre-populated with the derived positions, plus the built-in note field for vocabulary tweaks.
+- Never replace Phase 2's open-ended opening question with a form — `openchamber_render` is only for Phase 4 confirmation and `--advanced` dimension tuning.
+
 Record any user overrides in the derivation rationale. If the user overrides a dimension, re-run the coherence check for affected constraints before proceeding to generation.
 
 ---
@@ -653,6 +660,7 @@ Step 4: Compose in canonical block order:
   15. ethical-guardrails -- Behavioral constraints
   16. helper-functions -- Utility scripts (always included)
   17. graph-analysis -- Graph intelligence and query patterns (always included)
+  18. openchamber-native -- OpenChamber surfaces, Project Knowledge, Workflows & Lead awareness (if platform == openchamber)
 
 Step 5: Cross-reference elimination.
   If a block is excluded, scan remaining blocks for references to excluded concepts and remove or rephrase:
@@ -1328,6 +1336,17 @@ Install specialized subagents to `.opencode/agents/`:
 
 ---
 
+#### Step 9c: OpenChamber Saved Workflows (conditional)
+
+**When `platform == "openchamber"` and `dimensions.processing` is `moderate` or `heavy`:**
+Generate reusable saved workflow scripts in `.openchamber/workflows/` (always created from `generators/workflows/`, adapted to domain terminology):
+1. Read `generators/workflows/process-queue.js` and write to `.openchamber/workflows/process-queue.js` (isolates `create`/`verify` per claim in parallel, then serializes shared `{DOMAIN:topic map}` and `reweave` consolidation so concurrent workers never collide on shared files).
+2. Read `generators/workflows/vault-health-audit.js` and write to `.openchamber/workflows/vault-health-audit.js` (runs Categories 1-8 diagnostics in parallel and synthesizes `ops/health/YYYY-MM-DD-report.md`).
+
+Keep `export const meta = { name, description, phases };` intact and never use `import`, `Date.now()`, `Math.random()`, or `new Date()` inside workflow scripts.
+
+---
+
 #### Step 10: Vault Marker & Plugin Automation
 
 Create `.arscontexta` in the vault root:
@@ -1619,6 +1638,7 @@ Next steps:
 
 Include these based on system state:
 - If qmd not installed and semantic-search is active: npm/bun install instructions + qmd init/update/embed + opencode.jsonc configuration
+- If `platform == "openchamber"` and `openchamber_workflow` is not active in the session: mention in one line that enabling **Workflow tool** in *Settings -> General -> OpenChamber Tools* unlocks one-click background execution for `.openchamber/workflows/process-queue.js` and `vault-health-audit.js`
 - If personality not enabled: mention `/arscontexta:architect` for future voice tuning once the vault has 50+ notes
 - If any kernel checks failed: specific remediation instructions
 

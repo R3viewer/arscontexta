@@ -218,7 +218,9 @@ Present the full triage to the user before executing any changes:
     [filename] — [title] — [why more evidence needed]
 ```
 
-Use the question tool: "Review the triage above. Approve all, or list items to reclassify (e.g., 'keep obs-003 pending, promote obs-007 instead')."
+Use the question tool (or `openchamber_render` with `ui` in `openui-lang` and `awaitAnswer: true` when available) to confirm the triage:
+- With `openchamber_render`: render a `Choice` per pending observation/tension (defaulting to your proposed disposition: `PROMOTE | IMPLEMENT | METHODOLOGY | ARCHIVE | KEEP PENDING`) plus a batch confirm choice, so the user can reclassify multiple items in a single interaction and add notes.
+- Fallback (`question` tool): "Review the triage above. Approve all, or list items to reclassify (e.g., 'keep obs-003 pending, promote obs-007 instead')."
 
 **Wait for user confirmation before proceeding to 1d.** Do not execute triage without approval.
 

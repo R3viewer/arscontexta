@@ -261,6 +261,14 @@ Or "show 2" for side-by-side detail on a specific skill.
 
 Wait for user response. Do NOT proceed without explicit approval.
 
+### OpenChamber Plan & Todos (when `openchamber_knowledge` is available)
+
+If upgrades are available and `openchamber_knowledge` is available in this session:
+1. Call `knowledge.list` first to avoid duplicates.
+2. Save the upgrade proposal as an OpenChamber **Plan** (`kind: "plan"`) containing the per-skill findings, research backing, side-by-side notes for user-modified skills, and a `## Steps` checklist (`- [ ]` per upgrade + archive + validation).
+3. Open it immediately with `knowledge.show` so the user can review and comment on individual lines before approving.
+4. For approved upgrades, create linked OpenChamber **Todos** (`kind: "todo"`, `planId`) and mark them `completed: true` as Step 5 applies each upgrade.
+
 ---
 
 ## Step 5: Apply Approved Upgrades

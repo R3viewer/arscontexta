@@ -613,6 +613,14 @@ Write every health report to `ops/health/YYYY-MM-DD-report.md`. If multiple repo
 
 This creates a health history that /architect can reference when proposing evolution. Trends across reports reveal systemic patterns that individual reports miss.
 
+### OpenChamber Remediation Plan & Todos (when `openchamber_knowledge` is available)
+
+When running inside OpenChamber (`openchamber_knowledge` tool available) and the diagnostic produces actionable `FAIL` or `WARN` items:
+1. Keep `ops/health/YYYY-MM-DD-report.md` as the durable vault record (never replace it).
+2. Call `knowledge.list` first to check for an existing Health remediation plan and avoid duplicate todos.
+3. Save (or update) a concise **Vault Health Remediation** Plan (`kind: "plan"`) referencing `ops/health/YYYY-MM-DD-report.md` with a `## Steps` `- [ ]` checklist of the top fixes.
+4. Create up to 5-7 high-impact OpenChamber **Todos** (`kind: "todo"`, linked to `planId`) for the actionable `FAIL` and top `WARN` items — each naming the specific file(s) and suggested skill command (e.g., `/reflect`, `/verify`, `/reweave`) so the user can launch any fix in one click. Do not duplicate these into `ops/tasks.md`.
+
 ---
 
 ## Quality Standards

@@ -38,6 +38,7 @@ cd arscontexta
 La boîte de dialogue liste les permissions déclarées par l'extension :
 - **Add a plugin to OpenCode** : autorise OpenChamber à enregistrer le plugin `plugin/` dans son instance OpenCode gérée.
 - **Add to what agents read / skills** : expose les 10 compétences plugin `skills/` à tous les agents.
+- **Read and write project files** (`files`) & **Send prompts to sessions** (`prompt`) : permettent au panneau latéral, à la section *Vault Status* et aux actions rapides d’inspecter le vault, capturer dans `{inbox}/` sans consommer de tokens et pré-remplir/lancer des commandes.
 - Cliquez sur **Allow and enable**.
 
 > **Note (Instance OpenCode externe)** : Si votre OpenChamber se connecte à un serveur OpenCode démarré séparément (ou si votre variable `OPENCODE_CONFIG` est définie), OpenChamber affiche un bouton **Add to global config** sur la carte de l'extension. Cliquez dessus pour que votre serveur OpenCode externe charge également le plugin.
@@ -122,8 +123,7 @@ a persistent thinking system derived from how you actually work.
   truth.
 - **A user manual** -- 7 pages of domain-native documentation generated
   alongside.
-- **OpenChamber integration** -- Work Status section and vault panel surfacing
-  maintenance signals, queue progress, and vault health alongside your chats.
+- **OpenChamber integration** -- Work Status (`Vault Status`) section, 3-tab mobile-ready vault rail panel (`Pulse`, `Maps & Notes`, `Inbox`), quick context actions (save selection/message to inbox, stage `/pipeline`), kernel validator chat card, Project Knowledge Plans & Todos, interactive `openchamber_render` forms & SVG graph map, background Workflows, and Lead-aware session digests.
 
 **The key differentiator:** derivation, not templating. Every choice traces to
 specific research claims. The engine reasons from principles about what your
@@ -374,9 +374,11 @@ arscontexta/
 |   |-- commands/                # Plugin-level /arscontexta:* command registrations
 |   |-- agents/                  # knowledge-guide & knowledge-worker agent registrations
 |   +-- vault.js                 # .arscontexta vault detection & config reader
-|-- panel/                       # OpenChamber UI surfaces (Work Status section / vault rail panel)
-|   |-- index.html
-|   +-- main.js                  # Bundled IIFE via @openchamber/sdk
+|-- panel/                       # OpenChamber UI surfaces (Work Status section, rail panel, background actions)
+|   |-- index.html               # 3-tab rail & mobile panel (Pulse, Maps & Notes, Inbox)
+|   |-- status.html              # Work Status section (Vault Status)
+|   |-- background.html          # Background action handler (selection / file / message)
+|   +-- *.js                     # Pre-bundled IIFE scripts via @openchamber/sdk & @openchamber/sdk/ui
 |-- skills/                      # 10 plugin-level skills (contributes.skills)
 |   |-- setup/                   # Conversational onboarding
 |   |-- help/                    # Contextual guidance
@@ -398,7 +400,8 @@ arscontexta/
 |   +-- knowledge-guide.md       # Proactive methodology subagent (OpenCode V2 format)
 |-- generators/
 |   |-- agents-md.md             # AGENTS.md context file template
-|   +-- features/                # 17 composable feature blocks
+|   |-- features/                # 18 composable feature blocks (incl. openchamber-native.md)
+|   +-- workflows/               # OpenChamber saved workflow templates (process-queue.js, vault-health-audit.js)
 |-- methodology/                 # 249 research claims
 |-- reference/                   # Core reference documents
 |   |-- kernel.yaml              # 15 kernel primitives
@@ -421,20 +424,22 @@ Pour développer ou contribuer sur Ars Contexta, installez le dépôt localement
 
 Les modifications apportées aux compétences (`skills/`) ou au plugin serveur (`plugin/`) sont prises en compte en direct dans OpenChamber.
 
-### Compilation du panneau d'extension (Optionnel)
+### Compilation et vérification de l'extension UI
 
-Si vous développez des composants graphiques dans `panel/` via `@openchamber/sdk`, recompilez le bundle autonome IIFE :
+Si vous modifiez les composants graphiques dans `panel/` via `@openchamber/sdk` et `@openchamber/sdk/ui`, recompilez les bundles autonomes IIFE et vérifiez le manifeste avant de commiter :
 ```bash
-bunx openchamber-guest-bundle panel/main.ts panel/main.js
+npm install
+npm run build:panel
+npm run check:guest
 ```
 
 ### Exécution des tests automatisés
 
-Ars Contexta inclut une suite de tests automatisée en Node.js ESM natif (`node --test`, sans dépendance externe) garantissant la conformité du kernel, l'intégrité des compétences et l'absence totale de fuites de syntaxe legacy :
+Ars Contexta inclut une suite de tests automatisée en Node.js ESM natif (`node --test`) garantissant la conformité du kernel, la validité du manifeste OpenChamber, la syntaxe des workflows, l'intégrité des compétences et l'absence totale de fuites de syntaxe legacy :
 
 ```bash
 # Lancer tous les tests unitaires et gates d'intégrité
-node --test tests/*.test.mjs
+npm test
 
 # Lancer la validation des 15 primitives du kernel sur un vault cible
 node reference/validate-kernel.mjs /chemin/vers/votre/vault

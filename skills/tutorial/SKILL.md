@@ -53,7 +53,9 @@ Skip to the saved `current_step`. Do NOT re-ask for track. If `current_step` > 5
 
 ## Track Selection (new tutorial only)
 
-Display header, then use the question tool:
+Display header, then ask the user to choose a track:
+- When `openchamber_render` is available, present the 3 tracks (`Researcher`, `Manager`, `Personal`) with a short description of each in an `openui-lang` `Choice` form (`awaitAnswer: true`).
+- Otherwise fall back to the `question` tool with the text prompt below:
 
 ```
 --=={ ars contexta : tutorial }==--

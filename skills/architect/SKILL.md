@@ -458,6 +458,17 @@ Options:
 === END REPORT ===
 ```
 
+### OpenChamber Project Knowledge Integration (when `openchamber_knowledge` is available)
+
+If the `openchamber_knowledge` tool is available in this session (and `--dry-run` is not set):
+
+1. Call `knowledge.list` first to avoid duplicate plans or todos.
+2. Save the ranked recommendations as an OpenChamber **Plan** (`kind: "plan"`) with a `## Steps` checklist (`- [ ]` items for each recommendation, `ops/derivation.md` update, and post-change validation) so OpenChamber tracks live progress.
+3. Open the plan immediately for user review and line-by-line comments with `knowledge.show` (`kind: "plan"`, `id`).
+4. Once the user approves recommendations (or selects specific ones), create corresponding OpenChamber **Todos** (`kind: "todo"`, linked via `planId`, using `dependsOn` when steps must run in order) — keep `ops/tasks.md` reserved for the vault's own human task stack.
+5. As steps are implemented, update the Plan checklist (`- [x]`) and mark each completed Todo `completed: true`.
+6. If `openchamber_knowledge` is unavailable (standalone OpenCode CLI), present the text report in chat as usual.
+
 ### On User Approval
 
 Implement the selected recommendations following the steps listed. For each implementation:
