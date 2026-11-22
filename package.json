@@ -26,12 +26,14 @@
   ],
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "validate": "node reference/validate-kernel.mjs"
+    "validate": "node reference/validate-kernel.mjs",
+    "build:panel": "node scripts/build-panel.mjs",
+    "check:guest": "node scripts/check-guest.mjs ."
   },
   "openchamber": {
     "apiVersion": 1,
     "engines": {
-      "openchamber": ">=2.7.0"
+      "openchamber": ">=2.8.0"
     },
     "id": "arscontexta",
     "name": "Ars Contexta",
@@ -40,10 +42,92 @@
       "panel": {
         "id": "arscontexta",
         "name": "Ars Contexta",
-        "icon": "brain"
+        "icon": "brain",
+        "entry": "panel/index.html",
+        "mobile": true
       },
+      "statusSection": {
+        "entry": "panel/status.html",
+        "title": "Vault Status",
+        "height": 120,
+        "requiresProject": true
+      },
+      "background": {
+        "entry": "panel/background.html"
+      },
+      "capabilities": [
+        "files",
+        "prompt"
+      ],
+      "actions": [
+        {
+          "id": "save-to-inbox",
+          "label": "Save to Vault Inbox",
+          "icon": "inbox-archive",
+          "where": "selection",
+          "mode": "background",
+          "display": "icon"
+        },
+        {
+          "id": "pipeline-file",
+          "label": "Process with Pipeline",
+          "icon": "flow-chart",
+          "where": "file",
+          "mode": "background"
+        },
+        {
+          "id": "capture-message",
+          "label": "Capture to Vault Inbox",
+          "icon": "bookmark",
+          "where": "message",
+          "roles": [
+            "assistant"
+          ],
+          "mode": "background"
+        }
+      ],
+      "tools": [
+        {
+          "match": "arscontexta_validate_kernel",
+          "name": "Kernel Validator",
+          "icon": "brain",
+          "title": "Kernel Check: {output.pass}/{output.total}",
+          "subtitle": "{output.status}",
+          "output": "card",
+          "card": {
+            "label": "Ars Contexta Kernel · {output.status}",
+            "title": "{output.pass}/{output.total} primitives passed",
+            "status": {
+              "value": "{output.status}",
+              "tones": {
+                "PASS": "success",
+                "WARN": "warning",
+                "FAIL": "error"
+              }
+            },
+            "fields": [
+              {
+                "label": "Warnings",
+                "value": "{output.warn}"
+              },
+              {
+                "label": "Failures",
+                "value": "{output.fail}"
+              },
+              {
+                "label": "Vault",
+                "value": "{output.vault}"
+              }
+            ]
+          }
+        }
+      ],
       "opencodePlugin": "plugin",
       "skills": "skills"
     }
+  },
+  "devDependencies": {
+    "@openchamber/sdk": "^2.8.0",
+    "esbuild": "^0.28.2"
   }
 }

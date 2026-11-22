@@ -306,7 +306,17 @@ test('Plugin Setup Integration - Registers references, commands, skills, tools a
   assert.ok(registered.commands.some((c) => c.name === 'arscontexta:help'));
 
   assert.equal(registered.skills.length, 10, 'Must register 10 plugin skills');
-  assert.ok(registered.tools.some((t) => t.name === 'validate_kernel'), 'Must register validate_kernel tool');
+  const validateTool = registered.tools.find((t) => t.name === 'validate_kernel');
+  assert.ok(validateTool, 'Must register validate_kernel tool');
+
+  const toolResult = await validateTool.execute(
+    { path: 'tests/fixtures/vault-minimal-openchamber' },
+    { sessionID: 'test-ses', agent: 'build' }
+  );
+  const parsedReport = JSON.parse(toolResult.content);
+  assert.equal(parsedReport.status, 'PASS');
+  assert.equal(parsedReport.ok, true);
+  assert.equal(parsedReport.fail, 0);
 
   assert.ok(registered.sessionHooks.some((h) => h.name === 'context'), 'Must register context session hook');
   assert.ok(registered.toolHooks.some((h) => h.name === 'execute.after'), 'Must register execute.after tool hook');

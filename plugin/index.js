@@ -182,8 +182,9 @@ export default {
             }
 
             const report = validateKernel(targetPath);
+            const status = report.fail > 0 ? 'FAIL' : report.warn > 0 ? 'WARN' : 'PASS';
             return {
-              content: JSON.stringify(report, null, 2),
+              content: JSON.stringify({ status, ...report }, null, 2),
             };
           },
         });

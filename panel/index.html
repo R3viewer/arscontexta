@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ars Contexta</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+      }
+      #root {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      .ac-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .ac-badges {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .ac-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+      }
+      .ac-card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+        border-radius: var(--radius, var(--oc-radius, 8px));
+        border: 1px solid var(--interactive-border, var(--oc-border, rgba(128, 128, 128, 0.25)));
+        background: var(--surface-elevated, var(--oc-elevated, transparent));
+      }
+      .ac-muted {
+        font-size: 0.78rem;
+        color: var(--surface-muted-foreground, var(--oc-muted, gray));
+      }
+      .ac-section-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--surface-muted-foreground, var(--oc-muted, gray));
+      }
+      .ac-actions-wrap {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .ac-hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="./main.js"></script>
+  </body>
+</html>
