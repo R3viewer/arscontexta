@@ -69,6 +69,15 @@ Supplied automatically by the bundled Ars Contexta OpenCode V2 server plugin (`p
 - `auto-commit`: Serialized async Git auto-commit.
 - `session-capture`: Automatic session state persistence in `ops/sessions/`.
 
+### 6. OpenChamber Native Surfaces & Workflows
+
+Supplied by the OpenChamber extension (`package.json` + `panel/`) and vault workflows (`.openchamber/workflows/`):
+- **Work Status (`Vault Status`) & Rail Panel (`Ars Contexta`, mobile-ready)**: Live vault signals, queue progress, MOC/note search with one-click chat chip attach, and zero-token quick capture to `{inbox}/`.
+- **Context Actions**: Save chat selection to inbox, capture assistant message to inbox, and stage file into `/pipeline`.
+- **Tool Card**: `arscontexta_validate_kernel` renders as a native status card in chat.
+- **Saved Workflows (`.openchamber/workflows/`)**: `process-queue.js` and `vault-health-audit.js` generated for `moderate`/`heavy` vaults with safe MOC serialization.
+- **Project Knowledge, Agent Pages & Lead Awareness**: Evolution/health Plans & Todos (`openchamber_knowledge`), interactive `openchamber_render` confirmation/triage/SVG graph maps, and `lead.brief` / `lead.digest` guidance (`openchamber-native.md`).
+
 ## Platform Characteristics
 
 | Aspect | Detail |

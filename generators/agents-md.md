@@ -153,7 +153,7 @@ If arscontexta plugin is not loaded, apply the methodology principles documented
 
 ## Feature Blocks
 
-Include each enabled feature's corresponding block from `generators/features/`. Compose them in this canonical order (17 blocks total):
+Include each enabled feature's corresponding block from `generators/features/`. Compose them in this canonical order (18 blocks total):
 
 1. atomic-notes (if granularity = atomic or moderate)
 2. wiki-links (always)
@@ -172,10 +172,11 @@ Include each enabled feature's corresponding block from `generators/features/`. 
 15. self-space (optional — off for research, on for personal assistant)
 16. helper-functions (always)
 17. graph-analysis (always)
+18. openchamber-native (when platform = openchamber)
 
 **Always-included blocks (11):** wiki-links, processing-pipeline, schema, maintenance, self-evolution, methodology-knowledge, session-rhythm, templates, ethical-guardrails, helper-functions, graph-analysis.
 
-**Conditional blocks (6):** atomic-notes (granularity), mocs (navigation depth), semantic-search (qmd opt-in), personality (derivation), multi-domain (multiple domains), self-space (user choice).
+**Conditional blocks (7):** atomic-notes (granularity), mocs (navigation depth), semantic-search (qmd opt-in), personality (derivation), multi-domain (multiple domains), self-space (user choice), openchamber-native (OpenChamber platform).
 
 **Composition rules:**
 - Block boundaries must be invisible in output — compose as cohesive prose

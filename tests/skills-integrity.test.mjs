@@ -113,3 +113,45 @@ test('Reference Documents Integrity - Core specs exist', () => {
     assert.ok(stat.size > 0, `Reference document must not be empty: ${ref}`);
   }
 });
+
+test('OpenChamber Knowledge Integration - Evolution, health, and seed skills reference openchamber_knowledge', () => {
+  const planSkills = [
+    'skills/architect/SKILL.md',
+    'skills/reseed/SKILL.md',
+    'skills/upgrade/SKILL.md',
+    'skills/health/SKILL.md',
+  ];
+
+  for (const file of planSkills) {
+    const content = fs.readFileSync(path.resolve(file), 'utf8');
+    assert.ok(content.includes('openchamber_knowledge'), `${file} must document openchamber_knowledge integration`);
+    assert.ok(content.includes('## Steps'), `${file} must specify ## Steps checklist for OpenChamber plan progress`);
+  }
+
+  const seedContent = fs.readFileSync(path.resolve('skill-sources/seed/SKILL.md'), 'utf8');
+  assert.ok(seedContent.includes('openchamber_knowledge'), 'skill-sources/seed/SKILL.md must integrate Project Notes');
+});
+
+test('OpenChamber Render Integration - setup, rethink, tutorial, and graph integrate openchamber_render', () => {
+  const uiSkills = [
+    'skills/setup/SKILL.md',
+    'skill-sources/rethink/SKILL.md',
+    'skills/tutorial/SKILL.md',
+  ];
+
+  for (const file of uiSkills) {
+    const content = fs.readFileSync(path.resolve(file), 'utf8');
+    assert.ok(content.includes('openchamber_render'), `${file} must document openchamber_render UI usage`);
+    assert.ok(content.includes('awaitAnswer'), `${file} must document awaitAnswer for interactive UI`);
+  }
+
+  const setupContent = fs.readFileSync(path.resolve('skills/setup/SKILL.md'), 'utf8');
+  assert.ok(
+    setupContent.includes('Never replace Phase 2'),
+    'skills/setup/SKILL.md must preserve Phase 2 open-ended conversation without forms'
+  );
+
+  const graphContent = fs.readFileSync(path.resolve('skill-sources/graph/SKILL.md'), 'utf8');
+  assert.ok(graphContent.includes('openchamber_render'), 'skill-sources/graph/SKILL.md must document SVG graph rendering');
+  assert.ok(graphContent.includes('SVG'), 'skill-sources/graph/SKILL.md must specify inline SVG visualization');
+});

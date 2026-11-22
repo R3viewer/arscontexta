@@ -42,6 +42,19 @@ Individual {vocabulary.note_plural} are valuable, but their connections create c
 
 Every operation produces two things: **findings** (what the analysis reveals) and **actions** (what to do about it). Never dump raw data. Always interpret results with {vocabulary.note} descriptions and domain context. Always suggest specific next steps.
 
+### Visual Graph Map (when `openchamber_render` is available)
+
+For structural operations (`health`, `clusters`, `triangles`, `bridges`, `hubs`, or interactive overview) when `openchamber_render` is available in the session:
+1. Build a self-contained inline SVG visualization via `openchamber_render` (`action: "render.page"`, `parameters: { title: "Knowledge Graph Map", html: "..." }`, read-only — do **not** set `awaitAnswer`).
+2. Follow OpenChamber page styling rules:
+   - Leave `html`, `body`, and the outermost container without a background (`transparent`), no outer card border, and use CSS theme variables (`--foreground`, `--muted-foreground`, `--card`, `--border`, `--primary`, `--warning`, `--chart-1`..`--chart-6`, `--radius`, `--font-sans`).
+   - Use a fixed-pixel SVG height (e.g., `420px`) rather than `100vh`.
+3. Draw:
+   - `{vocabulary.topic_map_plural}` as larger hub nodes (`--primary` / `--chart-1..6`), regular `{vocabulary.note_plural}` grouped near their linked hub, orphan notes highlighted in `--warning`, and bridge nodes marked distinctly.
+   - Wiki-link edges (plus dashed edges for open synthesis triangles in `triangles` mode).
+   - Interactive hover/tap tooltip (kept within SVG bounds) showing the note title, YAML `description`, and incoming/outgoing link counts, plus filter toggles (All / MOCs / Orphans).
+4. Always follow the rendered page with concise **Findings** and **Recommended Actions** in your reply.
+
 ---
 
 ## Operations

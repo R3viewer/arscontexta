@@ -8,7 +8,10 @@ argument-hint: "[file] — path to source file to seed for processing"
 
 **Target: $ARGUMENTS**
 
-The target MUST be a file path. If no target provided, list {DOMAIN:inbox}/ contents and ask which to seed.
+The target MUST be a file path. If no target provided:
+1. List `{DOMAIN:inbox}/` contents.
+2. If `openchamber_knowledge` is available, also call `knowledge.list` to check OpenChamber **Project Notes** (`kind: "note"`) for quick scratchpad ideas/excerpts waiting to enter the vault.
+3. Present both `{DOMAIN:inbox}/` files and any Project Notes as candidates, and ask which to seed. If the user picks an OpenChamber Project Note, materialize its contents into `{DOMAIN:inbox}/{slug}.md` with clean YAML frontmatter first, then run Steps 1-8 normally (and confirm whether to remove the temporary Project Note with `knowledge.delete` once archived).
 
 ### Step 0: Read Vocabulary
 
