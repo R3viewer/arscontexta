@@ -34,6 +34,35 @@ test('OpenChamber Manifest - package.json is valid and conforms to OpenChamber S
 
   const skillsDir = path.resolve(oc.contributes.skills);
   assert.ok(fs.existsSync(skillsDir) && fs.statSync(skillsDir).isDirectory(), `Skills directory does not exist: ${skillsDir}`);
+
+  assert.equal(oc.contributes.panel?.entry, 'panel/index.html', 'panel.entry must point to panel/index.html');
+  assert.equal(oc.contributes.panel?.mobile, true, 'panel.mobile must opt in for mobile support');
+  assert.equal(oc.contributes.statusSection?.entry, 'panel/status.html', 'statusSection.entry must point to panel/status.html');
+  assert.equal(oc.contributes.background?.entry, 'panel/background.html', 'background.entry must point to panel/background.html');
+  assert.deepEqual(oc.contributes.capabilities, ['files', 'prompt'], 'capabilities must declare files and prompt');
+  assert.equal(oc.contributes.actions?.length, 3, 'actions must expose 3 quick vault actions');
+  assert.equal(oc.contributes.tools?.[0]?.match, 'arscontexta_validate_kernel', 'tools card must style arscontexta_validate_kernel');
+
+  for (const requiredFile of [
+    'panel/index.html',
+    'panel/main.js',
+    'panel/status.html',
+    'panel/status.js',
+    'panel/background.html',
+    'panel/background.js',
+  ]) {
+    const full = path.resolve(requiredFile);
+    assert.ok(fs.existsSync(full), `Required extension UI file missing: ${requiredFile}`);
+    assert.ok(fs.statSync(full).size > 0, `Extension UI file must not be empty: ${requiredFile}`);
+  }
+});
+
+test('OpenChamber SDK Schema - parseManifestJson accepts package.json without errors', async () => {
+  const pkgPath = path.resolve('package.json');
+  const raw = fs.readFileSync(pkgPath, 'utf8');
+  const { parseManifestJson } = await import('@openchamber/sdk/schemas');
+  const parsed = parseManifestJson(raw);
+  assert.equal(parsed.ok, true, parsed.ok ? '' : `${parsed.code}: ${parsed.message}`);
 });
 
 test('OpenCode V2 Plugin - index.js default exports { id, setup } and loads cleanly', async () => {
