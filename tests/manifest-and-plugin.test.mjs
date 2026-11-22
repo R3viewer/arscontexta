@@ -37,6 +37,7 @@ test('OpenChamber Manifest - package.json is valid and conforms to OpenChamber S
 
   assert.equal(oc.contributes.panel?.entry, 'panel/index.html', 'panel.entry must point to panel/index.html');
   assert.equal(oc.contributes.panel?.mobile, true, 'panel.mobile must opt in for mobile support');
+  assert.equal(oc.contributes.attach, 'panel', 'attach must route chip clicks and + menu to rail panel');
   assert.equal(oc.contributes.statusSection?.entry, 'panel/status.html', 'statusSection.entry must point to panel/status.html');
   assert.equal(oc.contributes.background?.entry, 'panel/background.html', 'background.entry must point to panel/background.html');
   assert.deepEqual(oc.contributes.capabilities, ['files', 'prompt'], 'capabilities must declare files and prompt');
@@ -63,6 +64,16 @@ test('OpenChamber SDK Schema - parseManifestJson accepts package.json without er
   const { parseManifestJson } = await import('@openchamber/sdk/schemas');
   const parsed = parseManifestJson(raw);
   assert.equal(parsed.ok, true, parsed.ok ? '' : `${parsed.code}: ${parsed.message}`);
+});
+
+test('OpenChamber Panel Bundles - use valid https attach URLs and expose command tooltips', () => {
+  const mainJs = fs.readFileSync(path.resolve('panel/main.js'), 'utf8');
+  const statusJs = fs.readFileSync(path.resolve('panel/status.js'), 'utf8');
+
+  assert.equal(mainJs.includes('vault://'), false, 'panel/main.js must never pass non-http vault:// URLs to host.attach');
+  assert.ok(mainJs.includes('https://arscontexta.local/vault/'), 'panel/main.js must use valid https attach URLs');
+  assert.ok(mainJs.includes('command-hint'), 'panel/main.js must include popover command-hint rendering');
+  assert.ok(statusJs.includes('command-hint'), 'panel/status.js must include popover command-hint rendering');
 });
 
 test('OpenCode V2 Plugin - index.js default exports { id, setup } and loads cleanly', async () => {

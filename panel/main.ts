@@ -1,4 +1,4 @@
-import { connectHost, HostRequestError } from '@openchamber/sdk';
+import { connectHost, HostRequestError, isGuestAttachItem } from '@openchamber/sdk';
 import {
   applyHostReady,
   mountBadge,
@@ -14,9 +14,15 @@ import {
   type Handle,
 } from '@openchamber/sdk/ui';
 import {
+  attachCommandTooltip,
+  attachItemToChat,
   buildNoteAttachRequest,
+  buildVaultItemUrl,
   captureToInbox,
+  COMMAND_HINTS,
   inspectVault,
+  renderCommandPopover,
+  resolveCommandHint,
   runVaultCommand,
   type VaultSnapshot,
 } from './vault-client';
@@ -27,6 +33,8 @@ const root = document.querySelector<HTMLElement>('#root')!;
 type TabId = 'pulse' | 'maps' | 'inbox';
 
 let mounted = false;
+let isPopoverSurface = false;
+let canUsePopover = false;
 let currentDirectory: string | null = null;
 let currentSnapshot: VaultSnapshot | null = null;
 let activeTab: TabId = 'pulse';
@@ -62,6 +70,7 @@ inboxContainer.className = 'ac-stack ac-hidden';
 let tabsHandle: ReturnType<typeof mountTabs> | null = null;
 let spinnerHandle: Handle | null = null;
 let emptyHandle: Handle | null = null;
+let emptyTipHandle: Handle | null = null;
 let transientHandles: Handle[] = [];
 
 // Maps controls (mounted once inside mapsContainer)
@@ -187,6 +196,11 @@ function renderPulse(snap: VaultSnapshot): void {
     })
   );
 
+  const healthTip = attachCommandTooltip(healthSlot, host, COMMAND_HINTS.health, { canPopover: canUsePopover });
+  if (healthTip) transientHandles.push(healthTip);
+  const nextTip = attachCommandTooltip(nextSlot, host, COMMAND_HINTS.next, { canPopover: canUsePopover });
+  if (nextTip) transientHandles.push(nextTip);
+
   if (snap.queue.pipelinePending > 0 || snap.queue.maintenancePending > 0) {
     transientHandles.push(
       mountButton(ralphSlot, {
@@ -198,6 +212,8 @@ function renderPulse(snap: VaultSnapshot): void {
         },
       })
     );
+    const ralphTip = attachCommandTooltip(ralphSlot, host, COMMAND_HINTS.ralph, { canPopover: canUsePopover });
+    if (ralphTip) transientHandles.push(ralphTip);
   } else if (snap.inboxItems.length > 0) {
     transientHandles.push(
       mountButton(ralphSlot, {
@@ -209,6 +225,8 @@ function renderPulse(snap: VaultSnapshot): void {
         },
       })
     );
+    const pipeTip = attachCommandTooltip(ralphSlot, host, COMMAND_HINTS.pipeline, { canPopover: canUsePopover });
+    if (pipeTip) transientHandles.push(pipeTip);
   }
 
   statsCard.append(statsTitle, statsBadges, actionRow);
@@ -241,6 +259,13 @@ function renderPulse(snap: VaultSnapshot): void {
           },
         })
       );
+      const sigTip = attachCommandTooltip(
+        sigSlot,
+        host,
+        resolveCommandHint(sig.command, snap.vocabulary),
+        { canPopover: canUsePopover }
+      );
+      if (sigTip) transientHandles.push(sigTip);
     }
   }
 
@@ -286,11 +311,11 @@ function renderPulse(snap: VaultSnapshot): void {
           onClick: () => {
             const report = snap.lastHealthReport;
             if (!report) return;
-            void host.attach({
+            void attachItemToChat(host, {
               providerId: 'arscontexta',
               id: report.path,
               title: `Health Report: ${report.name}`,
-              url: `vault://${report.path}`,
+              url: buildVaultItemUrl(report.path),
               text: `Read \`${report.path}\` for the latest Ars Contexta health diagnostics.`,
             });
           },
@@ -358,16 +383,17 @@ function renderInboxTab(snap: VaultSnapshot): void {
     const rethinkBtnSlot = document.createElement('div');
     opsActions.append(rethinkBtnSlot);
 
+    const rethinkCmd = `/${snap.vocabulary.rethink}`;
     inboxTransientHandles.push(
       mountSeparator(opsSep, {
         label: `Tensions (${snap.tensions.open}) & Observations (${snap.observations.pending})`,
       }),
       mountButton(rethinkBtnSlot, {
-        label: `Triage with /${snap.vocabulary.rethink}`,
+        label: `Triage with ${rethinkCmd}`,
         variant: 'outline',
         size: 'sm',
         onClick: () => {
-          void runVaultCommand(host, `/${snap.vocabulary.rethink}`);
+          void runVaultCommand(host, rethinkCmd);
         },
       }),
       mountList(opsListSlot, {
@@ -380,16 +406,23 @@ function renderInboxTab(snap: VaultSnapshot): void {
         onSelect: (itemPath) => {
           const item = combined.find((c) => c.path === itemPath);
           if (!item) return;
-          void host.attach({
+          void attachItemToChat(host, {
             providerId: 'arscontexta',
             id: item.path,
             title: `[${item.kind}] ${item.title}`,
-            url: `vault://${item.path}`,
+            url: buildVaultItemUrl(item.path),
             text: `Read \`${item.path}\` (${item.kind}) and help resolve or promote it.`,
           });
         },
       })
     );
+    const rethinkTip = attachCommandTooltip(
+      rethinkBtnSlot,
+      host,
+      resolveCommandHint(rethinkCmd, snap.vocabulary),
+      { canPopover: canUsePopover }
+    );
+    if (rethinkTip) inboxTransientHandles.push(rethinkTip);
   }
 }
 
@@ -436,6 +469,8 @@ async function refreshVault(): Promise<void> {
     currentSnapshot = null;
     clearHandles(transientHandles, pulseContainer);
     clearHandles(inboxTransientHandles, inboxBodySlot);
+    emptyTipHandle?.dispose();
+    emptyTipHandle = null;
     emptyHandle?.dispose();
     emptyHandle = mountEmpty(emptySlot, {
       title: 'No project open',
@@ -447,6 +482,8 @@ async function refreshVault(): Promise<void> {
     return;
   }
 
+  emptyTipHandle?.dispose();
+  emptyTipHandle = null;
   emptyHandle?.dispose();
   emptyHandle = null;
   spinnerHandle?.dispose();
@@ -473,6 +510,7 @@ async function refreshVault(): Promise<void> {
           },
         },
       });
+      emptyTipHandle = attachCommandTooltip(emptySlot, host, COMMAND_HINTS.setup, { canPopover: canUsePopover });
       void host.setBadge(null).catch(() => {});
       return;
     }
@@ -564,8 +602,7 @@ function mountOnce(): void {
     onSelect: (id) => {
       const note = currentSnapshot?.notesIndex.find((n) => n.id === id);
       if (!note) return;
-      void host.attach(buildNoteAttachRequest(note));
-      void host.toast({ kind: 'success', message: `Attached ${note.title} to chat` });
+      void attachItemToChat(host, buildNoteAttachRequest(note), `Attached ${note.title} to chat`);
     },
   });
 
@@ -614,12 +651,40 @@ function mountOnce(): void {
   updateTabVisibility();
 }
 
+function focusAttachedItem(item: unknown): void {
+  if (!item || !isGuestAttachItem(item as Parameters<typeof isGuestAttachItem>[0])) return;
+  const attach = item as { id?: string; title?: string };
+  if (!attach.id) return;
+  if (attach.id.startsWith('ops/tensions/') || attach.id.startsWith('ops/observations/')) {
+    activeTab = 'inbox';
+    tabsHandle?.update({ activeId: activeTab });
+    updateTabVisibility();
+    return;
+  }
+  activeTab = 'maps';
+  tabsHandle?.update({ activeId: activeTab });
+  const cleanTitle = (attach.title ?? attach.id).replace(/^\[MOC\]\s*/i, '');
+  searchQuery = cleanTitle;
+  mapsSearchHandle?.update({ value: cleanTitle });
+  updateTabVisibility();
+  renderMapsList();
+}
+
 host.onReady((ctx) => {
   applyHostReady(ctx, document.documentElement);
+  canUsePopover = Boolean(ctx.features?.popovers) && ctx.device?.pointer !== 'coarse';
+
+  if (ctx.surface === 'popover') {
+    isPopoverSurface = true;
+    renderCommandPopover(host, root, ctx.popover?.data);
+    return;
+  }
+
   if (!mounted) {
     mounted = true;
     currentDirectory = ctx.directory;
     mountOnce();
+    if (ctx.item) focusAttachedItem(ctx.item);
     void refreshVault();
   } else if (ctx.directory !== currentDirectory) {
     currentDirectory = ctx.directory;
@@ -627,8 +692,14 @@ host.onReady((ctx) => {
   }
 });
 
+host.onItem((item) => {
+  if (!isPopoverSurface && mounted && item) {
+    focusAttachedItem(item);
+  }
+});
+
 host.onDirectory((directory) => {
-  if (directory === currentDirectory) return;
+  if (isPopoverSurface || directory === currentDirectory) return;
   currentDirectory = directory;
   if (mounted) {
     void refreshVault();
@@ -636,7 +707,7 @@ host.onDirectory((directory) => {
 });
 
 host.onSessionLifecycle((event) => {
-  if (event.phase === 'completed' && mounted && currentDirectory) {
+  if (!isPopoverSurface && event.phase === 'completed' && mounted && currentDirectory) {
     void refreshVault();
   }
 });

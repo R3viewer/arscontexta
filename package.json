@@ -46,6 +46,7 @@
         "entry": "panel/index.html",
         "mobile": true
       },
+      "attach": "panel",
       "statusSection": {
         "entry": "panel/status.html",
         "title": "Vault Status",

@@ -263,6 +263,7 @@
   var GUEST_FILE_STAT_KINDS = ["file", "directory", "other", "missing"];
   var isStartSessionResult = (value) => Boolean(value && "sessionId" in value);
   var isPromptResult = (value) => Boolean(value && "sent" in value && !("sessionId" in value));
+  var isGuestAttachItem = (item) => item !== null && (item.kind === void 0 || item.kind === "issue" || item.kind === "pull");
   var GUEST_TOAST_MAX = 500;
   var GUEST_CLIPBOARD_TEXT_MAX = 32e3;
   var GUEST_COMPOSE_TEXT_MAX = 16e3;
@@ -2558,6 +2559,231 @@ ${GUEST_UI_LOOK_CSS}`;
     };
   };
 
+  // node_modules/@openchamber/sdk/dist/ui/popover-anchor.js
+  var nextPopoverAnchorId = 0;
+  var isKeyboardEvent = (event) => "key" in event;
+  var mountPopoverAnchor = (element, options) => {
+    const document2 = element.ownerDocument;
+    const window2 = document2.defaultView;
+    let timer = null;
+    let activeId = null;
+    let disposed = false;
+    let ignoreNextFocus = false;
+    let pointerActive = false;
+    let focusActive = false;
+    let touchPointerDown = false;
+    let observer = null;
+    const previousExpanded = element.getAttribute("aria-expanded");
+    const previousPopup = element.getAttribute("aria-haspopup");
+    const previousLabel = element.getAttribute("aria-label");
+    const ownsExpanded = previousExpanded === null;
+    const clearTimer = () => {
+      if (timer !== null)
+        clearTimeout(timer);
+      timer = null;
+    };
+    const removeActiveListeners = () => {
+      document2.removeEventListener("scroll", closeForAnchor, true);
+      document2.removeEventListener("pointerdown", closeForOutside, true);
+      window2?.removeEventListener("resize", closeForAnchor);
+      observer?.disconnect();
+      observer = null;
+    };
+    const close = (reason = "closed", restoreFocus = false) => {
+      const id = activeId;
+      clearTimer();
+      activeId = null;
+      removeActiveListeners();
+      element.removeAttribute("data-oc-popover-open");
+      if (ownsExpanded)
+        element.setAttribute("aria-expanded", "false");
+      if (id)
+        void options.host.closePopover(id, reason).catch(() => void 0);
+      if (restoreFocus) {
+        ignoreNextFocus = true;
+        element.focus();
+        queueMicrotask(() => {
+          ignoreNextFocus = false;
+        });
+      }
+    };
+    const closeForAnchor = () => close();
+    const closeForOutside = (event) => {
+      const target = event.target;
+      if (target !== element && !element.contains(target))
+        close();
+    };
+    const watchActive = () => {
+      document2.addEventListener("scroll", closeForAnchor, true);
+      document2.addEventListener("pointerdown", closeForOutside, true);
+      window2?.addEventListener("resize", closeForAnchor);
+      observer = new MutationObserver(() => {
+        if (!document2.contains(element))
+          close();
+      });
+      observer.observe(document2, { childList: true, subtree: true });
+    };
+    const reportAnchorActivity = () => {
+      if (activeId)
+        void options.host.setPopoverAnchorActive(activeId, pointerActive || focusActive).catch(() => void 0);
+    };
+    const open = (focus) => {
+      clearTimer();
+      if (disposed || activeId || !element.isConnected)
+        return;
+      const rect = element.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0)
+        return;
+      const id = `oc-popover-${++nextPopoverAnchorId}`;
+      let data;
+      try {
+        data = options.getData();
+      } catch {
+        return;
+      }
+      activeId = id;
+      element.setAttribute("data-oc-popover-open", "true");
+      if (ownsExpanded)
+        element.setAttribute("aria-expanded", "true");
+      watchActive();
+      void options.host.openPopover({
+        id,
+        anchor: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        width: options.width,
+        height: options.height,
+        side: options.side,
+        focus,
+        data
+      }).catch(() => {
+        if (activeId === id)
+          close();
+      });
+    };
+    const scheduleOpen = () => {
+      if (!activeId && !disposed && timer === null)
+        timer = setTimeout(() => open(false), 250);
+    };
+    const onPointerEnter = (event) => {
+      if ("pointerType" in event && event.pointerType && event.pointerType !== "mouse")
+        return;
+      pointerActive = true;
+      if (activeId)
+        reportAnchorActivity();
+      else if (!ignoreNextFocus)
+        scheduleOpen();
+    };
+    const onPointerLeave = (event) => {
+      if ("pointerType" in event && event.pointerType && event.pointerType !== "mouse")
+        return;
+      pointerActive = false;
+      clearTimer();
+      reportAnchorActivity();
+    };
+    const onPointerDown = (event) => {
+      touchPointerDown = "pointerType" in event && typeof event.pointerType === "string" && event.pointerType !== "" && event.pointerType !== "mouse";
+    };
+    const onPointerCancel = () => {
+      touchPointerDown = false;
+    };
+    const onClick = (event) => {
+      const tapped = touchPointerDown;
+      touchPointerDown = false;
+      if (!tapped || "detail" in event && event.detail === 0)
+        return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (activeId)
+        close();
+      else
+        open(false);
+    };
+    const onFocus = () => {
+      focusActive = true;
+      if (activeId)
+        reportAnchorActivity();
+      else if (!ignoreNextFocus && element.matches(":focus-visible"))
+        open(false);
+    };
+    const onFocusOut = () => {
+      focusActive = false;
+      reportAnchorActivity();
+    };
+    const onKeyDown = (event) => {
+      if (!isKeyboardEvent(event))
+        return;
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        if (activeId)
+          close();
+        open(true);
+      } else if (event.key === "Escape" && activeId) {
+        event.preventDefault();
+        close("escape", true);
+      }
+    };
+    const unsubscribe = options.host.onPopoverClosed((event) => {
+      if (event.id !== activeId)
+        return;
+      activeId = null;
+      clearTimer();
+      removeActiveListeners();
+      element.removeAttribute("data-oc-popover-open");
+      if (ownsExpanded)
+        element.setAttribute("aria-expanded", "false");
+      if (event.reason === "escape") {
+        ignoreNextFocus = true;
+        element.focus();
+        queueMicrotask(() => {
+          ignoreNextFocus = false;
+        });
+      }
+    });
+    element.setAttribute("aria-haspopup", "dialog");
+    if (ownsExpanded)
+      element.setAttribute("aria-expanded", "false");
+    if (options.label)
+      element.setAttribute("aria-label", options.label);
+    element.addEventListener("pointerenter", onPointerEnter);
+    element.addEventListener("pointermove", onPointerEnter);
+    element.addEventListener("pointerleave", onPointerLeave);
+    element.addEventListener("pointerdown", onPointerDown);
+    element.addEventListener("pointercancel", onPointerCancel);
+    element.addEventListener("click", onClick, true);
+    element.addEventListener("focus", onFocus);
+    element.addEventListener("focusout", onFocusOut);
+    element.addEventListener("keydown", onKeyDown);
+    return { dispose: () => {
+      if (disposed)
+        return;
+      disposed = true;
+      clearTimer();
+      close();
+      unsubscribe();
+      element.removeAttribute("data-oc-popover-open");
+      if (previousExpanded === null)
+        element.removeAttribute("aria-expanded");
+      if (previousPopup === null)
+        element.removeAttribute("aria-haspopup");
+      else
+        element.setAttribute("aria-haspopup", previousPopup);
+      if (options.label) {
+        if (previousLabel === null)
+          element.removeAttribute("aria-label");
+        else
+          element.setAttribute("aria-label", previousLabel);
+      }
+      element.removeEventListener("pointerenter", onPointerEnter);
+      element.removeEventListener("pointermove", onPointerEnter);
+      element.removeEventListener("pointerleave", onPointerLeave);
+      element.removeEventListener("pointerdown", onPointerDown);
+      element.removeEventListener("pointercancel", onPointerCancel);
+      element.removeEventListener("click", onClick, true);
+      element.removeEventListener("focus", onFocus);
+      element.removeEventListener("focusout", onFocusOut);
+      element.removeEventListener("keydown", onKeyDown);
+    } };
+  };
+
   // panel/vault-client.ts
   var KNOWN_NOTES_DIRS = [
     "notes",
@@ -3045,6 +3271,10 @@ ${trimmed}
     await host2.writeFile(targetPath, content);
     return { path: targetPath };
   }
+  function buildVaultItemUrl(itemPath) {
+    const normalized = itemPath.replace(/^\/+/, "");
+    return `https://arscontexta.local/vault/${encodeURIComponent(normalized)}`;
+  }
   function buildNoteAttachRequest(note) {
     const badge = note.isMoc ? "[MOC] " : "";
     const summary = note.description ? `${note.description}
@@ -3054,7 +3284,7 @@ ${trimmed}
       providerId: "arscontexta",
       id: note.path,
       title: `${badge}${note.title}`,
-      url: `vault://${note.path}`,
+      url: buildVaultItemUrl(note.path),
       text: `Vault ${note.isMoc ? "Map of Content" : "note"} \`${note.path}\`:
 ${summary}Read \`${note.path}\` for full context.`,
       data: {
@@ -3063,6 +3293,185 @@ ${summary}Read \`${note.path}\` for full context.`,
         description: note.description
       }
     };
+  }
+  async function attachItemToChat(host2, request, successMessage) {
+    try {
+      await host2.attach(request);
+      await host2.toast({
+        kind: "success",
+        message: successMessage ?? `Attached ${request.title} to chat`
+      });
+      return true;
+    } catch (err) {
+      const msg = err instanceof HostRequestError ? `${err.code}: ${err.message}` : String(err);
+      await host2.toast({
+        kind: "error",
+        message: `Could not attach to chat (${msg})`
+      });
+      return false;
+    }
+  }
+  var COMMAND_HINTS = {
+    setup: {
+      id: "setup",
+      command: "/arscontexta:setup",
+      title: "Initialiser le vault",
+      whenToUse: "Quand le dossier ne contient pas encore de vault Ars Contexta.",
+      whatItDoes: "Derive ta structure, AGENTS.md, templates, skills et workflows par conversation."
+    },
+    health: {
+      id: "health",
+      command: "/arscontexta:health",
+      title: "Diagnostic de sante",
+      whenToUse: "Apres un lot de notes, avant /architect, ou si des liens/orphelins posent probleme.",
+      whatItDoes: "Verifie schemas, orphelins et liens casses; cree un rapport et des Todos de remediation."
+    },
+    next: {
+      id: "next",
+      command: "/next",
+      title: "Prochaine action",
+      whenToUse: "Quand tu te demandes quoi traiter en priorite dans le vault.",
+      whatItDoes: "Croise la pile humaine (ops/tasks.md), la queue et les signaux de maintenance."
+    },
+    ralph: {
+      id: "ralph",
+      command: "/ralph 5",
+      title: "Traiter la file (Ralph)",
+      whenToUse: "Quand ops/queue contient des taches en attente (create, reflect, reweave, verify).",
+      whatItDoes: "Execute chaque phase en contexte isole (Workflow arriere-plan ou sous-agents)."
+    },
+    pipeline: {
+      id: "pipeline",
+      command: "/pipeline",
+      title: "Pipeline Inbox complet",
+      whenToUse: "Quand des captures ou sources attendent dans inbox/ pour etre digerees.",
+      whatItDoes: "Enchaine /seed, /reduce, traitement des claims et archivage du lot."
+    },
+    rethink: {
+      id: "rethink",
+      command: "/rethink",
+      title: "Trier observations & tensions",
+      whenToUse: "Quand les observations ou tensions depassent leur seuil.",
+      whatItDoes: "Aide a promouvoir, corriger la methodologie ou archiver les frictions accumulees."
+    },
+    reflect: {
+      id: "reflect",
+      command: "/reflect",
+      title: "Relier les notes orphelines",
+      whenToUse: "Quand des notes n ont aucun lien entrant ou manquent sur un MOC.",
+      whatItDoes: "Cherche des connexions conceptuelles et met a jour les Topics Maps."
+    },
+    remember: {
+      id: "remember",
+      command: "/remember --mine-sessions",
+      title: "Extraire les apprentissages",
+      whenToUse: "Quand plusieurs sessions capturees attendent dans ops/sessions/.",
+      whatItDoes: "Mine les sessions recentes pour en tirer des observations ou regles methodologiques."
+    },
+    openPanel: {
+      id: "openPanel",
+      command: "Ars Contexta Panel",
+      title: "Ouvrir le panneau Vault",
+      whenToUse: "Pour explorer les MOCs/notes, la queue detaillee ou capturer dans inbox/.",
+      whatItDoes: "Ouvre le panneau lateral Ars Contexta sur les 3 onglets."
+    }
+  };
+  function resolveCommandHint(command, vocabulary) {
+    const normalized = command.trim().toLowerCase();
+    if (normalized.startsWith("/arscontexta:setup") || normalized === "/setup") return COMMAND_HINTS.setup;
+    if (normalized.startsWith("/arscontexta:health") || normalized === "/health") return COMMAND_HINTS.health;
+    if (normalized.startsWith("/next")) return COMMAND_HINTS.next;
+    if (normalized.startsWith("/ralph")) return COMMAND_HINTS.ralph;
+    if (normalized.startsWith("/pipeline")) return COMMAND_HINTS.pipeline;
+    if (normalized === "open-panel") return COMMAND_HINTS.openPanel;
+    const rethinkCmd = `/${(vocabulary?.rethink || "rethink").toLowerCase()}`;
+    const reflectCmd = `/${(vocabulary?.reflect || "reflect").toLowerCase()}`;
+    const rememberCmd = `/${(vocabulary?.remember || "remember").toLowerCase()}`;
+    if (normalized.startsWith("/rethink") || normalized.startsWith(rethinkCmd)) {
+      return { ...COMMAND_HINTS.rethink, command };
+    }
+    if (normalized.startsWith("/reflect") || normalized.startsWith(reflectCmd)) {
+      return { ...COMMAND_HINTS.reflect, command };
+    }
+    if (normalized.startsWith("/remember") || normalized.startsWith(rememberCmd)) {
+      return { ...COMMAND_HINTS.remember, command };
+    }
+    return null;
+  }
+  function attachCommandTooltip(slot, host2, hint, options) {
+    if (!hint) return null;
+    const target = slot.querySelector("button") ?? slot;
+    target.title = `${hint.title} (${hint.command})
+A utiliser quand : ${hint.whenToUse}
+Action : ${hint.whatItDoes}`;
+    if (!options.canPopover) {
+      return null;
+    }
+    return mountPopoverAnchor(target, {
+      host: host2,
+      width: 280,
+      height: 132,
+      side: options.side ?? "left",
+      label: `${hint.title} \u2014 ${hint.command}`,
+      getData: () => ({
+        kind: "command-hint",
+        command: hint.command,
+        title: hint.title,
+        whenToUse: hint.whenToUse,
+        whatItDoes: hint.whatItDoes
+      })
+    });
+  }
+  function renderCommandPopover(host2, root2, rawData) {
+    root2.replaceChildren();
+    const data = rawData && typeof rawData === "object" && !Array.isArray(rawData) ? rawData : null;
+    const title = typeof data?.title === "string" ? data.title : "Ars Contexta";
+    const command = typeof data?.command === "string" ? data.command : "";
+    const whenToUse = typeof data?.whenToUse === "string" ? data.whenToUse : "";
+    const whatItDoes = typeof data?.whatItDoes === "string" ? data.whatItDoes : "";
+    const card = document.createElement("div");
+    card.style.display = "flex";
+    card.style.flexDirection = "column";
+    card.style.gap = "6px";
+    card.style.padding = "10px 12px";
+    const topRow = document.createElement("div");
+    topRow.style.display = "flex";
+    topRow.style.alignItems = "center";
+    topRow.style.justifyContent = "space-between";
+    topRow.style.gap = "8px";
+    const heading = document.createElement("strong");
+    heading.style.fontSize = "0.85rem";
+    heading.textContent = title;
+    topRow.append(heading);
+    if (command) {
+      const badgeWrap = document.createElement("div");
+      mountBadge(badgeWrap, { label: command, tone: "primary" });
+      topRow.append(badgeWrap);
+    }
+    card.append(topRow);
+    if (whenToUse) {
+      const whenEl = document.createElement("div");
+      whenEl.style.fontSize = "0.78rem";
+      whenEl.style.lineHeight = "1.35";
+      const label = document.createElement("strong");
+      label.textContent = "A utiliser quand : ";
+      whenEl.append(label, document.createTextNode(whenToUse));
+      card.append(whenEl);
+    }
+    if (whatItDoes) {
+      const whatEl = document.createElement("div");
+      whatEl.style.fontSize = "0.76rem";
+      whatEl.style.lineHeight = "1.35";
+      whatEl.style.color = "var(--surface-muted-foreground, var(--oc-muted, gray))";
+      whatEl.textContent = whatItDoes;
+      card.append(whatEl);
+    }
+    root2.append(card);
+    const measured = Math.ceil(root2.getBoundingClientRect().height);
+    if (measured > 0) {
+      void host2.setHeight(Math.max(64, Math.min(240, measured))).catch(() => {
+      });
+    }
   }
   async function runVaultCommand(host2, command, fallbackNotice) {
     try {
@@ -3084,6 +3493,8 @@ ${summary}Read \`${note.path}\` for full context.`,
   var host = connectHost();
   var root = document.querySelector("#root");
   var mounted = false;
+  var isPopoverSurface = false;
+  var canUsePopover = false;
   var currentDirectory = null;
   var currentSnapshot = null;
   var activeTab = "pulse";
@@ -3111,6 +3522,7 @@ ${summary}Read \`${note.path}\` for full context.`,
   var tabsHandle = null;
   var spinnerHandle = null;
   var emptyHandle = null;
+  var emptyTipHandle = null;
   var transientHandles = [];
   var mapsSearchSlot = document.createElement("div");
   var mapsFilterRow = document.createElement("div");
@@ -3214,6 +3626,10 @@ ${summary}Read \`${note.path}\` for full context.`,
         }
       })
     );
+    const healthTip = attachCommandTooltip(healthSlot, host, COMMAND_HINTS.health, { canPopover: canUsePopover });
+    if (healthTip) transientHandles.push(healthTip);
+    const nextTip = attachCommandTooltip(nextSlot, host, COMMAND_HINTS.next, { canPopover: canUsePopover });
+    if (nextTip) transientHandles.push(nextTip);
     if (snap.queue.pipelinePending > 0 || snap.queue.maintenancePending > 0) {
       transientHandles.push(
         mountButton(ralphSlot, {
@@ -3225,6 +3641,8 @@ ${summary}Read \`${note.path}\` for full context.`,
           }
         })
       );
+      const ralphTip = attachCommandTooltip(ralphSlot, host, COMMAND_HINTS.ralph, { canPopover: canUsePopover });
+      if (ralphTip) transientHandles.push(ralphTip);
     } else if (snap.inboxItems.length > 0) {
       transientHandles.push(
         mountButton(ralphSlot, {
@@ -3236,6 +3654,8 @@ ${summary}Read \`${note.path}\` for full context.`,
           }
         })
       );
+      const pipeTip = attachCommandTooltip(ralphSlot, host, COMMAND_HINTS.pipeline, { canPopover: canUsePopover });
+      if (pipeTip) transientHandles.push(pipeTip);
     }
     statsCard.append(statsTitle, statsBadges, actionRow);
     pulseContainer.append(statsCard);
@@ -3265,6 +3685,13 @@ ${summary}Read \`${note.path}\` for full context.`,
             }
           })
         );
+        const sigTip = attachCommandTooltip(
+          sigSlot,
+          host,
+          resolveCommandHint(sig.command, snap.vocabulary),
+          { canPopover: canUsePopover }
+        );
+        if (sigTip) transientHandles.push(sigTip);
       }
     }
     if (snap.queue.tasks.length > 0) {
@@ -3305,11 +3732,11 @@ ${summary}Read \`${note.path}\` for full context.`,
             onClick: () => {
               const report = snap.lastHealthReport;
               if (!report) return;
-              void host.attach({
+              void attachItemToChat(host, {
                 providerId: "arscontexta",
                 id: report.path,
                 title: `Health Report: ${report.name}`,
-                url: `vault://${report.path}`,
+                url: buildVaultItemUrl(report.path),
                 text: `Read \`${report.path}\` for the latest Ars Contexta health diagnostics.`
               });
             }
@@ -3368,16 +3795,17 @@ ${summary}Read \`${note.path}\` for full context.`,
       ];
       const rethinkBtnSlot = document.createElement("div");
       opsActions.append(rethinkBtnSlot);
+      const rethinkCmd = `/${snap.vocabulary.rethink}`;
       inboxTransientHandles.push(
         mountSeparator(opsSep, {
           label: `Tensions (${snap.tensions.open}) & Observations (${snap.observations.pending})`
         }),
         mountButton(rethinkBtnSlot, {
-          label: `Triage with /${snap.vocabulary.rethink}`,
+          label: `Triage with ${rethinkCmd}`,
           variant: "outline",
           size: "sm",
           onClick: () => {
-            void runVaultCommand(host, `/${snap.vocabulary.rethink}`);
+            void runVaultCommand(host, rethinkCmd);
           }
         }),
         mountList(opsListSlot, {
@@ -3390,16 +3818,23 @@ ${summary}Read \`${note.path}\` for full context.`,
           onSelect: (itemPath) => {
             const item = combined.find((c) => c.path === itemPath);
             if (!item) return;
-            void host.attach({
+            void attachItemToChat(host, {
               providerId: "arscontexta",
               id: item.path,
               title: `[${item.kind}] ${item.title}`,
-              url: `vault://${item.path}`,
+              url: buildVaultItemUrl(item.path),
               text: `Read \`${item.path}\` (${item.kind}) and help resolve or promote it.`
             });
           }
         })
       );
+      const rethinkTip = attachCommandTooltip(
+        rethinkBtnSlot,
+        host,
+        resolveCommandHint(rethinkCmd, snap.vocabulary),
+        { canPopover: canUsePopover }
+      );
+      if (rethinkTip) inboxTransientHandles.push(rethinkTip);
     }
   }
   function renderHeader(snap) {
@@ -3439,6 +3874,8 @@ ${summary}Read \`${note.path}\` for full context.`,
       currentSnapshot = null;
       clearHandles(transientHandles, pulseContainer);
       clearHandles(inboxTransientHandles, inboxBodySlot);
+      emptyTipHandle?.dispose();
+      emptyTipHandle = null;
       emptyHandle?.dispose();
       emptyHandle = mountEmpty(emptySlot, {
         title: "No project open",
@@ -3450,6 +3887,8 @@ ${summary}Read \`${note.path}\` for full context.`,
       });
       return;
     }
+    emptyTipHandle?.dispose();
+    emptyTipHandle = null;
     emptyHandle?.dispose();
     emptyHandle = null;
     spinnerHandle?.dispose();
@@ -3473,6 +3912,7 @@ ${summary}Read \`${note.path}\` for full context.`,
             }
           }
         });
+        emptyTipHandle = attachCommandTooltip(emptySlot, host, COMMAND_HINTS.setup, { canPopover: canUsePopover });
         void host.setBadge(null).catch(() => {
         });
         return;
@@ -3558,8 +3998,7 @@ ${summary}Read \`${note.path}\` for full context.`,
       onSelect: (id) => {
         const note = currentSnapshot?.notesIndex.find((n) => n.id === id);
         if (!note) return;
-        void host.attach(buildNoteAttachRequest(note));
-        void host.toast({ kind: "success", message: `Attached ${note.title} to chat` });
+        void attachItemToChat(host, buildNoteAttachRequest(note), `Attached ${note.title} to chat`);
       }
     });
     captureFieldHandle = mountTextField(captureFieldSlot, {
@@ -3601,27 +4040,57 @@ ${summary}Read \`${note.path}\` for full context.`,
     });
     updateTabVisibility();
   }
+  function focusAttachedItem(item) {
+    if (!item || !isGuestAttachItem(item)) return;
+    const attach = item;
+    if (!attach.id) return;
+    if (attach.id.startsWith("ops/tensions/") || attach.id.startsWith("ops/observations/")) {
+      activeTab = "inbox";
+      tabsHandle?.update({ activeId: activeTab });
+      updateTabVisibility();
+      return;
+    }
+    activeTab = "maps";
+    tabsHandle?.update({ activeId: activeTab });
+    const cleanTitle = (attach.title ?? attach.id).replace(/^\[MOC\]\s*/i, "");
+    searchQuery = cleanTitle;
+    mapsSearchHandle?.update({ value: cleanTitle });
+    updateTabVisibility();
+    renderMapsList();
+  }
   host.onReady((ctx) => {
     applyHostReady(ctx, document.documentElement);
+    canUsePopover = Boolean(ctx.features?.popovers) && ctx.device?.pointer !== "coarse";
+    if (ctx.surface === "popover") {
+      isPopoverSurface = true;
+      renderCommandPopover(host, root, ctx.popover?.data);
+      return;
+    }
     if (!mounted) {
       mounted = true;
       currentDirectory = ctx.directory;
       mountOnce();
+      if (ctx.item) focusAttachedItem(ctx.item);
       void refreshVault();
     } else if (ctx.directory !== currentDirectory) {
       currentDirectory = ctx.directory;
       void refreshVault();
     }
   });
+  host.onItem((item) => {
+    if (!isPopoverSurface && mounted && item) {
+      focusAttachedItem(item);
+    }
+  });
   host.onDirectory((directory) => {
-    if (directory === currentDirectory) return;
+    if (isPopoverSurface || directory === currentDirectory) return;
     currentDirectory = directory;
     if (mounted) {
       void refreshVault();
     }
   });
   host.onSessionLifecycle((event) => {
-    if (event.phase === "completed" && mounted && currentDirectory) {
+    if (!isPopoverSurface && event.phase === "completed" && mounted && currentDirectory) {
       void refreshVault();
     }
   });

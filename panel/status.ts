@@ -8,12 +8,22 @@ import {
   mountProgress,
   type Handle,
 } from '@openchamber/sdk/ui';
-import { inspectVault, runVaultCommand, type VaultSnapshot } from './vault-client';
+import {
+  attachCommandTooltip,
+  COMMAND_HINTS,
+  inspectVault,
+  renderCommandPopover,
+  resolveCommandHint,
+  runVaultCommand,
+  type VaultSnapshot,
+} from './vault-client';
 
 const host = connectHost();
 const root = document.querySelector<HTMLElement>('#root')!;
 
 let mounted = false;
+let isPopoverSurface = false;
+let canUsePopover = false;
 let currentDirectory: string | null = null;
 let loadGeneration = 0;
 let handles: Handle[] = [];
@@ -58,6 +68,11 @@ function renderSnapshot(snap: VaultSnapshot | null): void {
         },
       })
     );
+    const setupTip = attachCommandTooltip(root, host, COMMAND_HINTS.setup, {
+      canPopover: canUsePopover,
+      side: 'top',
+    });
+    if (setupTip) handles.push(setupTip);
     reportHeight();
     return;
   }
@@ -105,6 +120,11 @@ function renderSnapshot(snap: VaultSnapshot | null): void {
         },
       })
     );
+    const tip = attachCommandTooltip(btnSlot, host, COMMAND_HINTS.pipeline, {
+      canPopover: canUsePopover,
+      side: 'top',
+    });
+    if (tip) handles.push(tip);
   } else if (snap.queue.pipelinePending > 0) {
     const btnSlot = document.createElement('div');
     actionsWrap.append(btnSlot);
@@ -118,6 +138,11 @@ function renderSnapshot(snap: VaultSnapshot | null): void {
         },
       })
     );
+    const tip = attachCommandTooltip(btnSlot, host, COMMAND_HINTS.ralph, {
+      canPopover: canUsePopover,
+      side: 'top',
+    });
+    if (tip) handles.push(tip);
   }
 
   const openPanelSlot = document.createElement('div');
@@ -132,6 +157,11 @@ function renderSnapshot(snap: VaultSnapshot | null): void {
       },
     })
   );
+  const openTip = attachCommandTooltip(openPanelSlot, host, COMMAND_HINTS.openPanel, {
+    canPopover: canUsePopover,
+    side: 'top',
+  });
+  if (openTip) handles.push(openTip);
 
   if (snap.signals.length > 0) {
     const topSignal = snap.signals[0];
@@ -149,6 +179,13 @@ function renderSnapshot(snap: VaultSnapshot | null): void {
         },
       })
     );
+    const sigTip = attachCommandTooltip(
+      bannerSlot,
+      host,
+      resolveCommandHint(topSignal.command, snap.vocabulary),
+      { canPopover: canUsePopover, side: 'top' }
+    );
+    if (sigTip) handles.push(sigTip);
   } else if (snap.notesCount > 0) {
     const connectedCount = Math.max(0, snap.notesCount - snap.orphanCount);
     const pct = Math.round((connectedCount / snap.notesCount) * 100);
@@ -187,6 +224,14 @@ observer.observe(root);
 
 host.onReady((ctx) => {
   applyHostReady(ctx, document.documentElement);
+  canUsePopover = Boolean(ctx.features?.popovers) && ctx.device?.pointer !== 'coarse';
+
+  if (ctx.surface === 'popover') {
+    isPopoverSurface = true;
+    renderCommandPopover(host, root, ctx.popover?.data);
+    return;
+  }
+
   if (!mounted) {
     mounted = true;
     currentDirectory = ctx.directory;
@@ -198,13 +243,13 @@ host.onReady((ctx) => {
 });
 
 host.onDirectory((directory) => {
-  if (directory === currentDirectory) return;
+  if (isPopoverSurface || directory === currentDirectory) return;
   currentDirectory = directory;
   if (mounted) void refreshStatus();
 });
 
 host.onSessionLifecycle((event) => {
-  if (event.phase === 'completed' && mounted && currentDirectory) {
+  if (!isPopoverSurface && event.phase === 'completed' && mounted && currentDirectory) {
     void refreshStatus();
   }
 });

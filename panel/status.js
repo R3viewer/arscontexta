@@ -2256,6 +2256,231 @@ ${GUEST_UI_LOOK_CSS}`;
     };
   };
 
+  // node_modules/@openchamber/sdk/dist/ui/popover-anchor.js
+  var nextPopoverAnchorId = 0;
+  var isKeyboardEvent = (event) => "key" in event;
+  var mountPopoverAnchor = (element, options) => {
+    const document2 = element.ownerDocument;
+    const window2 = document2.defaultView;
+    let timer = null;
+    let activeId = null;
+    let disposed = false;
+    let ignoreNextFocus = false;
+    let pointerActive = false;
+    let focusActive = false;
+    let touchPointerDown = false;
+    let observer2 = null;
+    const previousExpanded = element.getAttribute("aria-expanded");
+    const previousPopup = element.getAttribute("aria-haspopup");
+    const previousLabel = element.getAttribute("aria-label");
+    const ownsExpanded = previousExpanded === null;
+    const clearTimer = () => {
+      if (timer !== null)
+        clearTimeout(timer);
+      timer = null;
+    };
+    const removeActiveListeners = () => {
+      document2.removeEventListener("scroll", closeForAnchor, true);
+      document2.removeEventListener("pointerdown", closeForOutside, true);
+      window2?.removeEventListener("resize", closeForAnchor);
+      observer2?.disconnect();
+      observer2 = null;
+    };
+    const close = (reason = "closed", restoreFocus = false) => {
+      const id = activeId;
+      clearTimer();
+      activeId = null;
+      removeActiveListeners();
+      element.removeAttribute("data-oc-popover-open");
+      if (ownsExpanded)
+        element.setAttribute("aria-expanded", "false");
+      if (id)
+        void options.host.closePopover(id, reason).catch(() => void 0);
+      if (restoreFocus) {
+        ignoreNextFocus = true;
+        element.focus();
+        queueMicrotask(() => {
+          ignoreNextFocus = false;
+        });
+      }
+    };
+    const closeForAnchor = () => close();
+    const closeForOutside = (event) => {
+      const target = event.target;
+      if (target !== element && !element.contains(target))
+        close();
+    };
+    const watchActive = () => {
+      document2.addEventListener("scroll", closeForAnchor, true);
+      document2.addEventListener("pointerdown", closeForOutside, true);
+      window2?.addEventListener("resize", closeForAnchor);
+      observer2 = new MutationObserver(() => {
+        if (!document2.contains(element))
+          close();
+      });
+      observer2.observe(document2, { childList: true, subtree: true });
+    };
+    const reportAnchorActivity = () => {
+      if (activeId)
+        void options.host.setPopoverAnchorActive(activeId, pointerActive || focusActive).catch(() => void 0);
+    };
+    const open = (focus) => {
+      clearTimer();
+      if (disposed || activeId || !element.isConnected)
+        return;
+      const rect = element.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0)
+        return;
+      const id = `oc-popover-${++nextPopoverAnchorId}`;
+      let data;
+      try {
+        data = options.getData();
+      } catch {
+        return;
+      }
+      activeId = id;
+      element.setAttribute("data-oc-popover-open", "true");
+      if (ownsExpanded)
+        element.setAttribute("aria-expanded", "true");
+      watchActive();
+      void options.host.openPopover({
+        id,
+        anchor: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        width: options.width,
+        height: options.height,
+        side: options.side,
+        focus,
+        data
+      }).catch(() => {
+        if (activeId === id)
+          close();
+      });
+    };
+    const scheduleOpen = () => {
+      if (!activeId && !disposed && timer === null)
+        timer = setTimeout(() => open(false), 250);
+    };
+    const onPointerEnter = (event) => {
+      if ("pointerType" in event && event.pointerType && event.pointerType !== "mouse")
+        return;
+      pointerActive = true;
+      if (activeId)
+        reportAnchorActivity();
+      else if (!ignoreNextFocus)
+        scheduleOpen();
+    };
+    const onPointerLeave = (event) => {
+      if ("pointerType" in event && event.pointerType && event.pointerType !== "mouse")
+        return;
+      pointerActive = false;
+      clearTimer();
+      reportAnchorActivity();
+    };
+    const onPointerDown = (event) => {
+      touchPointerDown = "pointerType" in event && typeof event.pointerType === "string" && event.pointerType !== "" && event.pointerType !== "mouse";
+    };
+    const onPointerCancel = () => {
+      touchPointerDown = false;
+    };
+    const onClick = (event) => {
+      const tapped = touchPointerDown;
+      touchPointerDown = false;
+      if (!tapped || "detail" in event && event.detail === 0)
+        return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (activeId)
+        close();
+      else
+        open(false);
+    };
+    const onFocus = () => {
+      focusActive = true;
+      if (activeId)
+        reportAnchorActivity();
+      else if (!ignoreNextFocus && element.matches(":focus-visible"))
+        open(false);
+    };
+    const onFocusOut = () => {
+      focusActive = false;
+      reportAnchorActivity();
+    };
+    const onKeyDown = (event) => {
+      if (!isKeyboardEvent(event))
+        return;
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        if (activeId)
+          close();
+        open(true);
+      } else if (event.key === "Escape" && activeId) {
+        event.preventDefault();
+        close("escape", true);
+      }
+    };
+    const unsubscribe = options.host.onPopoverClosed((event) => {
+      if (event.id !== activeId)
+        return;
+      activeId = null;
+      clearTimer();
+      removeActiveListeners();
+      element.removeAttribute("data-oc-popover-open");
+      if (ownsExpanded)
+        element.setAttribute("aria-expanded", "false");
+      if (event.reason === "escape") {
+        ignoreNextFocus = true;
+        element.focus();
+        queueMicrotask(() => {
+          ignoreNextFocus = false;
+        });
+      }
+    });
+    element.setAttribute("aria-haspopup", "dialog");
+    if (ownsExpanded)
+      element.setAttribute("aria-expanded", "false");
+    if (options.label)
+      element.setAttribute("aria-label", options.label);
+    element.addEventListener("pointerenter", onPointerEnter);
+    element.addEventListener("pointermove", onPointerEnter);
+    element.addEventListener("pointerleave", onPointerLeave);
+    element.addEventListener("pointerdown", onPointerDown);
+    element.addEventListener("pointercancel", onPointerCancel);
+    element.addEventListener("click", onClick, true);
+    element.addEventListener("focus", onFocus);
+    element.addEventListener("focusout", onFocusOut);
+    element.addEventListener("keydown", onKeyDown);
+    return { dispose: () => {
+      if (disposed)
+        return;
+      disposed = true;
+      clearTimer();
+      close();
+      unsubscribe();
+      element.removeAttribute("data-oc-popover-open");
+      if (previousExpanded === null)
+        element.removeAttribute("aria-expanded");
+      if (previousPopup === null)
+        element.removeAttribute("aria-haspopup");
+      else
+        element.setAttribute("aria-haspopup", previousPopup);
+      if (options.label) {
+        if (previousLabel === null)
+          element.removeAttribute("aria-label");
+        else
+          element.setAttribute("aria-label", previousLabel);
+      }
+      element.removeEventListener("pointerenter", onPointerEnter);
+      element.removeEventListener("pointermove", onPointerEnter);
+      element.removeEventListener("pointerleave", onPointerLeave);
+      element.removeEventListener("pointerdown", onPointerDown);
+      element.removeEventListener("pointercancel", onPointerCancel);
+      element.removeEventListener("click", onClick, true);
+      element.removeEventListener("focus", onFocus);
+      element.removeEventListener("focusout", onFocusOut);
+      element.removeEventListener("keydown", onKeyDown);
+    } };
+  };
+
   // panel/vault-client.ts
   var KNOWN_NOTES_DIRS = [
     "notes",
@@ -2698,6 +2923,168 @@ ${GUEST_UI_LOOK_CSS}`;
       lastHealthReport
     };
   }
+  var COMMAND_HINTS = {
+    setup: {
+      id: "setup",
+      command: "/arscontexta:setup",
+      title: "Initialiser le vault",
+      whenToUse: "Quand le dossier ne contient pas encore de vault Ars Contexta.",
+      whatItDoes: "Derive ta structure, AGENTS.md, templates, skills et workflows par conversation."
+    },
+    health: {
+      id: "health",
+      command: "/arscontexta:health",
+      title: "Diagnostic de sante",
+      whenToUse: "Apres un lot de notes, avant /architect, ou si des liens/orphelins posent probleme.",
+      whatItDoes: "Verifie schemas, orphelins et liens casses; cree un rapport et des Todos de remediation."
+    },
+    next: {
+      id: "next",
+      command: "/next",
+      title: "Prochaine action",
+      whenToUse: "Quand tu te demandes quoi traiter en priorite dans le vault.",
+      whatItDoes: "Croise la pile humaine (ops/tasks.md), la queue et les signaux de maintenance."
+    },
+    ralph: {
+      id: "ralph",
+      command: "/ralph 5",
+      title: "Traiter la file (Ralph)",
+      whenToUse: "Quand ops/queue contient des taches en attente (create, reflect, reweave, verify).",
+      whatItDoes: "Execute chaque phase en contexte isole (Workflow arriere-plan ou sous-agents)."
+    },
+    pipeline: {
+      id: "pipeline",
+      command: "/pipeline",
+      title: "Pipeline Inbox complet",
+      whenToUse: "Quand des captures ou sources attendent dans inbox/ pour etre digerees.",
+      whatItDoes: "Enchaine /seed, /reduce, traitement des claims et archivage du lot."
+    },
+    rethink: {
+      id: "rethink",
+      command: "/rethink",
+      title: "Trier observations & tensions",
+      whenToUse: "Quand les observations ou tensions depassent leur seuil.",
+      whatItDoes: "Aide a promouvoir, corriger la methodologie ou archiver les frictions accumulees."
+    },
+    reflect: {
+      id: "reflect",
+      command: "/reflect",
+      title: "Relier les notes orphelines",
+      whenToUse: "Quand des notes n ont aucun lien entrant ou manquent sur un MOC.",
+      whatItDoes: "Cherche des connexions conceptuelles et met a jour les Topics Maps."
+    },
+    remember: {
+      id: "remember",
+      command: "/remember --mine-sessions",
+      title: "Extraire les apprentissages",
+      whenToUse: "Quand plusieurs sessions capturees attendent dans ops/sessions/.",
+      whatItDoes: "Mine les sessions recentes pour en tirer des observations ou regles methodologiques."
+    },
+    openPanel: {
+      id: "openPanel",
+      command: "Ars Contexta Panel",
+      title: "Ouvrir le panneau Vault",
+      whenToUse: "Pour explorer les MOCs/notes, la queue detaillee ou capturer dans inbox/.",
+      whatItDoes: "Ouvre le panneau lateral Ars Contexta sur les 3 onglets."
+    }
+  };
+  function resolveCommandHint(command, vocabulary) {
+    const normalized = command.trim().toLowerCase();
+    if (normalized.startsWith("/arscontexta:setup") || normalized === "/setup") return COMMAND_HINTS.setup;
+    if (normalized.startsWith("/arscontexta:health") || normalized === "/health") return COMMAND_HINTS.health;
+    if (normalized.startsWith("/next")) return COMMAND_HINTS.next;
+    if (normalized.startsWith("/ralph")) return COMMAND_HINTS.ralph;
+    if (normalized.startsWith("/pipeline")) return COMMAND_HINTS.pipeline;
+    if (normalized === "open-panel") return COMMAND_HINTS.openPanel;
+    const rethinkCmd = `/${(vocabulary?.rethink || "rethink").toLowerCase()}`;
+    const reflectCmd = `/${(vocabulary?.reflect || "reflect").toLowerCase()}`;
+    const rememberCmd = `/${(vocabulary?.remember || "remember").toLowerCase()}`;
+    if (normalized.startsWith("/rethink") || normalized.startsWith(rethinkCmd)) {
+      return { ...COMMAND_HINTS.rethink, command };
+    }
+    if (normalized.startsWith("/reflect") || normalized.startsWith(reflectCmd)) {
+      return { ...COMMAND_HINTS.reflect, command };
+    }
+    if (normalized.startsWith("/remember") || normalized.startsWith(rememberCmd)) {
+      return { ...COMMAND_HINTS.remember, command };
+    }
+    return null;
+  }
+  function attachCommandTooltip(slot, host2, hint, options) {
+    if (!hint) return null;
+    const target = slot.querySelector("button") ?? slot;
+    target.title = `${hint.title} (${hint.command})
+A utiliser quand : ${hint.whenToUse}
+Action : ${hint.whatItDoes}`;
+    if (!options.canPopover) {
+      return null;
+    }
+    return mountPopoverAnchor(target, {
+      host: host2,
+      width: 280,
+      height: 132,
+      side: options.side ?? "left",
+      label: `${hint.title} \u2014 ${hint.command}`,
+      getData: () => ({
+        kind: "command-hint",
+        command: hint.command,
+        title: hint.title,
+        whenToUse: hint.whenToUse,
+        whatItDoes: hint.whatItDoes
+      })
+    });
+  }
+  function renderCommandPopover(host2, root2, rawData) {
+    root2.replaceChildren();
+    const data = rawData && typeof rawData === "object" && !Array.isArray(rawData) ? rawData : null;
+    const title = typeof data?.title === "string" ? data.title : "Ars Contexta";
+    const command = typeof data?.command === "string" ? data.command : "";
+    const whenToUse = typeof data?.whenToUse === "string" ? data.whenToUse : "";
+    const whatItDoes = typeof data?.whatItDoes === "string" ? data.whatItDoes : "";
+    const card = document.createElement("div");
+    card.style.display = "flex";
+    card.style.flexDirection = "column";
+    card.style.gap = "6px";
+    card.style.padding = "10px 12px";
+    const topRow = document.createElement("div");
+    topRow.style.display = "flex";
+    topRow.style.alignItems = "center";
+    topRow.style.justifyContent = "space-between";
+    topRow.style.gap = "8px";
+    const heading = document.createElement("strong");
+    heading.style.fontSize = "0.85rem";
+    heading.textContent = title;
+    topRow.append(heading);
+    if (command) {
+      const badgeWrap = document.createElement("div");
+      mountBadge(badgeWrap, { label: command, tone: "primary" });
+      topRow.append(badgeWrap);
+    }
+    card.append(topRow);
+    if (whenToUse) {
+      const whenEl = document.createElement("div");
+      whenEl.style.fontSize = "0.78rem";
+      whenEl.style.lineHeight = "1.35";
+      const label = document.createElement("strong");
+      label.textContent = "A utiliser quand : ";
+      whenEl.append(label, document.createTextNode(whenToUse));
+      card.append(whenEl);
+    }
+    if (whatItDoes) {
+      const whatEl = document.createElement("div");
+      whatEl.style.fontSize = "0.76rem";
+      whatEl.style.lineHeight = "1.35";
+      whatEl.style.color = "var(--surface-muted-foreground, var(--oc-muted, gray))";
+      whatEl.textContent = whatItDoes;
+      card.append(whatEl);
+    }
+    root2.append(card);
+    const measured = Math.ceil(root2.getBoundingClientRect().height);
+    if (measured > 0) {
+      void host2.setHeight(Math.max(64, Math.min(240, measured))).catch(() => {
+      });
+    }
+  }
   async function runVaultCommand(host2, command, fallbackNotice) {
     try {
       await host2.prompt({ text: command, send: true });
@@ -2718,6 +3105,8 @@ ${GUEST_UI_LOOK_CSS}`;
   var host = connectHost();
   var root = document.querySelector("#root");
   var mounted = false;
+  var isPopoverSurface = false;
+  var canUsePopover = false;
   var currentDirectory = null;
   var loadGeneration = 0;
   var handles = [];
@@ -2758,6 +3147,11 @@ ${GUEST_UI_LOOK_CSS}`;
           }
         })
       );
+      const setupTip = attachCommandTooltip(root, host, COMMAND_HINTS.setup, {
+        canPopover: canUsePopover,
+        side: "top"
+      });
+      if (setupTip) handles.push(setupTip);
       reportHeight();
       return;
     }
@@ -2801,6 +3195,11 @@ ${GUEST_UI_LOOK_CSS}`;
           }
         })
       );
+      const tip = attachCommandTooltip(btnSlot, host, COMMAND_HINTS.pipeline, {
+        canPopover: canUsePopover,
+        side: "top"
+      });
+      if (tip) handles.push(tip);
     } else if (snap.queue.pipelinePending > 0) {
       const btnSlot = document.createElement("div");
       actionsWrap.append(btnSlot);
@@ -2814,6 +3213,11 @@ ${GUEST_UI_LOOK_CSS}`;
           }
         })
       );
+      const tip = attachCommandTooltip(btnSlot, host, COMMAND_HINTS.ralph, {
+        canPopover: canUsePopover,
+        side: "top"
+      });
+      if (tip) handles.push(tip);
     }
     const openPanelSlot = document.createElement("div");
     actionsWrap.append(openPanelSlot);
@@ -2828,6 +3232,11 @@ ${GUEST_UI_LOOK_CSS}`;
         }
       })
     );
+    const openTip = attachCommandTooltip(openPanelSlot, host, COMMAND_HINTS.openPanel, {
+      canPopover: canUsePopover,
+      side: "top"
+    });
+    if (openTip) handles.push(openTip);
     if (snap.signals.length > 0) {
       const topSignal = snap.signals[0];
       const bannerSlot = document.createElement("div");
@@ -2844,6 +3253,13 @@ ${GUEST_UI_LOOK_CSS}`;
           }
         })
       );
+      const sigTip = attachCommandTooltip(
+        bannerSlot,
+        host,
+        resolveCommandHint(topSignal.command, snap.vocabulary),
+        { canPopover: canUsePopover, side: "top" }
+      );
+      if (sigTip) handles.push(sigTip);
     } else if (snap.notesCount > 0) {
       const connectedCount = Math.max(0, snap.notesCount - snap.orphanCount);
       const pct = Math.round(connectedCount / snap.notesCount * 100);
@@ -2878,6 +3294,12 @@ ${GUEST_UI_LOOK_CSS}`;
   observer.observe(root);
   host.onReady((ctx) => {
     applyHostReady(ctx, document.documentElement);
+    canUsePopover = Boolean(ctx.features?.popovers) && ctx.device?.pointer !== "coarse";
+    if (ctx.surface === "popover") {
+      isPopoverSurface = true;
+      renderCommandPopover(host, root, ctx.popover?.data);
+      return;
+    }
     if (!mounted) {
       mounted = true;
       currentDirectory = ctx.directory;
@@ -2888,12 +3310,12 @@ ${GUEST_UI_LOOK_CSS}`;
     }
   });
   host.onDirectory((directory) => {
-    if (directory === currentDirectory) return;
+    if (isPopoverSurface || directory === currentDirectory) return;
     currentDirectory = directory;
     if (mounted) void refreshStatus();
   });
   host.onSessionLifecycle((event) => {
-    if (event.phase === "completed" && mounted && currentDirectory) {
+    if (!isPopoverSurface && event.phase === "completed" && mounted && currentDirectory) {
       void refreshStatus();
     }
   });

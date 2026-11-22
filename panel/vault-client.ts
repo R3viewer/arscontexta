@@ -1,4 +1,5 @@
-import { HostRequestError, type AttachIssueRequest, type HostClient } from '@openchamber/sdk';
+import { HostRequestError, type AttachIssueRequest, type HostClient, type JsonValue } from '@openchamber/sdk';
+import { mountBadge, mountPopoverAnchor, type Handle } from '@openchamber/sdk/ui';
 
 export interface VaultVocabulary {
   note: string;
@@ -671,6 +672,11 @@ export async function captureToInbox(
   return { path: targetPath };
 }
 
+export function buildVaultItemUrl(itemPath: string): string {
+  const normalized = itemPath.replace(/^\/+/, '');
+  return `https://arscontexta.local/vault/${encodeURIComponent(normalized)}`;
+}
+
 export function buildNoteAttachRequest(note: VaultNoteSummary): AttachIssueRequest {
   const badge = note.isMoc ? '[MOC] ' : '';
   const summary = note.description ? `${note.description}\n\n` : '';
@@ -678,7 +684,7 @@ export function buildNoteAttachRequest(note: VaultNoteSummary): AttachIssueReque
     providerId: 'arscontexta',
     id: note.path,
     title: `${badge}${note.title}`,
-    url: `vault://${note.path}`,
+    url: buildVaultItemUrl(note.path),
     text: `Vault ${note.isMoc ? 'Map of Content' : 'note'} \`${note.path}\`:\n${summary}Read \`${note.path}\` for full context.`,
     data: {
       path: note.path,
@@ -686,6 +692,219 @@ export function buildNoteAttachRequest(note: VaultNoteSummary): AttachIssueReque
       description: note.description,
     },
   };
+}
+
+export async function attachItemToChat(
+  host: HostClient,
+  request: AttachIssueRequest,
+  successMessage?: string
+): Promise<boolean> {
+  try {
+    await host.attach(request);
+    await host.toast({
+      kind: 'success',
+      message: successMessage ?? `Attached ${request.title} to chat`,
+    });
+    return true;
+  } catch (err) {
+    const msg = err instanceof HostRequestError ? `${err.code}: ${err.message}` : String(err);
+    await host.toast({
+      kind: 'error',
+      message: `Could not attach to chat (${msg})`,
+    });
+    return false;
+  }
+}
+
+export interface CommandHint {
+  id: string;
+  command: string;
+  title: string;
+  whenToUse: string;
+  whatItDoes: string;
+}
+
+export const COMMAND_HINTS: Record<string, CommandHint> = {
+  setup: {
+    id: 'setup',
+    command: '/arscontexta:setup',
+    title: 'Initialiser le vault',
+    whenToUse: 'Quand le dossier ne contient pas encore de vault Ars Contexta.',
+    whatItDoes: 'Derive ta structure, AGENTS.md, templates, skills et workflows par conversation.',
+  },
+  health: {
+    id: 'health',
+    command: '/arscontexta:health',
+    title: 'Diagnostic de sante',
+    whenToUse: 'Apres un lot de notes, avant /architect, ou si des liens/orphelins posent probleme.',
+    whatItDoes: 'Verifie schemas, orphelins et liens casses; cree un rapport et des Todos de remediation.',
+  },
+  next: {
+    id: 'next',
+    command: '/next',
+    title: 'Prochaine action',
+    whenToUse: 'Quand tu te demandes quoi traiter en priorite dans le vault.',
+    whatItDoes: 'Croise la pile humaine (ops/tasks.md), la queue et les signaux de maintenance.',
+  },
+  ralph: {
+    id: 'ralph',
+    command: '/ralph 5',
+    title: 'Traiter la file (Ralph)',
+    whenToUse: 'Quand ops/queue contient des taches en attente (create, reflect, reweave, verify).',
+    whatItDoes: 'Execute chaque phase en contexte isole (Workflow arriere-plan ou sous-agents).',
+  },
+  pipeline: {
+    id: 'pipeline',
+    command: '/pipeline',
+    title: 'Pipeline Inbox complet',
+    whenToUse: 'Quand des captures ou sources attendent dans inbox/ pour etre digerees.',
+    whatItDoes: 'Enchaine /seed, /reduce, traitement des claims et archivage du lot.',
+  },
+  rethink: {
+    id: 'rethink',
+    command: '/rethink',
+    title: 'Trier observations & tensions',
+    whenToUse: 'Quand les observations ou tensions depassent leur seuil.',
+    whatItDoes: 'Aide a promouvoir, corriger la methodologie ou archiver les frictions accumulees.',
+  },
+  reflect: {
+    id: 'reflect',
+    command: '/reflect',
+    title: 'Relier les notes orphelines',
+    whenToUse: 'Quand des notes n ont aucun lien entrant ou manquent sur un MOC.',
+    whatItDoes: 'Cherche des connexions conceptuelles et met a jour les Topics Maps.',
+  },
+  remember: {
+    id: 'remember',
+    command: '/remember --mine-sessions',
+    title: 'Extraire les apprentissages',
+    whenToUse: 'Quand plusieurs sessions capturees attendent dans ops/sessions/.',
+    whatItDoes: 'Mine les sessions recentes pour en tirer des observations ou regles methodologiques.',
+  },
+  openPanel: {
+    id: 'openPanel',
+    command: 'Ars Contexta Panel',
+    title: 'Ouvrir le panneau Vault',
+    whenToUse: 'Pour explorer les MOCs/notes, la queue detaillee ou capturer dans inbox/.',
+    whatItDoes: 'Ouvre le panneau lateral Ars Contexta sur les 3 onglets.',
+  },
+};
+
+export function resolveCommandHint(command: string, vocabulary?: Partial<VaultVocabulary>): CommandHint | null {
+  const normalized = command.trim().toLowerCase();
+  if (normalized.startsWith('/arscontexta:setup') || normalized === '/setup') return COMMAND_HINTS.setup;
+  if (normalized.startsWith('/arscontexta:health') || normalized === '/health') return COMMAND_HINTS.health;
+  if (normalized.startsWith('/next')) return COMMAND_HINTS.next;
+  if (normalized.startsWith('/ralph')) return COMMAND_HINTS.ralph;
+  if (normalized.startsWith('/pipeline')) return COMMAND_HINTS.pipeline;
+  if (normalized === 'open-panel') return COMMAND_HINTS.openPanel;
+
+  const rethinkCmd = `/${(vocabulary?.rethink || 'rethink').toLowerCase()}`;
+  const reflectCmd = `/${(vocabulary?.reflect || 'reflect').toLowerCase()}`;
+  const rememberCmd = `/${(vocabulary?.remember || 'remember').toLowerCase()}`;
+
+  if (normalized.startsWith('/rethink') || normalized.startsWith(rethinkCmd)) {
+    return { ...COMMAND_HINTS.rethink, command };
+  }
+  if (normalized.startsWith('/reflect') || normalized.startsWith(reflectCmd)) {
+    return { ...COMMAND_HINTS.reflect, command };
+  }
+  if (normalized.startsWith('/remember') || normalized.startsWith(rememberCmd)) {
+    return { ...COMMAND_HINTS.remember, command };
+  }
+  return null;
+}
+
+export function attachCommandTooltip(
+  slot: HTMLElement,
+  host: HostClient,
+  hint: CommandHint | null,
+  options: { canPopover: boolean; side?: 'left' | 'right' | 'top' | 'bottom' }
+): Handle | null {
+  if (!hint) return null;
+  const target = slot.querySelector<HTMLElement>('button') ?? slot;
+  target.title = `${hint.title} (${hint.command})\nA utiliser quand : ${hint.whenToUse}\nAction : ${hint.whatItDoes}`;
+
+  if (!options.canPopover) {
+    return null;
+  }
+
+  return mountPopoverAnchor(target, {
+    host,
+    width: 280,
+    height: 132,
+    side: options.side ?? 'left',
+    label: `${hint.title} — ${hint.command}`,
+    getData: () => ({
+      kind: 'command-hint',
+      command: hint.command,
+      title: hint.title,
+      whenToUse: hint.whenToUse,
+      whatItDoes: hint.whatItDoes,
+    }),
+  });
+}
+
+export function renderCommandPopover(host: HostClient, root: HTMLElement, rawData: JsonValue | undefined): void {
+  root.replaceChildren();
+  const data =
+    rawData && typeof rawData === 'object' && !Array.isArray(rawData)
+      ? (rawData as Record<string, unknown>)
+      : null;
+
+  const title = typeof data?.title === 'string' ? data.title : 'Ars Contexta';
+  const command = typeof data?.command === 'string' ? data.command : '';
+  const whenToUse = typeof data?.whenToUse === 'string' ? data.whenToUse : '';
+  const whatItDoes = typeof data?.whatItDoes === 'string' ? data.whatItDoes : '';
+
+  const card = document.createElement('div');
+  card.style.display = 'flex';
+  card.style.flexDirection = 'column';
+  card.style.gap = '6px';
+  card.style.padding = '10px 12px';
+
+  const topRow = document.createElement('div');
+  topRow.style.display = 'flex';
+  topRow.style.alignItems = 'center';
+  topRow.style.justifyContent = 'space-between';
+  topRow.style.gap = '8px';
+
+  const heading = document.createElement('strong');
+  heading.style.fontSize = '0.85rem';
+  heading.textContent = title;
+  topRow.append(heading);
+
+  if (command) {
+    const badgeWrap = document.createElement('div');
+    mountBadge(badgeWrap, { label: command, tone: 'primary' });
+    topRow.append(badgeWrap);
+  }
+  card.append(topRow);
+
+  if (whenToUse) {
+    const whenEl = document.createElement('div');
+    whenEl.style.fontSize = '0.78rem';
+    whenEl.style.lineHeight = '1.35';
+    const label = document.createElement('strong');
+    label.textContent = 'A utiliser quand : ';
+    whenEl.append(label, document.createTextNode(whenToUse));
+    card.append(whenEl);
+  }
+
+  if (whatItDoes) {
+    const whatEl = document.createElement('div');
+    whatEl.style.fontSize = '0.76rem';
+    whatEl.style.lineHeight = '1.35';
+    whatEl.style.color = 'var(--surface-muted-foreground, var(--oc-muted, gray))';
+    whatEl.textContent = whatItDoes;
+    card.append(whatEl);
+  }
+
+  root.append(card);
+  const measured = Math.ceil(root.getBoundingClientRect().height);
+  if (measured > 0) {
+    void host.setHeight(Math.max(64, Math.min(240, measured))).catch(() => {});
+  }
 }
 
 export async function runVaultCommand(host: HostClient, command: string, fallbackNotice?: string): Promise<void> {
