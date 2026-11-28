@@ -2558,6 +2558,23 @@ ${GUEST_UI_LOOK_CSS}`;
     };
   };
 
+  // plugin/session-metadata.mjs
+  function isSessionMetadataFile(name) {
+    return name.endsWith(".json") && name !== "current.json";
+  }
+  function parseSessionMetadata(raw) {
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+  function isUnprocessedArchivedSession(record) {
+    return Boolean(record && record.status === "archived" && record.mined !== true);
+  }
+
   // panel/vault-client.ts
   var KNOWN_NOTES_DIRS = [
     "notes",
@@ -2917,21 +2934,28 @@ ${GUEST_UI_LOOK_CSS}`;
         });
       }
     }
-    const archivedSessionFiles = sessionEntries.filter((e) => e.kind === "file" && e.name.endsWith(".json") && e.name !== "current.json").sort((a, b) => b.name.localeCompare(a.name));
-    const recentSessionFiles = archivedSessionFiles.slice(0, 5);
+    const sessionFiles = sessionEntries.filter((e) => e.kind === "file" && isSessionMetadataFile(e.name)).sort((a, b) => b.name.localeCompare(a.name));
+    const sessionContents = await Promise.all(
+      sessionFiles.map(async (sf) => ({
+        sf,
+        raw: await readOptionalFile(host2, `ops/sessions/${sf.name}`)
+      }))
+    );
+    let unprocessedSessions = 0;
     const recentSessions = [];
-    for (const sf of recentSessionFiles) {
-      const raw = await readOptionalFile(host2, `ops/sessions/${sf.name}`);
-      if (!raw) continue;
-      try {
-        const parsed = JSON.parse(raw);
+    for (const { sf, raw } of sessionContents) {
+      const parsed = parseSessionMetadata(raw);
+      if (!parsed) continue;
+      if (isUnprocessedArchivedSession(parsed)) {
+        unprocessedSessions++;
+      }
+      if (recentSessions.length < 5) {
         recentSessions.push({
           id: String(parsed.id ?? sf.name),
           started: String(parsed.startedIso ?? parsed.started ?? ""),
           ended: typeof parsed.ended === "string" ? parsed.ended : void 0,
           status: String(parsed.status ?? "completed")
         });
-      } catch {
       }
     }
     const healthReports = healthEntries.filter((e) => e.kind === "file" && e.name.endsWith(".md")).sort((a, b) => b.name.localeCompare(a.name));
@@ -2955,11 +2979,11 @@ ${GUEST_UI_LOOK_CSS}`;
         buttonLabel: `Run /${vocabulary.rethink}`
       });
     }
-    if (archivedSessionFiles.length >= 5) {
+    if (unprocessedSessions >= 5) {
       signals.push({
         id: "sessions",
         severity: "info",
-        label: `${archivedSessionFiles.length} unprocessed sessions ready to mine`,
+        label: `${unprocessedSessions} unprocessed sessions ready to mine`,
         command: `/${vocabulary.remember} --mine-sessions`,
         buttonLabel: "Mine sessions"
       });
@@ -3002,7 +3026,7 @@ ${GUEST_UI_LOOK_CSS}`;
         open: openTensItems.length,
         items: openTensItems
       },
-      unprocessedSessions: archivedSessionFiles.length,
+      unprocessedSessions,
       recentSessions,
       signals,
       notesIndex,

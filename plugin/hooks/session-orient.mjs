@@ -18,6 +18,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { isVaultDirectory, readVaultConfig, resolveVaultStructure } from '../vault.mjs';
 import { enqueueVaultGitTask, isGitWorkTree, runGit } from '../git-queue.mjs';
+import {
+  isSessionMetadataFile,
+  isUnprocessedArchivedSession,
+  parseSessionMetadata,
+} from '../session-metadata.mjs';
 
 const SKIP_DIRS = new Set(['.git', 'node_modules']);
 const TREE_EXTENSIONS = new Set(['.md', '.yaml', '.yml', '.json', '.jsonc']);
@@ -329,11 +334,15 @@ export function buildOrientationContext(vaultDir, options = {}) {
   const sessionsDir = path.join(resolvedVault, 'ops', 'sessions');
   if (fs.existsSync(sessionsDir)) {
     try {
-      const archivedSessions = fs
-        .readdirSync(sessionsDir)
-        .filter((f) => f.endsWith('.json') && f !== 'current.json').length;
-      if (archivedSessions >= 5) {
-        signals.push(`CONDITION: ${archivedSessions} unprocessed sessions. Consider /${vocabulary.remember} --mine-sessions.`);
+      const entries = fs.readdirSync(sessionsDir, { withFileTypes: true });
+      let unprocessedSessions = 0;
+      for (const entry of entries) {
+        if (!entry.isFile() || !isSessionMetadataFile(entry.name)) continue;
+        const parsed = parseSessionMetadata(readSafe(path.join(sessionsDir, entry.name)));
+        if (isUnprocessedArchivedSession(parsed)) unprocessedSessions++;
+      }
+      if (unprocessedSessions >= 5) {
+        signals.push(`CONDITION: ${unprocessedSessions} unprocessed sessions. Consider /${vocabulary.remember} --mine-sessions.`);
       }
     } catch {
       // Ignore
