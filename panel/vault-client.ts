@@ -1,4 +1,9 @@
 import { HostRequestError, type AttachIssueRequest, type HostClient } from '@openchamber/sdk';
+import {
+  isSessionMetadataFile,
+  isUnprocessedArchivedSession,
+  parseSessionMetadata,
+} from '../plugin/session-metadata.mjs';
 
 export interface VaultVocabulary {
   note: string;
@@ -519,24 +524,30 @@ export async function inspectVault(host: HostClient): Promise<VaultSnapshot> {
   }
 
   // Sessions
-  const archivedSessionFiles = sessionEntries
-    .filter((e) => e.kind === 'file' && e.name.endsWith('.json') && e.name !== 'current.json')
+  const sessionFiles = sessionEntries
+    .filter((e) => e.kind === 'file' && isSessionMetadataFile(e.name))
     .sort((a, b) => b.name.localeCompare(a.name));
-  const recentSessionFiles = archivedSessionFiles.slice(0, 5);
+  const sessionContents = await Promise.all(
+    sessionFiles.map(async (sf) => ({
+      sf,
+      raw: await readOptionalFile(host, `ops/sessions/${sf.name}`),
+    }))
+  );
+  let unprocessedSessions = 0;
   const recentSessions: VaultSessionSummary[] = [];
-  for (const sf of recentSessionFiles) {
-    const raw = await readOptionalFile(host, `ops/sessions/${sf.name}`);
-    if (!raw) continue;
-    try {
-      const parsed = JSON.parse(raw) as Record<string, unknown>;
+  for (const { sf, raw } of sessionContents) {
+    const parsed = parseSessionMetadata(raw);
+    if (!parsed) continue;
+    if (isUnprocessedArchivedSession(parsed)) {
+      unprocessedSessions++;
+    }
+    if (recentSessions.length < 5) {
       recentSessions.push({
         id: String(parsed.id ?? sf.name),
         started: String(parsed.startedIso ?? parsed.started ?? ''),
         ended: typeof parsed.ended === 'string' ? parsed.ended : undefined,
         status: String(parsed.status ?? 'completed'),
       });
-    } catch {
-      // Ignore malformed session json
     }
   }
 
@@ -568,11 +579,11 @@ export async function inspectVault(host: HostClient): Promise<VaultSnapshot> {
       buttonLabel: `Run /${vocabulary.rethink}`,
     });
   }
-  if (archivedSessionFiles.length >= 5) {
+  if (unprocessedSessions >= 5) {
     signals.push({
       id: 'sessions',
       severity: 'info',
-      label: `${archivedSessionFiles.length} unprocessed sessions ready to mine`,
+      label: `${unprocessedSessions} unprocessed sessions ready to mine`,
       command: `/${vocabulary.remember} --mine-sessions`,
       buttonLabel: 'Mine sessions',
     });
@@ -616,7 +627,7 @@ export async function inspectVault(host: HostClient): Promise<VaultSnapshot> {
       open: openTensItems.length,
       items: openTensItems,
     },
-    unprocessedSessions: archivedSessionFiles.length,
+    unprocessedSessions,
     recentSessions,
     signals,
     notesIndex,
